@@ -3,7 +3,7 @@
 Plugin Name: ThinkTwit
 Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
 Description: Outputs tweets from one or more Twitter users through the Widget interface
-Version: 1.0
+Version: 1.0.1
 Author: Stephen Pickett
 Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 */
@@ -271,6 +271,8 @@ Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
             // Make the links clickable
             $clean_content[0] = str_replace("&lt;", "<", $clean_content[0]);
             $clean_content[0] = str_replace("&gt;", ">", $clean_content[0]);
+            $clean_content[0] = str_replace("&amp;", "&", $clean_content[0]);
+            $clean_content[0] = str_replace("&apos;", "'", $clean_content[0]);
             $clean_content[0] = str_replace("&amp;quot;", "&quot;", $clean_content[0]);
             $clean_content[0] = str_replace("&amp;lt", "<", $clean_content[0]);
             $clean_content[0] = str_replace("&amp;gt", ">", $clean_content[0]);

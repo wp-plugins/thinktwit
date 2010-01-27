@@ -50,5 +50,8 @@ upgrade, simply replace the files with those from the new version. Deactivating 
 
 == Changelog ==
 
+= 1.0.1 =
+- (27 Jan 2010) Fixed incorrect output of ampersands and apostrophes
+
 = 1.0 =
 - (21 Jan 2010) Initial Release
