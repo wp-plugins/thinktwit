@@ -1,16 +1,15 @@
 <?php
 /*
-Plugin Name: ThinkTwit
-Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
-Description: Outputs tweets from one or more Twitter users through the Widget interface
-Version: 1.0.2
-Author: Stephen Pickett
-Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
+    Plugin Name: ThinkTwit
+    Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
+    Description: Outputs tweets from one or more Twitter users through the Widget interface
+    Version: 1.0.3
+    Author: Stephen Pickett
+    Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 */
-?>
 
-<?php
-/*  Copyright 2010 Stephen Pickett (http://www.thinkcs.org/contact-us/)
+/*
+    Copyright 2010 Stephen Pickett (http://www.thinkcs.org/contact-us/)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -25,9 +24,7 @@ Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-?>
 
-<?php
     // Register activation hook
     register_activation_hook(__FILE__,'thinkTwit_install');
 
