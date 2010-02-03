@@ -3,7 +3,7 @@
 Plugin Name: ThinkTwit
 Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
 Description: Outputs tweets from one or more Twitter users through the Widget interface
-Version: 1.0.1
+Version: 1.0.2
 Author: Stephen Pickett
 Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 */
@@ -64,18 +64,7 @@ Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 
     // Called when the plugin is deactivated
     function thinkTwit_uninstall() {
-        // Deletes database fields
-        delete_option('thinkTwit_usernames');
-        delete_option('thinkTwit_limit');
-        delete_option('thinkTwit_showUsername');
-        delete_option('thinkTwit_showPublished');
-        delete_option('thinkTwit_widgetPrefix');
-        delete_option('thinkTwit_tweetPrefix');
-        delete_option('thinkTwit_usernameSuffix');
-        delete_option('thinkTwit_tweetSuffix');
-        delete_option('thinkTwit_publishedPrefix');
-        delete_option('thinkTwit_publishedSuffix');
-        delete_option('thinkTwit_widgetSuffix');
+        // Currently not used
     }
 
     // Called when menu item is added

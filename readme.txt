@@ -1,8 +1,8 @@
 === ThinkTwit ===
 Contributors: stephen.pickett
 Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
-Tags: twitter, tweet
-Requires at least: 2.9.1
+Tags: twitter, tweet, thinktwit
+Requires at least: 2.8.6
 Tested up to: 2.9.1
 Stable tag: trunk
 
@@ -26,7 +26,8 @@ Features:
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.9.1, not tested with other versions
+ * Works with Wordpress 2.8.6 to 2.9.1, not tested with other versions
+ * Must be installed using the widgets sidebar
 
 
 == Installation ==
@@ -37,8 +38,51 @@ Requirements/Restrictions:
 
 3. Expand `Settings` and then click `ThinkTwit`. Fill in the options as required and then save
 
+4. Go to `Appearance` and then `Widgets` and drag `ThinkTwit` to your sidebar
+
 Updates are automatic. Click on `Upgrade Automatically` if prompted from the admin menu. If you ever have to manually 
-upgrade, simply replace the files with those from the new version. Deactivating will cause you to lose your options!
+upgrade, simply replace the files with those from the new version.
+
+NOTE: For those inexperienced with CSS, simply add the following to the bottom of your CSS file for basic formatting:
+
+/* ThinkTwit - Twitter Widget */
+div#thinktwit {       /* main widget container */
+    background         : #FFFFFF;
+    color              : #000000;
+    font-size          : 12px;
+    margin             : 0 0 10px;
+    padding            : 10px;
+}
+
+div#thinktwit h2 {    /* title */
+    margin             : 0 0 10px;
+}
+
+div#thinktwit ul {    /* container of tweets */
+    margin             : 0;
+}
+
+div#thinktwit ul li { /* individual tweets */
+    margin             : 0 0 10px;
+    padding            : 0;
+    word-wrap          : break-word;
+}
+
+Uninstall:
+----------
+To uninstall simply deactivate and then delete the following options from the `wp_options` table:
+
+ * thinkTwit_usernames
+ * thinkTwit_limit
+ * thinkTwit_showUsername
+ * thinkTwit_showPublished
+ * thinkTwit_widgetPrefix
+ * thinkTwit_tweetPrefix
+ * thinkTwit_usernameSuffix
+ * thinkTwit_tweetSuffix
+ * thinkTwit_publishedPrefix
+ * thinkTwit_publishedSuffix
+ * thinkTwit_widgetSuffix
 
 
 == Screenshots ==
@@ -49,6 +93,9 @@ upgrade, simply replace the files with those from the new version. Deactivating 
 
 
 == Changelog ==
+
+= 1.0.2 =
+- (03 Feb 2010) Removed automatic deletion of database fields on deactivation and updated readme
 
 = 1.0.1 =
 - (27 Jan 2010) Fixed incorrect output of ampersands and apostrophes
