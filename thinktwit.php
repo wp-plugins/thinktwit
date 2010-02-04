@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.0.3
+    Version: 1.0.4
     Author: Stephen Pickett
     Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 */
@@ -46,17 +46,18 @@
     // Called when the plugin is activated
     function thinkTwit_install() {
         // Creates database fields
-        add_option("thinkTwit_usernames",       'stephenpickett', '', 'yes');
-        add_option("thinkTwit_limit",           '5',              '', 'yes');
-        add_option("thinkTwit_showUsername",    '1',              '', 'yes');
-        add_option("thinkTwit_showPublished",   '1',              '', 'yes');
-        add_option("thinkTwit_widgetPrefix",    '<ul>',           '', 'yes');
-        add_option("thinkTwit_tweetPrefix",     '<li>',           '', 'yes');
-        add_option("thinkTwit_usernameSuffix",  ' said: ',        '', 'yes');
-        add_option("thinkTwit_tweetSuffix",     '</li>',          '', 'yes');
-        add_option("thinkTwit_publishedPrefix", '<br><i>',        '', 'yes');
-        add_option("thinkTwit_publishedSuffix", '</i>',           '', 'yes');
-        add_option("thinkTwit_widgetSuffix",    '</ul>',          '', 'yes');
+        add_option("thinkTwit_usernames",       'stephenpickett',    '', 'yes');
+        add_option("thinkTwit_limit",           '5',                 '', 'yes');
+        add_option("thinkTwit_showUsername",    '1',                 '', 'yes');
+        add_option("thinkTwit_showPublished",   '1',                 '', 'yes');
+        add_option("thinkTwit_widgetPrefix",    '<ul>',              '', 'yes');
+        add_option("thinkTwit_tweetPrefix",     '<li>',              '', 'yes');
+        add_option("thinkTwit_usernameSuffix",  '&nbsp;said:&nbsp;', '', 'yes');
+        add_option("thinkTwit_tweetSuffix",     '</li>',             '', 'yes');
+        add_option("thinkTwit_publishedPrefix", '<br><i>',           '', 'yes');
+        add_option("thinkTwit_publishedSuffix", '</i>',              '', 'yes');
+        add_option("thinkTwit_widgetSuffix",    '</ul>',             '', 'yes');
+        add_option("thinkTwit_title",           'My tweets',         '', 'yes');
     }
 
     // Called when the plugin is deactivated
@@ -80,8 +81,16 @@
 
                 <table width="100%">
                     <tr valign="top">
-                        <th width="30%" align="left">Usernames:</th>
-                        <td width="70%"><textarea rows="4" cols="40" name="thinkTwit_usernames" id="thinkTwit_usernames"><?php echo get_option('thinkTwit_usernames'); ?></textarea></td>
+                        <th width="30%" align="left">Title:</th>
+                        <td width="70%"><input name="thinkTwit_title" size="20" type="text" id="thinkTwit_title" value="<?php echo get_option('thinkTwit_title'); ?>" /></textarea></td>
+                    </tr>
+                    <tr valign="top">
+                        <td height="30" colspan="2">(shown at the top before your tweets)</td>
+                    </tr>
+
+                    <tr valign="top">
+                        <th align="left">Usernames:</th>
+                        <td><textarea rows="4" cols="40" name="thinkTwit_usernames" id="thinkTwit_usernames"><?php echo get_option('thinkTwit_usernames'); ?></textarea></td>
                     </tr>
                     <tr valign="top">
                         <td height="30" colspan="2">(separated by spaces e.g. "bob jim")</td>
@@ -292,7 +301,7 @@
         echo "<div id=\"thinktwit\">";
 
         // Output widget title
-        echo "<h2 class=\"widgettitle\">THINK's twittering...</h2>";
+        echo "<h2 class=\"widgettitle\">" . get_option('thinkTwit_title') . "</h2>";
 
         // Output the tweets
         outputTweets();

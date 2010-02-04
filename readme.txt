@@ -94,6 +94,9 @@ To uninstall simply deactivate and then delete the following options from the `w
 
 == Changelog ==
 
+= 1.0.4 =
+- (04 Feb 2010) Added option to change the widget title and replaced spaces with no-break spaces (&nbsp;) in default username suffix
+
 = 1.0.3 =
 - (03 Feb 2010) Removed some spaces at top of file that may be causing issues for some people
 
