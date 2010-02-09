@@ -104,6 +104,9 @@ beginning, but there is one at the end&nbsp;".
 
 == Changelog ==
 
+= 1.0.6 =
+- (09 Feb 2010) Added temporary "no tweets in the last 7 days" notice (if no tweets are visible) until caching is implemented
+
 = 1.0.5 =
 - (09 Feb 2010) Fixed title not being saved in Settings, also added option to open links in new window and added FAQ to the readme
 

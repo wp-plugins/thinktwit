@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.0.5
+    Version: 1.0.6
     Author: Stephen Pickett
     Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 */
@@ -244,76 +244,81 @@
         // Create a variable to store the entries for output
         $output = "";
 
-        // Loops through all the entries found in the XML feed
-        for ($i = 1; $i <= $amount; $i++) {
-            // Get the current entry
-            $entry_close = explode("</entry>", $clean[$i]);
+        // Find out if there are any entires, if so output them
+        if ($amount > 0) {
+            // Loops through all the entries found in the XML feed
+            for ($i = 1; $i <= $amount; $i++) {
+                // Get the current entry
+                $entry_close = explode("</entry>", $clean[$i]);
 
-            // Get the content of the tweet
-            $clean_content_1 = explode("<content type=\"html\">", $entry_close[0]);
-            $clean_content = explode("</content>", $clean_content_1[1]);
+                // Get the content of the tweet
+                $clean_content_1 = explode("<content type=\"html\">", $entry_close[0]);
+                $clean_content = explode("</content>", $clean_content_1[1]);
 
-            // Get the name of who created the tweet
-            $clean_name_2 = explode("<name>", $entry_close[0]);
-            $clean_name_1 = explode("(", $clean_name_2[1]);
-            $clean_name = explode(")</name>", $clean_name_1[1]);
+                // Get the name of who created the tweet
+                $clean_name_2 = explode("<name>", $entry_close[0]);
+                $clean_name_1 = explode("(", $clean_name_2[1]);
+                $clean_name = explode(")</name>", $clean_name_1[1]);
 
-            // Get the URI of the tweet source
-            $clean_uri_1 = explode("<uri>", $entry_close[0]);
-            $clean_uri = explode("</uri>", $clean_uri_1[1]);
+                // Get the URI of the tweet source
+                $clean_uri_1 = explode("<uri>", $entry_close[0]);
+                $clean_uri = explode("</uri>", $clean_uri_1[1]);
 
-            // Get the date that the tweet was created
-            $clean_published_1 = explode("<published>", $entry_close[0]);
-            $clean_published = explode("</published>", $clean_published_1[1]);
+                // Get the date that the tweet was created
+                $clean_published_1 = explode("<published>", $entry_close[0]);
+                $clean_published = explode("</published>", $clean_published_1[1]);
 
-            $output .= $tweet_prefix;
+                $output .= $tweet_prefix;
 
-            if ($show_username == 1) {
-                $output .= "<a href=\"" . $clean_uri[0] . "\"" . (get_option('thinkTwit_linksNewWindow') == 1 ? " target=\"blank\"" : "") . ">" . $clean_name[0] . "</a>" . $username_suffix;
-            }
-
-            // Make the links clickable
-            $clean_content[0] = str_replace("&lt;", "<", $clean_content[0]);
-            $clean_content[0] = str_replace("&gt;", ">", $clean_content[0]);
-            $clean_content[0] = str_replace("&amp;", "&", $clean_content[0]);
-            $clean_content[0] = str_replace("&apos;", "'", $clean_content[0]);
-            $clean_content[0] = str_replace("&amp;quot;", "&quot;", $clean_content[0]);
-            $clean_content[0] = str_replace("&amp;lt", "<", $clean_content[0]);
-            $clean_content[0] = str_replace("&amp;gt", ">", $clean_content[0]);
-            $clean_content[0] = str_replace("&quot;", "\"", $clean_content[0]);
-
-            // Check if the user wants URL's to open in a new window
-            if (get_option('thinkTwit_linksNewWindow') == 1) {
-                // Find the URL's in the content
-                $url_strings = explode("href=\"", $clean_content[0]);
-
-                // Append the first part of the content to output
-                $output .= $url_strings[0];
-
-                // Loop through each URL
-                for ($j = 1; $j <= (count($url_strings) - 1); $j++) {
-                    // Find the position of the closing quotation mark within the current string
-                    $pos = strpos($url_strings[$j], "\"");
-
-                    // Append everything up to the quotation marks
-                    $output .=  "href=\"" . substr($url_strings[$j], 0, $pos + 1);
-
-                    // Then add the code to open a new window
-                    $output .= " target=\"_blank\"";
-
-                    // Then add everything after
-                    $output .= substr($url_strings[$j], $pos + 1);
+                if ($show_username == 1) {
+                    $output .= "<a href=\"" . $clean_uri[0] . "\"" . (get_option('thinkTwit_linksNewWindow') == 1 ? " target=\"blank\"" : "") . ">" . $clean_name[0] . "</a>" . $username_suffix;
                 }
-            } else {
-                // Otherwise simply append the content unedited
-                $output .= $clean_content[0];
-            }
 
-            if ($show_published == 1) {
-                $output .= $published_prefix . "This happened " . relative_created_at(strtotime($clean_published[0])) . $published_suffix;
-            }
+                // Make the links clickable
+                $clean_content[0] = str_replace("&lt;", "<", $clean_content[0]);
+                $clean_content[0] = str_replace("&gt;", ">", $clean_content[0]);
+                $clean_content[0] = str_replace("&amp;", "&", $clean_content[0]);
+                $clean_content[0] = str_replace("&apos;", "'", $clean_content[0]);
+                $clean_content[0] = str_replace("&amp;quot;", "&quot;", $clean_content[0]);
+                $clean_content[0] = str_replace("&amp;lt", "<", $clean_content[0]);
+                $clean_content[0] = str_replace("&amp;gt", ">", $clean_content[0]);
+                $clean_content[0] = str_replace("&quot;", "\"", $clean_content[0]);
 
-            $output .= $tweet_suffix;
+                // Check if the user wants URL's to open in a new window
+                if (get_option('thinkTwit_linksNewWindow') == 1) {
+                    // Find the URL's in the content
+                    $url_strings = explode("href=\"", $clean_content[0]);
+
+                    // Append the first part of the content to output
+                    $output .= $url_strings[0];
+
+                    // Loop through each URL
+                    for ($j = 1; $j <= (count($url_strings) - 1); $j++) {
+                        // Find the position of the closing quotation mark within the current string
+                        $pos = strpos($url_strings[$j], "\"");
+
+                        // Append everything up to the quotation marks
+                        $output .=  "href=\"" . substr($url_strings[$j], 0, $pos + 1);
+
+                        // Then add the code to open a new window
+                        $output .= " target=\"_blank\"";
+
+                        // Then add everything after
+                        $output .= substr($url_strings[$j], $pos + 1);
+                    }
+                } else {
+                    // Otherwise simply append the content unedited
+                    $output .= $clean_content[0];
+                }
+
+                if ($show_published == 1) {
+                    $output .= $published_prefix . "This happened " . relative_created_at(strtotime($clean_published[0])) . $published_suffix;
+                }
+
+                $output .= $tweet_suffix;
+            }
+        } else {
+            $output = "There have been no tweets for the past 7 days.";
         }
 
         return $output;
