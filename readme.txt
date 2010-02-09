@@ -72,6 +72,7 @@ Uninstall:
 ----------
 To uninstall simply deactivate and then delete the following options from the `wp_options` table:
 
+ * thinkTwit_title
  * thinkTwit_usernames
  * thinkTwit_limit
  * thinkTwit_showUsername
@@ -85,6 +86,15 @@ To uninstall simply deactivate and then delete the following options from the `w
  * thinkTwit_widgetSuffix
 
 
+== Frequently Asked Questions ==
+
+= How do I insert spaces in the settings? =
+
+Wordpress doesn't seem to like spaces unless they are between words - it removes them when saving in the database. Instead please 
+use "&nbsp;" (without the quotes) in place of each individual space at the start or end of a sentence e.g. "There is no space at the 
+beginning, but there is one at the end&nbsp;".
+
+
 == Screenshots ==
 
 1. screenshot-1.png shows the plugin working on the ThinkCS homepage
@@ -93,6 +103,9 @@ To uninstall simply deactivate and then delete the following options from the `w
 
 
 == Changelog ==
+
+= 1.0.5 =
+- (09 Feb 2010) Fixed title not being saved in Settings, also added option to open links in new window and added FAQ to the readme
 
 = 1.0.4 =
 - (04 Feb 2010) Added option to change the widget title and replaced spaces with no-break spaces (&nbsp;) in default username suffix

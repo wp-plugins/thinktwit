@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.0.4
+    Version: 1.0.5
     Author: Stephen Pickett
     Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 */
@@ -50,6 +50,7 @@
         add_option("thinkTwit_limit",           '5',                 '', 'yes');
         add_option("thinkTwit_showUsername",    '1',                 '', 'yes');
         add_option("thinkTwit_showPublished",   '1',                 '', 'yes');
+        add_option("thinkTwit_linksNewWindow",  '1',                 '', 'yes');
         add_option("thinkTwit_widgetPrefix",    '<ul>',              '', 'yes');
         add_option("thinkTwit_tweetPrefix",     '<li>',              '', 'yes');
         add_option("thinkTwit_usernameSuffix",  '&nbsp;said:&nbsp;', '', 'yes');
@@ -121,6 +122,14 @@
                     </tr>
 
                     <tr valign="top">
+                        <th align="left">Open links in new window:</th>
+                        <td><input type="radio" name="thinkTwit_linksNewWindow" id="thinkTwit_linksNewWindow_yes" value="1" <?php echo (get_option('thinkTwit_linksNewWindow') == 1 ? "checked=\"checked\"" : "") ?>/> Yes <input type="radio" name="thinkTwit_linksNewWindow" id="thinkTwit_linksNewWindow_no" value="0" <?php echo (get_option('thinkTwit_linksNewWindow') == 0 ? "checked=\"checked\"" : "") ?>/> No</td>
+                    </tr>
+                    <tr valign="top">
+                        <td height="50" colspan="2">(indicates whether to open links in a new window)</td>
+                    </tr>
+
+                    <tr valign="top">
                         <th align="left">Widget prefix:</th>
                         <td><textarea rows="4" cols="40" name="thinkTwit_widgetPrefix" id="thinkTwit_widgetPrefix"><?php echo get_option('thinkTwit_widgetPrefix'); ?></textarea></td>
                     </tr>
@@ -178,7 +187,7 @@
                 </table>
 
                 <input type="hidden" name="action" value="update" />
-                <input type="hidden" name="page_options" value="thinkTwit_usernames,thinkTwit_limit,thinkTwit_showUsername,thinkTwit_showPublished,thinkTwit_widgetPrefix,thinkTwit_tweetPrefix,thinkTwit_usernameSuffix,thinkTwit_tweetSuffix,thinkTwit_publishedPrefix,thinkTwit_publishedSuffix,thinkTwit_widgetSuffix" />
+                <input type="hidden" name="page_options" value="thinkTwit_title,thinkTwit_usernames,thinkTwit_limit,thinkTwit_showUsername,thinkTwit_showPublished,thinkTwit_linksNewWindow,thinkTwit_widgetPrefix,thinkTwit_tweetPrefix,thinkTwit_usernameSuffix,thinkTwit_tweetSuffix,thinkTwit_publishedPrefix,thinkTwit_publishedSuffix,thinkTwit_widgetSuffix" />
 
                 <p><input type="submit" value="<?php _e('Save Changes') ?>" /></p>
 
@@ -215,7 +224,7 @@
     }
 
     // Returns the tweets subjects to the given parameters
-    function parse_feed($usernames, $limit, $show_username, $show_published, $tweet_prefix, $username_suffix, $tweet_suffix, $published_prefix, $published_suffix) {
+    function parse_feed($usernames, $limit, $show_username, $show_published, $links_new_window, $tweet_prefix, $username_suffix, $tweet_suffix, $published_prefix, $published_suffix) {
         // Contstruct a string of usernames to search for
         $usernames = str_replace(" ", "+OR+from%3A", $usernames);
 
@@ -260,7 +269,7 @@
             $output .= $tweet_prefix;
 
             if ($show_username == 1) {
-                $output .= "<a href=\"" . $clean_uri[0] . "\">" . $clean_name[0] . "</a>" . $username_suffix;
+                $output .= "<a href=\"" . $clean_uri[0] . "\"" . (get_option('thinkTwit_linksNewWindow') == 1 ? " target=\"blank\"" : "") . ">" . $clean_name[0] . "</a>" . $username_suffix;
             }
 
             // Make the links clickable
@@ -273,7 +282,32 @@
             $clean_content[0] = str_replace("&amp;gt", ">", $clean_content[0]);
             $clean_content[0] = str_replace("&quot;", "\"", $clean_content[0]);
 
-            $output .= $clean_content[0];
+            // Check if the user wants URL's to open in a new window
+            if (get_option('thinkTwit_linksNewWindow') == 1) {
+                // Find the URL's in the content
+                $url_strings = explode("href=\"", $clean_content[0]);
+
+                // Append the first part of the content to output
+                $output .= $url_strings[0];
+
+                // Loop through each URL
+                for ($j = 1; $j <= (count($url_strings) - 1); $j++) {
+                    // Find the position of the closing quotation mark within the current string
+                    $pos = strpos($url_strings[$j], "\"");
+
+                    // Append everything up to the quotation marks
+                    $output .=  "href=\"" . substr($url_strings[$j], 0, $pos + 1);
+
+                    // Then add the code to open a new window
+                    $output .= " target=\"_blank\"";
+
+                    // Then add everything after
+                    $output .= substr($url_strings[$j], $pos + 1);
+                }
+            } else {
+                // Otherwise simply append the content unedited
+                $output .= $clean_content[0];
+            }
 
             if ($show_published == 1) {
                 $output .= $published_prefix . "This happened " . relative_created_at(strtotime($clean_published[0])) . $published_suffix;
@@ -290,7 +324,7 @@
         echo get_option('thinkTwit_widgetPrefix');
 
         // Output the feed
-        echo parse_feed(get_option('thinkTwit_usernames'), get_option('thinkTwit_limit'), get_option('thinkTwit_showUsername'), get_option('thinkTwit_showPublished'), get_option('thinkTwit_tweetPrefix'), get_option('thinkTwit_usernameSuffix'), get_option('thinkTwit_tweetSuffix'), get_option('thinkTwit_publishedPrefix'), get_option('thinkTwit_publishedSuffix'));
+        echo parse_feed(get_option('thinkTwit_usernames'), get_option('thinkTwit_limit'), get_option('thinkTwit_showUsername'), get_option('thinkTwit_showPublished'), get_option('thinkTwit_linksNewWindow'), get_option('thinkTwit_tweetPrefix'), get_option('thinkTwit_usernameSuffix'), get_option('thinkTwit_tweetSuffix'), get_option('thinkTwit_publishedPrefix'), get_option('thinkTwit_publishedSuffix'));
 
         // Output the feed suffix
         echo get_option('thinkTwit_widgetSuffix');
