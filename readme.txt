@@ -34,11 +34,11 @@ Requirements/Restrictions:
 
 1. Unpack the zip file and upload the `thinktwit` folder to the `/wp-content/plugins/` directory, or download through the `Plugins` menu in WordPress
 
-2. Activate the plugin through the `Plugins` menu in WordPress
+1. Activate the plugin through the `Plugins` menu in WordPress
 
-3. Expand `Settings` and then click `ThinkTwit`. Fill in the options as required and then save
+1. Go to `Appearance` and then `Widgets` and drag `ThinkTwit` to your sidebar
 
-4. Go to `Appearance` and then `Widgets` and drag `ThinkTwit` to your sidebar
+1. Fill in the options as required and then save
 
 Updates are automatic. Click on `Upgrade Automatically` if prompted from the admin menu. If you ever have to manually 
 upgrade, simply replace the files with those from the new version.
@@ -46,30 +46,20 @@ upgrade, simply replace the files with those from the new version.
 NOTE: For those inexperienced with CSS, simply add the following to the bottom of your CSS file for basic formatting:
 
 /* ThinkTwit - Twitter Widget */
-div#thinktwit {       /* main widget container */
-    background         : #FFFFFF;
-    color              : #000000;
+ul.thinkTwitTweets {
     font-size          : 12px;
-    margin             : 0 0 10px;
-    padding            : 10px;
 }
 
-div#thinktwit h2 {    /* title */
-    margin             : 0 0 10px;
-}
-
-div#thinktwit ul {    /* container of tweets */
-    margin             : 0;
-}
-
-div#thinktwit ul li { /* individual tweets */
-    margin             : 0 0 10px;
-    padding            : 0;
+ul.thinkTwitTweets li.thinkTwitTweet {
     word-wrap          : break-word;
 }
 
-Uninstall:
-----------
+ul.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
+    display            : block;
+}
+
+To uninstall versions prior to 1.1.0:
+------------------------------------
 To uninstall simply deactivate and then delete the following options from the `wp_options` table:
 
  * thinkTwit_title
@@ -77,6 +67,7 @@ To uninstall simply deactivate and then delete the following options from the `w
  * thinkTwit_limit
  * thinkTwit_showUsername
  * thinkTwit_showPublished
+ * thinkTwit_linksNewWindow
  * thinkTwit_widgetPrefix
  * thinkTwit_tweetPrefix
  * thinkTwit_usernameSuffix
@@ -86,23 +77,24 @@ To uninstall simply deactivate and then delete the following options from the `w
  * thinkTwit_widgetSuffix
 
 
-== Frequently Asked Questions ==
-
-= How do I insert spaces in the settings? =
-
-Wordpress doesn't seem to like spaces unless they are between words - it removes them when saving in the database. Instead please 
-use "&nbsp;" (without the quotes) in place of each individual space at the start or end of a sentence e.g. "There is no space at the 
-beginning, but there is one at the end&nbsp;".
-
-
 == Screenshots ==
 
 1. screenshot-1.png shows the plugin working on the ThinkCS homepage
-2. screenshot-2.png shows where the settings are found
-1. screenshot-3.png shows the settings that can be configured
+1. screenshot-2.png shows the settings that can be configured within the widget
 
 
 == Changelog ==
+
+= 1.1.0 =
+- (11 Feb 2010) MAJOR UPDATES:
+* Rewritten 80% of the code to correctly use widget API
+* No longer need to spexify suffixes and prefixes - correctly hardcoded to use unordered lists
+* Added classes for more flexible CSS changes
+* Original settings page removed - all settings now made in widget NOTE: TAKE NOTE OF YOUR SETTINGS BEFORE UPDATING!
+* Updated default CSS for basic use - please replace original with this and update as necessary
+* No break spaces ("&nbsp;") no longer required to replace spaces in settings
+* FAQ removed as there was only one question that is no longer relevant
+* Updated screenshots to reflect new settings configuration
 
 = 1.0.6 =
 - (09 Feb 2010) Added temporary "no tweets in the last 7 days" notice (if no tweets are visible) until caching is implemented
