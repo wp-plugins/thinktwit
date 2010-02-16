@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.1.0
+    Version: 1.1.1
     Author: Stephen Pickett
     Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
 */
@@ -49,10 +49,7 @@ class ThinkTwit extends WP_Widget {
               <?php if ($title)
                   echo $before_title . $title . $after_title; ?>
 
-              <?php
-              echo parse_feed($usernames, $usernameSuffix, $limit, $showUsername, $showPublished, $linksNewWindow);
-              //echo "Entered: " . $usernames . ", " . $usernameSuffix . ", " . $limit . ", " . $showUsername . ", " . $showPublished . ", " . $linksNewWindow;
-              ?>
+              <?php echo parse_feed($usernames, $usernameSuffix, $limit, $showUsername, $showPublished, $linksNewWindow); ?>
 
               <?php echo $after_widget; ?>
         <?php
@@ -85,7 +82,6 @@ class ThinkTwit extends WP_Widget {
                           'showPublished'  => true,
                           'linksNewWindow' => true);
         $instance = wp_parse_args((array) $instance, $defaults);
-        extract($args);
 
         ?>
             <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></label></p>

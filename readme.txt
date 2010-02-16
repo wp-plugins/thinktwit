@@ -6,7 +6,8 @@ Requires at least: 2.8.6
 Tested up to: 2.9.1
 Stable tag: trunk
 
-Outputs the specified number of tweets from the specified Twitter usernames.
+A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike other plugins, allows output from multiple Twitter
+users.
 
 
 == Description ==
@@ -32,7 +33,8 @@ Requirements/Restrictions:
 
 == Installation ==
 
-1. Unpack the zip file and upload the `thinktwit` folder to the `/wp-content/plugins/` directory, or download through the `Plugins` menu in WordPress
+1. Unpack the zip file and upload the `thinktwit` folder to the `/wp-content/plugins/` directory, or download through the `Plugins` menu 
+in WordPress
 
 1. Activate the plugin through the `Plugins` menu in WordPress
 
@@ -46,6 +48,7 @@ upgrade, simply replace the files with those from the new version.
 NOTE: For those inexperienced with CSS, simply add the following to the bottom of your CSS file for basic formatting:
 
 /* ThinkTwit - Twitter Widget */
+
 ul.thinkTwitTweets {
     font-size          : 12px;
 }
@@ -58,9 +61,10 @@ ul.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
     display            : block;
 }
 
-To uninstall versions prior to 1.1.0:
-------------------------------------
-To uninstall simply deactivate and then delete the following options from the `wp_options` table:
+= To uninstall versions prior to 1.1.0: =
+  ------------------------------------
+To uninstall simply deactivate, delete the `thinktwit` directory from `wp-content/plugins/` and then delete the following options 
+from the `wp_options` table:
 
  * thinkTwit_title
  * thinkTwit_usernames
@@ -76,6 +80,40 @@ To uninstall simply deactivate and then delete the following options from the `w
  * thinkTwit_publishedSuffix
  * thinkTwit_widgetSuffix
 
+= To uninstall versions 1.1.0 and above: =
+  -------------------------------------
+To uninstall simply deactivate, delete the `thinktwit` directory from `wp-content/plugins/` and then delete the following option 
+from the `wp_options` table:
+
+ * widget_thinktwit
+
+
+== Frequently Asked Questions ==
+
+= How many tweets will be shown? =
+
+This is determined by your settings within the widget. The default is set to 5.
+
+= How long back will tweets be shown for? =
+
+ThinkTwit will show tweets that have occurred in the last 7 days, due to restrictions in the Twitter API.
+
+= What will happen if I haven't tweeted in the last 7 days? =
+
+A message will be shown stating: "There have been no tweets for the past 7 days"
+
+= How can I style ThinkTwit? =
+
+ThinkTwit uses the widget API so should be style correctly by your theme. You may, however, wish to make minor CSS changes. If so you
+should find the following information handy:
+
+* ThinkTwit essentially outputs tweets as a list
+* The list container can be access using ul.thinkTwitTweets
+* Each tweet can be accessed using ul.thinkTwitTweets li.thinkTwitTweet
+* The author within a tweet can be accessed using ul.thinkTwitTweets li.thinkTwitTweet a.thinkTwitAuthor
+* The published time within a tweet can be accessed using ul.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished
+* The "no tweets" message can be accessed using ul.thinkTwitTweets li.thinkTwitNoTweets
+
 
 == Screenshots ==
 
@@ -84,6 +122,10 @@ To uninstall simply deactivate and then delete the following options from the `w
 
 
 == Changelog ==
+
+= 1.1.1 =
+- (16 Feb 2010) Removed unnecessary PHP command that was causing annoying error in widget screen (though not causing a problem) and
+updated readme with new FAQ and uninstall instructions
 
 = 1.1.0 =
 - (11 Feb 2010) MAJOR UPDATES:
