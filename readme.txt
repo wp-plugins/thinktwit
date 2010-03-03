@@ -140,8 +140,11 @@ if you are unable to do this (it may be a shared server) you can enable CURL in 
 
 == Changelog ==
 
+= 1.1.3 =
+- (03 Mar 2010) Minor change where a variable was being over-written but it had no real affect and updated screenshot-2.png
+
 = 1.1.2 =
-- (02 Mar 2010) Added no-caching (to prevent ThinkTwit from being cached by caching engines), an option to use CURL to access
+- (03 Mar 2010) Added no-caching (to prevent ThinkTwit from being cached by caching engines), an option to use CURL to access
 the Twitter API, optional debug messages, updated readme and moved development to http://www.thepicketts.org
 
 = 1.1.1 =

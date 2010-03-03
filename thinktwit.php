@@ -199,10 +199,10 @@ function parse_feed($useCurl, $usernames, $username_suffix, $limit, $show_userna
     $output = "";
 
     // Contstruct a string of usernames to search for
-    $usernames = str_replace(" ", "+OR+from%3A", $usernames);
+    $username_string = str_replace(" ", "+OR+from%3A", $usernames);
 
     // Construct the URL to obtain the Twitter ATOM feed (XML)
-    $url = "http://search.twitter.com/search.atom?q=from%3A" . $usernames . "&rpp=" . $limit;
+    $url = "http://search.twitter.com/search.atom?q=from%3A" . $username_string . "&rpp=" . $limit;
 
     // If user wishes to output debug info then do so
     if ($debug) {
