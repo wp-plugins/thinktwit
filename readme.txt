@@ -1,9 +1,9 @@
 === ThinkTwit ===
 Contributors: stephen.pickett
-Author URI: http://www.thinkcs.org/meet-the-team/stephen-pickett/
+Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit
 Requires at least: 2.8.6
-Tested up to: 2.9.1
+Tested up to: 2.9.2
 Stable tag: trunk
 
 A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike other plugins, allows output from multiple Twitter
@@ -15,19 +15,22 @@ users.
 ThinkTwit uses the Twitter ATOM API to display recent tweets from one or more Twitter users. It is very simple, yet flexible 
 and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface.
 
-Plugin URI: http://www.thinkcs.org/about/think-digital/digital-services/thinktwit/
+Plugin URI: http://www.thepicketts.org/thinktwit/
 
 Features:
 --------
- * Configure from Admin panel
- * JavaScript is not required
+ * Configure from Widgets settings
+ * Multiple instances can be deployed (like other widgets)
+ * JavaScript is not required (unless no-caching is activated)
  * Can specify multiple usernames
  * Can specify maximum number of tweets
  * Easy to configure and customise (through CSS)
+ * Supports no-caching, to prevent caching of tweets by caching engines such as WP Super Cache
+ * Supports CURL as an alternative to access the Twitter API if URL file-access is disabled
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 2.9.1, not tested with other versions
+ * Works with Wordpress 2.8.6 to 2.9.2, not tested with other versions
  * Must be installed using the widgets sidebar
 
 
@@ -114,6 +117,20 @@ should find the following information handy:
 * The published time within a tweet can be accessed using ul.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished
 * The "no tweets" message can be accessed using ul.thinkTwitTweets li.thinkTwitNoTweets
 
+= How do I stop caching in caching engines such as WP Super Cache? =
+
+Turn on no-caching.
+
+= How does no-caching work? =
+
+Instead of outputting HTML it outputs Javascript. The Javascript uses AJAX (via jQuery) to make a call to a method that returns the 
+HTML which is then inserted in to the correct location.
+
+= Why do I get this error? Warning: file_get_contents() [function.file-get-contents]: URL file-access is disabled in the server configuration =
+
+You are getting this error because the allow_url_fopen option is disabled on your server. You can resolve this by either enabling it, or
+if you are unable to do this (it may be a shared server) you can enable CURL in the widget options.
+
 
 == Screenshots ==
 
@@ -122,6 +139,10 @@ should find the following information handy:
 
 
 == Changelog ==
+
+= 1.1.2 =
+- (02 Mar 2010) Added no-caching (to prevent ThinkTwit from being cached by caching engines), an option to use CURL to access
+the Twitter API, optional debug messages, updated readme and moved development to http://www.thepicketts.org
 
 = 1.1.1 =
 - (16 Feb 2010) Removed unnecessary PHP command that was causing annoying error in widget screen (though not causing a problem) and
