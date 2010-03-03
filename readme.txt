@@ -126,6 +126,14 @@ Turn on no-caching.
 Instead of outputting HTML it outputs Javascript. The Javascript uses AJAX (via jQuery) to make a call to a method that returns the 
 HTML which is then inserted in to the correct location.
 
+= I'm using no-caching but nothing appears below the title =
+
+Your theme is probably not setup properly. AJAX requires a location to insert the returned data from the server-side call. ThinkTwit
+puts it in to the div that contains the widget. A Wordpress theme written correctly should output a unique id for each widget that is
+output. Inform the maker of your theme to have the following (or something similar) in their register_sidebar function:
+
+'before_widget' => '<div id="%1$s" class="widget %2$s">'
+
 = Why do I get this error? Warning: file_get_contents() [function.file-get-contents]: URL file-access is disabled in the server configuration =
 
 You are getting this error because the allow_url_fopen option is disabled on your server. You can resolve this by either enabling it, or
