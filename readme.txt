@@ -50,7 +50,7 @@ upgrade, simply replace the files with those from the new version.
 
 NOTE: For those inexperienced with CSS, simply add the following to the bottom of your CSS file for basic formatting:
 
-/* ThinkTwit - Twitter Widget */
+`/* ThinkTwit - Twitter Widget */
 
 ul.thinkTwitTweets {
     font-size          : 12px;
@@ -62,7 +62,7 @@ ul.thinkTwitTweets li.thinkTwitTweet {
 
 ul.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
     display            : block;
-}
+}`
 
 = To uninstall versions prior to 1.1.0: =
   ------------------------------------
@@ -132,7 +132,7 @@ Your theme is probably not setup properly. AJAX requires a location to insert th
 puts it in to the div that contains the widget. A Wordpress theme written correctly should output a unique id for each widget that is
 output. Inform the maker of your theme to have the following (or something similar) in their register_sidebar function:
 
-'before_widget' => '<div id="%1$s" class="widget %2$s">'
+`'before_widget' => '<div id="%1$s" class="widget %2$s">'`
 
 = Why do I get this error? Warning: file_get_contents() [function.file-get-contents]: URL file-access is disabled in the server configuration =
 
