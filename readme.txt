@@ -52,15 +52,16 @@ NOTE: For those inexperienced with CSS, simply add the following to the bottom o
 
 `/* ThinkTwit - Twitter Widget */
 
-ul.thinkTwitTweets {
+ol.thinkTwitTweets {
     font-size          : 12px;
 }
 
-ul.thinkTwitTweets li.thinkTwitTweet {
+ol.thinkTwitTweets li.thinkTwitTweet {
+    list-style         : none;
     word-wrap          : break-word;
 }
 
-ul.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
+ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
     display            : block;
 }`
 
@@ -147,6 +148,9 @@ if you are unable to do this (it may be a shared server) you can enable CURL in 
 
 
 == Changelog ==
+
+= 1.1.4 =
+- (09 Mar 2010) Removed some extranous code, added option to show username or Twitter name and changed list to ordered list for semantics
 
 = 1.1.3 =
 - (03 Mar 2010) Minor change where a variable was being over-written but it had no real affect and updated screenshot-2.png

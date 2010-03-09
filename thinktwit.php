@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.1.3
+    Version: 1.1.4
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 */
@@ -46,7 +46,7 @@ class ThinkTwit extends WP_Widget {
         $usernames      = $instance['usernames'];
         $usernameSuffix = $instance['usernameSuffix'];
         $limit          = $instance['limit'];
-        $showUsername   = isset($instance['showUsername']) ? $instance['showUsername'] : false;
+        $showAuthor     = $instance['showAuthor'];
         $showPublished  = isset($instance['showPublished']) ? $instance['showPublished'] : false;
         $linksNewWindow = isset($instance['linksNewWindow']) ? $instance['linksNewWindow'] : false;
         $noCache        = isset($instance['noCache']) ? $instance['noCache'] : false;
@@ -72,7 +72,7 @@ class ThinkTwit extends WP_Widget {
                                thinktwit_usernames      : "<?php echo $usernames; ?>",
                                thinktwit_usernameSuffix : "<?php echo $usernameSuffix; ?>",
                                thinktwit_limit          : "<?php echo $limit; ?>",
-                               thinktwit_showUsername   : "<?php echo $showUsername; ?>",
+                               thinktwit_showAuthor     : "<?php echo $showAuthor; ?>",
                                thinktwit_showPublished  : "<?php echo $showPublished; ?>",
                                thinktwit_linksNewWindow : "<?php echo $linksNewWindow; ?>",
                                thinktwit_debug          : "<?php echo $debug; ?>"},
@@ -86,7 +86,7 @@ class ThinkTwit extends WP_Widget {
         <?php
         // Otherwise output HTML method
         } else {
-            echo parse_feed($useCurl, $usernames, $usernameSuffix, $limit, $showUsername, $showPublished, $linksNewWindow, $debug);
+            echo parse_feed($useCurl, $usernames, $usernameSuffix, $limit, $showAuthor, $showPublished, $linksNewWindow, $debug);
         }
 
         // Output code that should appear after the widget
@@ -102,7 +102,7 @@ class ThinkTwit extends WP_Widget {
         $instance['usernames']      = strip_tags($new_instance['usernames']);
         $instance['usernameSuffix'] = strip_tags($new_instance['usernameSuffix']);
         $instance['limit']          = strip_tags($new_instance['limit']);
-        $instance['showUsername']   = (strip_tags($new_instance['showUsername']) == "Yes" ? true : false);
+        $instance['showAuthor']     = strip_tags($new_instance['showAuthor']);
         $instance['showPublished']  = (strip_tags($new_instance['showPublished']) == "Yes" ? true : false);
         $instance['linksNewWindow'] = (strip_tags($new_instance['linksNewWindow']) == "Yes" ? true : false);
         $instance['noCache']        = (strip_tags($new_instance['noCache']) == "Yes" ? true : false);
@@ -119,7 +119,7 @@ class ThinkTwit extends WP_Widget {
                           'usernames'      => 'stephenpickett',
                           'usernameSuffix' => ' said: ',
                           'limit'          => '5',
-                          'showUsername'   => true,
+                          'showAuthor'     => name,
                           'showPublished'  => true,
                           'linksNewWindow' => true,
                           'noCache'        => false,
@@ -136,9 +136,10 @@ class ThinkTwit extends WP_Widget {
 
         <p><label for="<?php echo $this->get_field_id('limit'); ?>"><?php _e('Max tweets to display:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $instance['limit']; ?>" /></label></p>
 
-        <p><label for="<?php echo $this->get_field_id('showUsername'); ?>"><?php _e('Show usernames:'); ?> <select id="<?php echo $this->get_field_id('showUsername'); ?>" name="<?php echo $this->get_field_name('showUsername'); ?>" class="widefat">
-            <option <?php if ($instance['showUsername'] == true) echo 'selected="selected"'; ?>>Yes</option>
-            <option <?php if ($instance['showUsername'] == false) echo 'selected="selected"'; ?>>No</option>
+        <p><label for="<?php echo $this->get_field_id('showAuthor'); ?>"><?php _e('Show author:'); ?> <select id="<?php echo $this->get_field_id('showAuthor'); ?>" name="<?php echo $this->get_field_name('showAuthor'); ?>" class="widefat">
+            <option value="none" <?php if (strcmp($instance['showAuthor'], "none") == 0) echo ' selected="selected"'; ?>>None</option>
+            <option value="name" <?php if (strcmp($instance['showAuthor'], "name") == 0) echo ' selected="selected"'; ?>>Name</option>
+            <option value="username" <?php if (strcmp($instance['showAuthor'], "username") == 0) echo ' selected="selected"'; ?>>Username</option>
         </select></label></p>
 
         <p><label for="<?php echo $this->get_field_id('showPublished'); ?>"><?php _e('Show when published:'); ?> <select id="<?php echo $this->get_field_id('showPublished'); ?>" name="<?php echo $this->get_field_name('showPublished'); ?>" class="widefat">
@@ -241,10 +242,6 @@ function parse_feed($useCurl, $usernames, $username_suffix, $limit, $show_userna
         $feed = file_get_contents($url);
     }
 
-    $feed = str_replace("&", "&", $feed);
-    $feed = str_replace("<", "<", $feed);
-    $feed = str_replace(">", ">", $feed);
-
     // Put all entries into an array
     $clean = explode("<entry>", $feed);
 
@@ -252,7 +249,7 @@ function parse_feed($useCurl, $usernames, $username_suffix, $limit, $show_userna
     $amount = count($clean) - 1;
 
     // Create a variable to store the entries for output
-    $output .= "<ul class=\"thinkTwitTweets\">";
+    $output .= "<ol class=\"thinkTwitTweets\">";
 
     // Find out if there are any entires, if so output them
     if ($amount > 0) {
@@ -280,8 +277,10 @@ function parse_feed($useCurl, $usernames, $username_suffix, $limit, $show_userna
 
             $output .= "<li class=\"thinkTwitTweet\">";
 
-            if ($show_username == true) {
+            if (strcmp($show_username, "name") == 0) {
                 $output .= "<a href=\"" . $clean_uri[0] . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">" . $clean_name[0] . "</a>" . $username_suffix;
+            } elseif (strcmp($show_username, "username") == 0) {
+                $output .= "<a href=\"" . $clean_uri[0] . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">" . $clean_name_1[0] . "</a>" . $username_suffix;
             }
 
             // Make the links clickable
@@ -331,7 +330,7 @@ function parse_feed($useCurl, $usernames, $username_suffix, $limit, $show_userna
         $output .= "<li class=\"thinkTwitNoTweets\">There have been no tweets for the past 7 days.</li>";
     }
 
-    $output .= "</ul>";
+    $output .= "</ol>";
 
     return $output;
 }
@@ -341,12 +340,12 @@ function thinktwit_request_handler() {
     // Check that all parameters have been passed
     if ((isset($_GET['thinktwit_request']) && ($_GET['thinktwit_request'] == 'parse_feed')) && isset($_GET['thinktwit_usecurl']) &&
       isset($_GET['thinktwit_usernames']) && isset($_GET['thinktwit_usernameSuffix']) && isset($_GET['thinktwit_limit']) &&
-      isset($_GET['thinktwit_showUsername']) && isset($_GET['thinktwit_showPublished']) && isset($_GET['thinktwit_linksNewWindow']) &&
+      isset($_GET['thinktwit_showAuthor']) && isset($_GET['thinktwit_showPublished']) && isset($_GET['thinktwit_linksNewWindow']) &&
       isset($_GET['thinktwit_debug'])) {
 
         // Output the feed and exit the call
         echo parse_feed(strip_tags($_GET['thinktwit_usecurl']), strip_tags($_GET['thinktwit_usernames']),
-          strip_tags($_GET['thinktwit_usernameSuffix']), strip_tags($_GET['thinktwit_limit']), strip_tags($_GET['thinktwit_showUsername']),
+          strip_tags($_GET['thinktwit_usernameSuffix']), strip_tags($_GET['thinktwit_limit']), strip_tags($_GET['thinktwit_showAuthor']),
           strip_tags($_GET['thinktwit_showPublished']), strip_tags($_GET['thinktwit_linksNewWindow']), strip_tags($_GET['thinktwit_debug']));
         exit();
     } elseif (isset($_GET['thinktwit_request']) && ($_GET['thinktwit_request'] == 'parse_feed')) {
