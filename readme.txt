@@ -14,7 +14,7 @@ users.
 
 ThinkTwit uses the Twitter ATOM API to display recent tweets from one or more Twitter users. It is very simple, yet flexible 
 and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through
-the use of Shoretcode.
+the use of Shortcode.
 
 Plugin URI: http://www.thepicketts.org/thinktwit/
 
