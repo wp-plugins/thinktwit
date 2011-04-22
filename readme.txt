@@ -3,7 +3,7 @@ Contributors: stephen.pickett
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit
 Requires at least: 2.8.6
-Tested up to: 2.9.2
+Tested up to: 3.1.1
 Stable tag: trunk
 
 A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike other plugins, allows output from multiple Twitter
@@ -13,7 +13,8 @@ users.
 == Description ==
 
 ThinkTwit uses the Twitter ATOM API to display recent tweets from one or more Twitter users. It is very simple, yet flexible 
-and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface.
+and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through
+the use of Shoretcode.
 
 Plugin URI: http://www.thepicketts.org/thinktwit/
 
@@ -27,11 +28,14 @@ Features:
  * Easy to configure and customise (through CSS)
  * Supports no-caching, to prevent caching of tweets by caching engines such as WP Super Cache
  * Supports CURL as an alternative to access the Twitter API if URL file-access is disabled
+ * Supports optional caching of tweets
+ * Can be implemented using shortcode
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 2.9.2, not tested with other versions
- * Must be installed using the widgets sidebar
+ * Works with Wordpress 2.8.6 to 3.1.1, not tested with other versions
+ * Can be installed using the widgets sidebar
+ * Can also be used via shortcode
 
 
 == Installation ==
@@ -104,7 +108,8 @@ ThinkTwit will show tweets that have occurred in the last 7 days, due to restric
 
 = What will happen if I haven't tweeted in the last 7 days? =
 
-A message will be shown stating: "There have been no tweets for the past 7 days"
+If you aren't caching tweets then a message will be shown stating: "There have been no tweets for the past 7 days", but if you are caching 
+tweets then it will simply show the tweets stored in the cache, even if they are older than 7 days
 
 = How can I style ThinkTwit? =
 
@@ -112,11 +117,11 @@ ThinkTwit uses the widget API so should be style correctly by your theme. You ma
 should find the following information handy:
 
 * ThinkTwit essentially outputs tweets as a list
-* The list container can be access using ul.thinkTwitTweets
-* Each tweet can be accessed using ul.thinkTwitTweets li.thinkTwitTweet
-* The author within a tweet can be accessed using ul.thinkTwitTweets li.thinkTwitTweet a.thinkTwitAuthor
-* The published time within a tweet can be accessed using ul.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished
-* The "no tweets" message can be accessed using ul.thinkTwitTweets li.thinkTwitNoTweets
+* The list container can be access using ol.thinkTwitTweets
+* Each tweet can be accessed using ol.thinkTwitTweets li.thinkTwitTweet
+* The author within a tweet can be accessed using ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitAuthor
+* The published time within a tweet can be accessed using ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished
+* The "no tweets" message can be accessed using ol.thinkTwitTweets li.thinkTwitNoTweets
 
 = How do I stop caching in caching engines such as WP Super Cache? =
 
@@ -140,6 +145,23 @@ output. Inform the maker of your theme to have the following (or something simil
 You are getting this error because the allow_url_fopen option is disabled on your server. You can resolve this by either enabling it, or
 if you are unable to do this (it may be a shared server) you can enable CURL in the widget options.
 
+= Why is there no space between my tweet and the time it was tweeted? =
+
+This is because you haven't specified a space within your CSS. You do this as follows:
+
+ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
+  margin-left: 5px;
+}
+
+= What are is the shortcode command? =
+
+If you wish to use shortcode to access ThinkTwit you must use the following format:
+
+[thinktwit use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x show_username=none|name|username 
+show_published=0|1 links_new_window=0|1 debug=0|1]
+
+Note: Shortcodes will always use live Twitter feeds.
+
 
 == Screenshots ==
 
@@ -148,6 +170,9 @@ if you are unable to do this (it may be a shared server) you can enable CURL in 
 
 
 == Changelog ==
+
+= 1.1.5 =
+- (22 Apr 2011) Added caching of tweets (optional) and added tweet shortcodes
 
 = 1.1.4 =
 - (09 Mar 2010) Removed some extranous code, added option to show username or Twitter name and changed list to ordered list for semantics
