@@ -3,13 +3,13 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.1.5
+    Version: 1.1.6
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 */
 
 /*
-    Copyright 2010 Stephen Pickett (meethoss at gmail dot com)
+    Copyright 2011 Stephen Pickett (meethoss at gmail dot com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -79,7 +79,7 @@
 								   thinktwit_linksNewWindow : "<?php echo $linksNewWindow; ?>",
 								   thinktwit_debug          : "<?php echo $debug; ?>"},
 						  success : function(response) {
-							// the server has finished executing PHP and has returned something, so display it!
+							// The server has finished executing PHP and has returned something, so display it!
 							$("#<?php echo $widgetid; ?>").append(response);
 						  }
 						});
@@ -141,7 +141,8 @@
 			<p><label for="<?php echo $this->get_field_id('limit'); ?>"><?php _e('Max tweets to display:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $instance['limit']; ?>" /></label></p>
 			
 			<p><label for="<?php echo $this->get_field_id('updateFrequency'); ?>"><?php _e('Update frequency:'); ?> <select id="<?php echo $this->get_field_id('updateFrequency'); ?>" name="<?php echo $this->get_field_name('updateFrequency'); ?>" class="widefat">
-				<option value="0" <?php if (strcmp($instance['updateFrequency'], 0) == 0) echo ' selected="selected"'; ?>>Live</option>
+				<option value="-1" <?php if (strcmp($instance['updateFrequency'], -1) == 0) echo ' selected="selected"'; ?>>Live (uncached)</option>
+				<option value="0" <?php if (strcmp($instance['updateFrequency'], 0) == 0) echo ' selected="selected"'; ?>>Live (cached)</option>
 				<option value="1" <?php if (strcmp($instance['updateFrequency'], 1) == 0) echo ' selected="selected"'; ?>>Hourly</option>
 				<option value="2" <?php if (strcmp($instance['updateFrequency'], 2) == 0) echo ' selected="selected"'; ?>>Every 2 hours</option>
 				<option value="4" <?php if (strcmp($instance['updateFrequency'], 4) == 0) echo ' selected="selected"'; ?>>Every 4 hours</option>
@@ -306,7 +307,7 @@
 		}
 
 		// Get the tweets
-		$tweets = get_tweets($updateFrequency, $url, $useCurl);
+		$tweets = get_tweets($updateFrequency, $url, $useCurl, $limit);
 
 		// Create an ordered list
 		$output .= "<ol class=\"thinkTwitTweets\">";
@@ -373,11 +374,11 @@
 	}
 
 	// Returns an array of Tweets from the cache or from Twitter depending on state of cache
-	function get_tweets($updateFrequency, $url, $useCurl) {
+	function get_tweets($updateFrequency, $url, $useCurl, $limit) {
 		$tweets;
 
 		// First check that if the user wants live updates
-		if ($updateFrequency == 0) {
+		if ($updateFrequency == -1) {
 			// If so then just get the tweets live from Twitter
 			$tweets = get_tweets_from_twitter($url, $useCurl);
 		} else {
@@ -386,21 +387,84 @@
 			$tweets = $lastUpdate[0]; // Returned unless cache is out of date
 			$cachedTime = $lastUpdate[1];
 			
-			// Check when the cache was last updated
+			// Get the difference between now and when the cache was last updated
 			$diff = time() - $cachedTime;
 			
-			// If update is required (the number of hours since last update)
-			// (calculated by dividing by 60 to get mins and 60 again to get hours)
-			if (($diff / 3600) > $updateFrequency) {			
-			   // Get tweets from Twitter
-			   $tweets = get_tweets_from_twitter($url, $useCurl);
-			   
-			   // Store new array in cache
-			   update_cache($tweets);
+			// If update is required (the number of hours since last update,
+			// calculated by dividing by 60 to get mins and 60 again to get hours)
+			if (($diff / 3600) > $updateFrequency) {
+				// Get tweets fresh from Twitter
+				$fresh_tweets = get_tweets_from_twitter($url, $useCurl);
+				
+				// If fresh tweets is not empty (i.e. if it is empty just use cache)
+				if (count($fresh_tweets) != 0) {
+					// Set a pointer to -1
+					$pointer = -1;
+					// Iterate through each fresh tweet
+					for($i = 1; $i < count($fresh_tweets); $i++) {
+						// Compare tweet to each cached tweet
+						for ($j = 1; $j < count($tweets); $j++) {
+							// If fresh tweet is same or older store a pointer to the cached tweet 
+							// and break, otherwise just break
+							if (strtotime($fresh_tweets[$i]->getTimestamp()) >= strtotime($tweets[$j]->getTimestamp())) { // Convert the timestamp string to PHP time to compare correctly
+								$pointer = $j;
+								
+								break;
+							} else {
+								break;
+							}
+						}
+					}
+					
+					// If pointer is -1 (because there were tweets found in the fresh list that
+					// were also in the cached list - note that the fresh list may be shorter if there
+					// have been no recent tweets or if Twitter is not available)
+					if ($pointer == -1) {
+						// 	Get size of array, displace existing cached tweets by size of array
+						$tweets = displace_array($tweets, count($fresh_tweets));
+						
+						//	Insert fresh tweets at start of tweets array
+						$tweets = insert_tweets($tweets, $fresh_tweets, count($fresh_tweets));
+					} else {
+						// Otherwise, displace existing cached tweets by pointer
+						$tweets = displace_array($tweets, $pointer);
+						
+						// Insert fresh tweets at start of array up to pointer
+						$tweets = insert_tweets($tweets, $fresh_tweets, $pointer);
+					}
+				}
+				
+				// Store updated array in cache
+				update_cache($tweets);
 			}
 		}
 
 		return $tweets;
+	}
+	
+	// Moves the contents of an array along by n (array starts at 1)
+	function displace_array($array, $n) {
+		$new_array;
+		
+		// Loop through the array until displacement point
+		for ($i = 1; $i <= count($array) - $n; $i++) {
+			// Copy each item in the array to the new array, but at the displaced spot
+			$new_array[$i + $n] = $array[$i];
+		}
+		
+		return $new_array;
+	}
+	
+	// Inserts the tweets in insert_array, in to array up to the nth item in insert_array
+	// (array starts at 1)
+	function insert_tweets($array, $insert_array, $n) {
+		// Loop through the array up until n
+		for ($i = 1; $i <= $n; $i++) {
+			// Copy each item in the array in to the new array
+			$array[$i] = $insert_array[$i];
+		}
+		
+		return $array;
 	}
 	
 	// Updates the cache with the given Tweets and stores the time of the update
@@ -527,8 +591,8 @@
 			'debug'            => false,
 		), $atts));
 		
-		// Pass the variables, but set the update frequency to always be 0 (live)
-		return parse_feed($use_curl, $usernames, $username_suffix, $limit, 0, $show_username, $show_published, $links_new_window, $debug);
+		// Pass the variables, but set the update frequency to always be -1 (live and uncached)
+		return parse_feed($use_curl, $usernames, $username_suffix, $limit, -1, $show_username, $show_published, $links_new_window, $debug);
 	}
 
 	// Add shortcode

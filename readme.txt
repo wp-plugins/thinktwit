@@ -3,7 +3,7 @@ Contributors: stephen.pickett
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit
 Requires at least: 2.8.6
-Tested up to: 3.1.1
+Tested up to: 3.1.2
 Stable tag: trunk
 
 A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike other plugins, allows output from multiple Twitter
@@ -33,7 +33,7 @@ Features:
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.1.1, not tested with other versions
+ * Works with Wordpress 2.8.6 to 3.1.2, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode
 
@@ -104,7 +104,8 @@ This is determined by your settings within the widget. The default is set to 5.
 
 = How long back will tweets be shown for? =
 
-ThinkTwit will show tweets that have occurred in the last 7 days, due to restrictions in the Twitter API.
+If using the update frequency "Live (uncached)" ThinkTwit will show tweets that have occurred in the last 7 days, due to restrictions in the 
+Twitter API. However, any other option will utilise ThinkTwit's own cache and will therefore display anything within the cache.
 
 = What will happen if I haven't tweeted in the last 7 days? =
 
@@ -136,7 +137,7 @@ HTML which is then inserted in to the correct location.
 
 Your theme is probably not setup properly. AJAX requires a location to insert the returned data from the server-side call. ThinkTwit
 puts it in to the div that contains the widget. A Wordpress theme written correctly should output a unique id for each widget that is
-output. Inform the maker of your theme to have the following (or something similar) in their register_sidebar function:
+output. Inform the developer of your theme to have the following (or something similar) in their register_sidebar function:
 
 `'before_widget' => '<div id="%1$s" class="widget %2$s">'`
 
@@ -170,6 +171,11 @@ Note: Shortcodes will always use live Twitter feeds.
 
 
 == Changelog ==
+
+= 1.1.6 =
+- (13 May 2011) Fixed caching to prevent over-writing of cache and ensure it instead adds them to it (removing anything at the end if 
+necessary) and added live option that uses the cache (so you can check for updates and update the cache before displaying cached tweets, 
+this ensures that if Twitter is not available it will still display tweets)
 
 = 1.1.5 =
 - (22 Apr 2011) Added caching of tweets (optional) and added tweet shortcodes
