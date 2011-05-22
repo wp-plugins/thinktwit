@@ -6,8 +6,8 @@ Requires at least: 2.8.6
 Tested up to: 3.1.2
 Stable tag: trunk
 
-A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike other plugins, allows output from multiple Twitter
-users.
+A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike most other plugins, allows output from 
+multiple Twitter users.
 
 
 == Description ==
@@ -69,31 +69,13 @@ ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
     display            : block;
 }`
 
-= To uninstall versions prior to 1.1.0: =
+= Uninstall =
   ------------------------------------
-To uninstall simply deactivate, delete the `thinktwit` directory from `wp-content/plugins/` and then delete the following options 
-from the `wp_options` table:
-
- * thinkTwit_title
- * thinkTwit_usernames
- * thinkTwit_limit
- * thinkTwit_showUsername
- * thinkTwit_showPublished
- * thinkTwit_linksNewWindow
- * thinkTwit_widgetPrefix
- * thinkTwit_tweetPrefix
- * thinkTwit_usernameSuffix
- * thinkTwit_tweetSuffix
- * thinkTwit_publishedPrefix
- * thinkTwit_publishedSuffix
- * thinkTwit_widgetSuffix
-
-= To uninstall versions 1.1.0 and above: =
-  -------------------------------------
 To uninstall simply deactivate, delete the `thinktwit` directory from `wp-content/plugins/` and then delete the following option 
 from the `wp_options` table:
 
  * widget_thinktwit
+ * widget_<widgetid>_cache (where widgetid is the system generated id for each widget instance)
 
 
 == Frequently Asked Questions ==
@@ -148,7 +130,7 @@ if you are unable to do this (it may be a shared server) you can enable CURL in 
 
 = Why is there no space between my tweet and the time it was tweeted? =
 
-This is because you haven't specified a space within your CSS. You do this as follows:
+This is because you haven't specified a space within your CSS. One way to do this is as follows:
 
 ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
   margin-left: 5px;
@@ -163,6 +145,11 @@ show_published=0|1 links_new_window=0|1 debug=0|1]
 
 Note: Shortcodes will always use live Twitter feeds.
 
+= I'm getting strange errors or no output =
+
+You may need to clear and rebuild your cache. Do this by going in to the wp_options table within your database and then deleting any 
+entries like widget_thinktwit-x_cache.
+
 
 == Screenshots ==
 
@@ -171,6 +158,11 @@ Note: Shortcodes will always use live Twitter feeds.
 
 
 == Changelog ==
+
+= 1.1.7 =
+- (14 May 2011) Fixed cache not saving with the widgetid (meaning all instances will share the same cache), allows cache size to grow 
+and shrink according to the size limit in the widget settings, only outputs cached tweets by users whose name is in the usernames list
+within settings and sorted methods in to alphabetical order to aid searching of methods
 
 = 1.1.6 =
 - (13 May 2011) Fixed caching to prevent over-writing of cache and ensure it instead adds them to it (removing anything at the end if 
