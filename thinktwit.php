@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.1.7
+    Version: 1.1.8
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 */
@@ -48,6 +48,7 @@
 			$limit          = $instance['limit'];
 			$updateFrequency= $instance['updateFrequency'];
 			$showAuthor     = $instance['showAuthor'];
+			$showAvatar     = $instance['showAvatar'];
 			$showPublished  = isset($instance['showPublished']) ? $instance['showPublished'] : false;
 			$linksNewWindow = isset($instance['linksNewWindow']) ? $instance['linksNewWindow'] : false;
 			$noCache        = isset($instance['noCache']) ? $instance['noCache'] : false;
@@ -76,6 +77,7 @@
 								   thinktwit_limit          : "<?php echo $limit; ?>",
 								   thinktwit_updateFrequency: "<?php echo $updateFrequency; ?>",
 								   thinktwit_showAuthor     : "<?php echo $showAuthor; ?>",
+								   thinktwit_showAvatar     : "<?php echo $showAvatar; ?>",
 								   thinktwit_showPublished  : "<?php echo $showPublished; ?>",
 								   thinktwit_linksNewWindow : "<?php echo $linksNewWindow; ?>",
 								   thinktwit_debug          : "<?php echo $debug; ?>"},
@@ -89,7 +91,7 @@
 			<?php
 			// Otherwise output HTML method
 			} else {
-				echo parse_feed($widgetid, $useCurl, $usernames, $usernameSuffix, $limit, $updateFrequency, $showAuthor, $showPublished, $linksNewWindow, $debug);
+				echo parse_feed($widgetid, $useCurl, $usernames, $usernameSuffix, $limit, $updateFrequency, $showAuthor, $showAvatar, $showPublished, $linksNewWindow, $debug);
 			}
 
 			// Output code that should appear after the widget
@@ -107,6 +109,7 @@
 			$instance['limit']          = strip_tags($new_instance['limit']);
 			$instance['updateFrequency']= strip_tags($new_instance['updateFrequency']);
 			$instance['showAuthor']     = strip_tags($new_instance['showAuthor']);
+			$instance['showAvatar']     = (strip_tags($new_instance['showAvatar']) == "Yes" ? true : false);
 			$instance['showPublished']  = (strip_tags($new_instance['showPublished']) == "Yes" ? true : false);
 			$instance['linksNewWindow'] = (strip_tags($new_instance['linksNewWindow']) == "Yes" ? true : false);
 			$instance['noCache']        = (strip_tags($new_instance['noCache']) == "Yes" ? true : false);
@@ -125,6 +128,7 @@
 							  'limit'          => 5,
 							  'updateFrequency'=> 0,
 							  'showAuthor'     => 'name',
+							  'showAvatar'     => true,
 							  'showPublished'  => true,
 							  'linksNewWindow' => true,
 							  'noCache'        => false,
@@ -156,6 +160,11 @@
 				<option value="none" <?php if (strcmp($instance['showAuthor'], "none") == 0) echo ' selected="selected"'; ?>>None</option>
 				<option value="name" <?php if (strcmp($instance['showAuthor'], "name") == 0) echo ' selected="selected"'; ?>>Name</option>
 				<option value="username" <?php if (strcmp($instance['showAuthor'], "username") == 0) echo ' selected="selected"'; ?>>Username</option>
+			</select></label></p>
+
+			<p><label for="<?php echo $this->get_field_id('showAvatar'); ?>"><?php _e('Show author\'s avatar:'); ?> <select id="<?php echo $this->get_field_id('showAvatar'); ?>" name="<?php echo $this->get_field_name('showAvatar'); ?>" class="widefat">
+				<option <?php if ($instance['showAvatar'] == true) echo 'selected="selected"'; ?>>Yes</option>
+				<option <?php if ($instance['showAvatar'] == false) echo 'selected="selected"'; ?>>No</option>
 			</select></label></p>
 
 			<p><label for="<?php echo $this->get_field_id('showPublished'); ?>"><?php _e('Show when published:'); ?> <select id="<?php echo $this->get_field_id('showPublished'); ?>" name="<?php echo $this->get_field_name('showPublished'); ?>" class="widefat">
@@ -257,6 +266,53 @@
 		public function setTimestamp($timestamp) {
 			$this->timestamp = trim($timestamp);
 		}
+	}
+	
+	// Returns the avatar for a given Twitter username
+	function get_twitter_avatar($username, $useCurl) {
+		$url = "http://twitter.com/users/" . $username . ".xml";
+		
+		// If user wishes to use CURL
+		if ($useCurl) {
+			// Initiate a CURL object
+			$ch = curl_init();
+
+			// Set the URL
+			curl_setopt($ch, CURLOPT_URL, $url);
+
+			// Set to return a string
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+			// Set the timeout
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+
+			// Execute the API call
+			$feed = curl_exec($ch);
+
+			// Close the CURL object
+			curl_close($ch);
+		} else {
+			// Execute the API call
+			$feed = file_get_contents($url);
+		}
+
+		// Put all entries into an array
+		$xml = explode("<user>", $feed);
+
+		// Check that there was a valid user found (if so it returns <user> if not it returns <hash>)
+		if (count($xml) > 1) {
+			// Get the image URL XML (the first instance is <user> and the rest is the remainder)
+			$image_url = explode("<profile_image_url>", $xml[1]);
+
+			// Clean up the image URL (get everything before the closing tag)
+			$clean_image_url = explode("</profile_image_url>", $image_url[1]);
+
+			// Return the image URL
+			return $clean_image_url[0];
+		}
+
+		// If nothing was found return false
+		return false;
 	}
 
 	// Returns an array of Tweets from the cache or from Twitter depending on state of cache
@@ -428,7 +484,7 @@
 	}
 
 	// Returns the tweets subjects to the given parameters
-	function parse_feed($widgetid, $useCurl, $usernames, $username_suffix, $limit, $updateFrequency, $show_username, $show_published, $links_new_window, $debug) {
+	function parse_feed($widgetid, $useCurl, $usernames, $username_suffix, $limit, $updateFrequency, $show_username, $show_avatar, $show_published, $links_new_window, $debug) {
 		$output = "";
 
 		// Contstruct a string of usernames to search for
@@ -445,6 +501,7 @@
 			$output .= "<p>username_suffix: " . $username_suffix . "</p>";
 			$output .= "<p>limit: " . $limit . "</p>";
 			$output .= "<p>show_username: " . $show_username . "</p>";
+			$output .= "<p>show_avatar: " . $show_avatar . "</p>";
 			$output .= "<p>show_published: " . $show_published . "</p>";
 			$output .= "<p>links_new_window: " . $links_new_window . "</p>";
 			$output .= "<p>URL: " . $url . "</p>";
@@ -466,11 +523,24 @@
 				// Output the list item
 				$output .= "<li class=\"thinkTwitTweet\">";
 
-				// Check if the user wants to output the name, username or nothing at all
+				$name = "";
+				// If the user wants to output the name or username then store it
 				if (strcmp($show_username, "name") == 0) {
-					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">" . $tweet->getName() . "</a>" . $username_suffix;
+					$name = $tweet->getName();
 				} elseif (strcmp($show_username, "username") == 0) {
-					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">" . $tweet->getUsername() . "</a>" . $username_suffix;
+					$name = $tweet->getUsername();
+				}
+				
+				// Check if the user wants to display the poster's avatar and that we can actually find one
+				$url = get_twitter_avatar($tweet->getUsername(), $useCurl);
+
+				if ($show_avatar == true && $url != false) {
+					$output .= "<img src=\"" . $url . "\" alt=\"" . $name . "\" />";
+				}
+				
+				// Check if the user wants to output the name, username or nothing at all
+				if (strcmp($show_username, "none") != 0) {
+					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">" . $name . "</a>" . $username_suffix;
 				}
 
 				// Check if the user wants URL's to open in a new window
@@ -650,7 +720,7 @@
 
 	// Function to handle shortcode
 	// [thinktwit use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x show_username=none|name|username 
-	// show_published=0|1 links_new_window=0|1 debug=0|1]
+	// show_avatar=0|1 show_published=0|1 links_new_window=0|1 debug=0|1]
 	function thinktwit_shortcode_handler($atts) {
 		extract(shortcode_atts(array(
 			'use_curl'         => false,
@@ -658,13 +728,14 @@
 			'username_suffix'  => ' said: ',
 			'limit'            => 5,
 			'show_username'    => 'name',
+			'show_avatar'      => true,
 			'show_published'   => true,
 			'links_new_window' => true,
 			'debug'            => false,
 		), $atts));
 		
 		// Pass the variables, but set the update frequency to always be -1 (live and uncached) - don't pass a widgetid as this isn't a widget
-		return parse_feed("", $use_curl, $usernames, $username_suffix, $limit, -1, $show_username, $show_published, $links_new_window, $debug);
+		return parse_feed("", $use_curl, $usernames, $username_suffix, $limit, -1, $show_username, $show_avatar, $show_published, $links_new_window, $debug);
 	}
 	
 	// Updates the cache with the given Tweets and stores the time of the update

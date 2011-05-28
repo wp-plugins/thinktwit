@@ -30,6 +30,7 @@ Features:
  * Supports CURL as an alternative to access the Twitter API if URL file-access is disabled
  * Supports optional caching of tweets
  * Can be implemented using shortcode
+ * Can display the avatar of the Twitter user
  
 Requirements/Restrictions:
 -------------------------
@@ -63,6 +64,11 @@ ol.thinkTwitTweets {
 ol.thinkTwitTweets li.thinkTwitTweet {
     list-style         : none;
     word-wrap          : break-word;
+}
+
+ol.thinkTwitTweets li.thinkTwitTweet img {
+    float              : left;
+	margin-right       : 5px;
 }
 
 ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
@@ -141,7 +147,7 @@ ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
 If you wish to use shortcode to access ThinkTwit you must use the following format:
 
 [thinktwit use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x show_username=none|name|username 
-show_published=0|1 links_new_window=0|1 debug=0|1]
+show_avatar=0|1 show_published=0|1 links_new_window=0|1 debug=0|1]
 
 Note: Shortcodes will always use live Twitter feeds.
 
@@ -158,6 +164,9 @@ entries like widget_thinktwit-x_cache.
 
 
 == Changelog ==
+
+= 1.1.8 =
+- (28 May 2011) Added ability to include the Twitter poster's avatar
 
 = 1.1.7 =
 - (14 May 2011) Fixed cache not saving with the widgetid (meaning all instances will share the same cache), allows cache size to grow 
