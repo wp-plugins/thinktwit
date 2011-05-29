@@ -3,7 +3,7 @@ Contributors: stephen.pickett
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit
 Requires at least: 2.8.6
-Tested up to: 3.1.2
+Tested up to: 3.1.3
 Stable tag: trunk
 
 A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike most other plugins, allows output from 
@@ -67,6 +67,7 @@ ol.thinkTwitTweets li.thinkTwitTweet {
 }
 
 ol.thinkTwitTweets li.thinkTwitTweet img {
+    border             : 0;
     float              : left;
 	margin-right       : 5px;
 }
@@ -156,6 +157,39 @@ Note: Shortcodes will always use live Twitter feeds.
 You may need to clear and rebuild your cache. Do this by going in to the wp_options table within your database and then deleting any 
 entries like widget_thinktwit-x_cache.
 
+= How do I target individual tweets? =
+You can do this in CSS like:
+
+ol.thinkTwitTweets #tweet-1 {
+  // Some CSS
+}
+
+= How do I target odd/even tweets? =
+You can do this in CSS like:
+
+ol.thinkTwitTweets li.thinkTwitOdd {
+  // Some CSS
+}
+
+ol.thinkTwitTweets li.thinkTwitEven {
+  // Some CSS
+}
+
+= How do I target the content or author or author suffix of a tweet? =
+You can do this in CSS like:
+
+ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitAuthor {
+  // Some CSS
+}
+
+ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitSuffix {
+  // Some CSS
+}
+
+ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitContent {
+  // Some CSS
+}
+
 
 == Screenshots ==
 
@@ -164,6 +198,10 @@ entries like widget_thinktwit-x_cache.
 
 
 == Changelog ==
+
+= 1.1.9 =
+- (29 May 2011) Added ability to target individual tweets, odd and even tweets, content and author suffix and linked the avatar to the 
+user's profile
 
 = 1.1.8 =
 - (28 May 2011) Added ability to include the Twitter poster's avatar

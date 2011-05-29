@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.1.8
+    Version: 1.1.9
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 */
@@ -496,6 +496,7 @@
 		// If user wishes to output debug info then do so
 		if ($debug) {
 			$output .= "<p>NOW: " . date('H:i:s', time()) . "</p>";
+			$output .= "<p>widgetid: " . $widgetid . "</p>";
 			$output .= "<p>useCurl: " . $useCurl . "</p>";
 			$output .= "<p>usernames: " . $usernames . "</p>";
 			$output .= "<p>username_suffix: " . $username_suffix . "</p>";
@@ -521,7 +522,7 @@
 				$tweet = $tweets[$i];
 
 				// Output the list item
-				$output .= "<li class=\"thinkTwitTweet\">";
+				$output .= "<li id=\"tweet-" . ($i + 1) . "\" class=\"thinkTwitTweet " . (($i + 1) % 2 ? "thinkTwitOdd" : "thinkTwitEven") . "\">";
 
 				$name = "";
 				// If the user wants to output the name or username then store it
@@ -530,19 +531,29 @@
 				} elseif (strcmp($show_username, "username") == 0) {
 					$name = $tweet->getUsername();
 				}
+
+				// Output the link to the poster's profile
+				$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">";
 				
-				// Check if the user wants to display the poster's avatar and that we can actually find one
+				// Get the URL of the poster's avatar
 				$url = get_twitter_avatar($tweet->getUsername(), $useCurl);
 
+				// Check if the user wants to display the poster's avatar and that we can actually find one
 				if ($show_avatar == true && $url != false) {
 					$output .= "<img src=\"" . $url . "\" alt=\"" . $name . "\" />";
 				}
 				
 				// Check if the user wants to output the name, username or nothing at all
 				if (strcmp($show_username, "none") != 0) {
-					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">" . $name . "</a>" . $username_suffix;
+					$output .= $name;
 				}
+				
+				// Close the link and output the suffix
+				$output .= "</a><span class=\"thinkTwitSuffix\">" . $username_suffix . "</span>";
 
+				// Surround the tweet in a span to allow targeting of the tweet
+				$output .= "<span class=\"thinkTwitContent\">";
+				
 				// Check if the user wants URL's to open in a new window
 				if ($links_new_window == true) {
 					// Find the URL's in the content
@@ -569,6 +580,9 @@
 					// Otherwise simply append the content unedited
 					$output .= $tweet->getContent();
 				}
+
+				// Close the span
+				$output .= "</span>";
 
 				// Check if the user wants to show the published date
 				if ($show_published == true) {
