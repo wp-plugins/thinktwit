@@ -34,7 +34,7 @@ Features:
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.1.2, not tested with other versions
+ * Works with Wordpress 2.8.6 to 3.1.3, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode
 
@@ -69,7 +69,7 @@ ol.thinkTwitTweets li.thinkTwitTweet {
 ol.thinkTwitTweets li.thinkTwitTweet img {
     border             : 0;
     float              : left;
-	margin-right       : 5px;
+    margin-right       : 5px;
 }
 
 ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
@@ -190,6 +190,12 @@ ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitContent {
   // Some CSS
 }
 
+= How do I prevent use of nofollow tags in my URLs? =
+
+You can apply a filter - see the following URL for an example:
+
+http://digwp.com/2010/02/remove-nofollow-attributes-from-post-content/
+
 
 == Screenshots ==
 
@@ -198,6 +204,9 @@ ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitContent {
 
 
 == Changelog ==
+
+= 1.1.10 =
+- (05 June 2011) Added ability to apply your own filters and added nofollow tags to links
 
 = 1.1.9 =
 - (29 May 2011) Added ability to target individual tweets, odd and even tweets, content and author suffix and linked the avatar to the 

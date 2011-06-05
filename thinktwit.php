@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.1.9
+    Version: 1.1.10
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 */
@@ -533,7 +533,7 @@
 				}
 
 				// Output the link to the poster's profile
-				$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\">";
+				$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\" rel=\"nofollow\">";
 				
 				// Get the URL of the poster's avatar
 				$url = get_twitter_avatar($tweet->getUsername(), $useCurl);
@@ -571,7 +571,7 @@
 						$output .=  "href=\"" . substr($url_strings[$j], 0, $pos + 1);
 
 						// Then add the code to open a new window
-						$output .= " target=\"_blank\"";
+						$output .= " target=\"_blank\" rel=\"nofollow\"";
 
 						// Then add everything after
 						$output .= substr($url_strings[$j], $pos + 1);
@@ -598,7 +598,7 @@
 
 		$output .= "</ol>";
 
-		return $output;
+		return apply_filters('think_twit',$output);
 	}
 
 	// Given a PHP time this returns how long ago that time was, in easy to understand English
