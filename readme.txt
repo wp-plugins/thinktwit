@@ -31,6 +31,7 @@ Features:
  * Supports optional caching of tweets
  * Can be implemented using shortcode
  * Can display the avatar of the Twitter user
+ * Output can be filtered (using apply_filters)
  
 Requirements/Restrictions:
 -------------------------
