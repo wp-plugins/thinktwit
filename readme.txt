@@ -3,7 +3,7 @@ Contributors: stephen.pickett
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit
 Requires at least: 2.8.6
-Tested up to: 3.1.3
+Tested up to: 3.2.1
 Stable tag: trunk
 
 A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike most other plugins, allows output from 
@@ -14,7 +14,7 @@ multiple Twitter users.
 
 ThinkTwit uses the Twitter ATOM API to display recent tweets from one or more Twitter users. It is very simple, yet flexible 
 and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through
-the use of Shortcode.
+the use of Shortcode or PHP function calls.
 
 Plugin URI: http://www.thepicketts.org/thinktwit/
 
@@ -29,7 +29,7 @@ Features:
  * Supports no-caching, to prevent caching of tweets by caching engines such as WP Super Cache
  * Supports CURL as an alternative to access the Twitter API if URL file-access is disabled
  * Supports optional caching of tweets
- * Can be implemented using shortcode
+ * Can be implemented using shortcode or PHP function call
  * Can display the avatar of the Twitter user
  * Output can be filtered (using apply_filters)
  
@@ -37,7 +37,7 @@ Requirements/Restrictions:
 -------------------------
  * Works with Wordpress 2.8.6 to 3.1.3, not tested with other versions
  * Can be installed using the widgets sidebar
- * Can also be used via shortcode
+ * Can also be used via shortcode or PHP call (which can be placed anywhere)
 
 
 == Installation ==
@@ -60,10 +60,12 @@ NOTE: For those inexperienced with CSS, simply add the following to the bottom o
 
 ol.thinkTwitTweets {
     font-size          : 12px;
+    margin             : 0;
 }
 
 ol.thinkTwitTweets li.thinkTwitTweet {
     list-style         : none;
+    margin             : 0 0 15px;
     word-wrap          : break-word;
 }
 
@@ -75,6 +77,7 @@ ol.thinkTwitTweets li.thinkTwitTweet img {
 
 ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
     display            : block;
+    font-style         : italic;
 }`
 
 = Uninstall =
@@ -83,7 +86,8 @@ To uninstall simply deactivate, delete the `thinktwit` directory from `wp-conten
 from the `wp_options` table:
 
  * widget_thinktwit
- * widget_<widgetid>_cache (where widgetid is the system generated id for each widget instance)
+ * widget_`<widgetid>`_cache (where `<widgetid>` is the system generated id for each widget instance e.g. thinktwit-3)
+ * widget_thinktwit-sc-`<unique id>`_cache (where `<unique id>` is your specified unique id for each shortcode instance e.g. thinktwit-sc-3)
 
 
 == Frequently Asked Questions ==
@@ -104,15 +108,20 @@ tweets then it will simply show the tweets stored in the cache, even if they are
 
 = How can I style ThinkTwit? =
 
-ThinkTwit uses the widget API so should be style correctly by your theme. You may, however, wish to make minor CSS changes. If so you
+ThinkTwit uses the widget API so should be styled correctly by your theme. You may, however, wish to make minor CSS changes. If so you
 should find the following information handy:
 
 * ThinkTwit essentially outputs tweets as a list
-* The list container can be access using ol.thinkTwitTweets
-* Each tweet can be accessed using ol.thinkTwitTweets li.thinkTwitTweet
-* The author within a tweet can be accessed using ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitAuthor
-* The published time within a tweet can be accessed using ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished
-* The "no tweets" message can be accessed using ol.thinkTwitTweets li.thinkTwitNoTweets
+* The list container can be accessed using `ol.thinkTwitTweets`
+* All tweets can be accessed using `ol.thinkTwitTweets li.thinkTwitTweet`
+* Individual tweets can be accessed using `ol.thinkTwitTweets #tweet-n` where n is the number of the tweet
+* Odd and even tweets can be accessed using `ol.thinkTwitTweets li.thinkTwitOdd` and `ol.thinkTwitTweets li.thinkTwitEven` accordingly
+* The author within a tweet can be accessed using `ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitAuthor`
+* The author suffix within a tweet can be accessed using `ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitSuffix`
+* The content of a tweet can be accessed using `ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitContent`
+* The published time within a tweet can be accessed using `ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished`
+* The "no tweets" message can be accessed using `ol.thinkTwitTweets li.thinkTwitNoTweets`
+* The AJAX error message ("Error: Unable to display tweets") can be accessed using `p.thinkTwitError'
 
 = How do I stop caching in caching engines such as WP Super Cache? =
 
@@ -140,56 +149,57 @@ if you are unable to do this (it may be a shared server) you can enable CURL in 
 
 This is because you haven't specified a space within your CSS. One way to do this is as follows:
 
-ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
+`ol.thinkTwitTweets li.thinkTwitTweet span.thinkTwitPublished {
   margin-left: 5px;
-}
+}`
 
-= What are is the shortcode command? =
+= What is the shortcode command? =
 
 If you wish to use shortcode to access ThinkTwit you must use the following format:
 
-[thinktwit use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x show_username=none|name|username 
-show_avatar=0|1 show_published=0|1 links_new_window=0|1 debug=0|1]
+`[thinktwit unique_id=x use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x update_frequency=x show_username=none|name|username 
+show_avatar=0|1 show_published=0|1 links_new_window=0|1 debug=0|1 time_this_happened="xxx" time_less_min="xxx" time_min="xxx" time_more_mins="xxx" 
+time_1_hour="xxx" time_2_hours="xxx" time_precise_hours="xxx" time_1_day="xxx" time_2_days="xxx" time_many_days="xxx" time_no_recent="xxx"]`
 
-Note: Shortcodes will always use live Twitter feeds.
+Note: Shortcodes will no longer automatically use live Twitter feeds - alter the update_frequency as required (-1 live (cached), 0 live (cached, 
+otherwise enter an integer for the number of hours between updates.
+
+= Can I output a feed anywhere without using shortcode? =
+
+Yes you can output ThinkTwit programmatically, e.g. in a template, using the following command:
+
+`<?php echo Foo::thinktwit_output("thinktwit-oa-" . 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22); ?>`
+
+1. Uniqe ID: integer - You should give this a unique id for caching or styling.
+1. Use CURL: boolean - Indicates whether or not to use CURL.
+1. Usernames: string - The list of Twitter usernames to output tweets for.
+1. Username Suffix: string - The text that should appear after a username e.g. " said: ".
+1. Limit: int - The maximum number of tweets to display.
+1. Update Frequency - int - Minus 1 indicates live (uncached), 0 indicates live (cached), and anything else indicates the number of 
+hours between getting updates from Twitter.
+1. Show Username: boolean - None indicates no username should be shown, name indicates the user's full name should be shown and
+username indicates the user's username should be shown.
+1. Show Avatar: boolean - Indicates whether the Twitter user's avatar should be displayed.
+1. Show Published: boolean - Indicates whether the time the tweet was made should be displayed e.g. "This happened a day ago".
+1. Links New Window: boolean - Indicates whether links should be opened in a new window.
+1. Debug: boolean - Indicates whether to turn on debugging mode.
+1. Time this happened: string - Time prefix (default: "This happened").
+1. Time less min: string - Time less than 1 minute (default: "less than a minute ago").
+1. Time min: string - Time approximately 1 minute ago (default: "about a minute ago").
+1. Time more mins: string - Time more than 1 minute ago (default: " minutes ago").
+1. Time 1 hour: string - Time approximately 1 hour ago (default: "about an hour ago").
+1. Time 2 hours: string - Time approximately 2 hours ago (default: "a couple of hours ago").
+1. Time precise hours: string - Time more than 2 hours ago (default: "about =x= hours ago"). NOTE: =x= should be used to insert the number of hours.
+1. Time 1 day: string - Time approximately 1 day ago (default: "a day ago").
+1. Time 2 days: string - Time approximately 2 days ago (default: "almost 2 days ago").
+1. Time many days: string - Time more than 2 days ago (default: " days ago").
+1. Time no recent: string - Output when there are no tweets to display (default: "There have been no recent tweets").
+
+NOTE: Parameters after debug (parameter 11) can be left out if you wish to use the default values.
 
 = I'm getting strange errors or no output =
 
-You may need to clear and rebuild your cache. Do this by going in to the wp_options table within your database and then deleting any 
-entries like widget_thinktwit-x_cache.
-
-= How do I target individual tweets? =
-You can do this in CSS like:
-
-ol.thinkTwitTweets #tweet-1 {
-  // Some CSS
-}
-
-= How do I target odd/even tweets? =
-You can do this in CSS like:
-
-ol.thinkTwitTweets li.thinkTwitOdd {
-  // Some CSS
-}
-
-ol.thinkTwitTweets li.thinkTwitEven {
-  // Some CSS
-}
-
-= How do I target the content or author or author suffix of a tweet? =
-You can do this in CSS like:
-
-ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitAuthor {
-  // Some CSS
-}
-
-ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitSuffix {
-  // Some CSS
-}
-
-ol.thinkTwitTweets li.thinkTwitTweet a.thinkTwitContent {
-  // Some CSS
-}
+You may need to clear and rebuild your cache. See uninstall instructions.
 
 = How do I prevent use of nofollow tags in my URLs? =
 
@@ -197,14 +207,31 @@ You can apply a filter - see the following URL for an example:
 
 http://digwp.com/2010/02/remove-nofollow-attributes-from-post-content/
 
+= What are the options "Show when published" and "Update frequency"? =
+
+* Show when published - indicates whether the time the tweet was made is shown e.g. "This happen 1 day ago"
+* Update frequency - indicates how often Twitter should be contacted to get a list of tweets. Use this
+to turn on or off caching, and to decide how often to update the cache
+
 
 == Screenshots ==
 
-1. screenshot-1.png shows the plugin working on the ThinkCS homepage
-1. screenshot-2.png shows the settings that can be configured within the widget
+1. screenshot-1.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage
+1. screenshot-2.png shows ThinkTwit working via shortcode within a blog post on the the ThinkTwit development homepage
+1. screenshot-3.png shows ThinkTwit working via a PHP function call in the header of the ThinkTwit development homepage
+1. screenshot-4.png shows the settings that can be configured within the widget
 
 
 == Changelog ==
+
+= 1.2.0 =
+- (26 June 2011) MAJOR UPDATES:
+* Massive update to the readme, including updated screenshots
+* Re-write of code to make better use of object orientation and private/public functions
+* More flexibility in shortcodes and output anywhere function (thinktwit_output) - including ability to use caching
+* Introduced ability to alter time output text e.g. "This happened 16 minutes ago"
+* Added class to style error message when using AJAX
+* General readability improvements to code
 
 = 1.1.10 =
 - (05 June 2011) Added ability to apply your own filters and added nofollow tags to links
@@ -272,5 +299,13 @@ updated readme with new FAQ and uninstall instructions
 = 1.0.1 =
 - (27 Jan 2010) Fixed incorrect output of ampersands and apostrophes
 
-= 1.0 =
+= 1.0.0 =
 - (21 Jan 2010) Initial Release
+
+== Upgrade Notice ==
+
+= 1.2.0 =
+- Most flexible version to date with correct visibility of functions to prevent overlap with other plugins - many other updates included.
+
+= 1.1.0 =
+- Correctly uses Widget API to allow multiple instantiations - many other updates included.
