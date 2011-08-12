@@ -1,13 +1,15 @@
 === ThinkTwit ===
 Contributors: stephen.pickett
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit
 Requires at least: 2.8.6
 Tested up to: 3.2.1
 Stable tag: trunk
 
-A sidebar widget that outputs Twitter tweets. It is highly customisable and, unlike most other plugins, allows output from 
-multiple Twitter users.
+A sidebar widget that outputs Twitter tweets. It is highly customisable through CSS and can be easily placed anywhere within your site. It supports
+caching and no-caching (if using WP Super Cache, for instance), can use JavaScript/AJAX but is not required, and can use CURL as an alternative
+connection mechanism. Unlike most other plugins it allows output from multiple Twitter users. Updated regularly!
 
 
 == Description ==
@@ -224,8 +226,11 @@ to turn on or off caching, and to decide how often to update the cache
 
 == Changelog ==
 
+= 1.2.1 =
+- (07 Aug 2011) Added donation links and expandable menus within the widget settings
+
 = 1.2.0 =
-- (26 June 2011) MAJOR UPDATES:
+- (05 Aug 2011) MAJOR UPDATES:
 * Massive update to the readme, including updated screenshots
 * Re-write of code to make better use of object orientation and private/public functions
 * More flexibility in shortcodes and output anywhere function (thinktwit_output) - including ability to use caching
@@ -234,7 +239,7 @@ to turn on or off caching, and to decide how often to update the cache
 * General readability improvements to code
 
 = 1.1.10 =
-- (05 June 2011) Added ability to apply your own filters and added nofollow tags to links
+- (05 Jun 2011) Added ability to apply your own filters and added nofollow tags to links
 
 = 1.1.9 =
 - (29 May 2011) Added ability to target individual tweets, odd and even tweets, content and author suffix and linked the avatar to the 

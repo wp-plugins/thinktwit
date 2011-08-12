@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface
-    Version: 1.2.0
+    Version: 1.2.2
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 */
@@ -135,7 +135,7 @@
 			} else {
 				echo ThinkTwit::parse_feed($widget_id, $use_curl, $usernames, $username_suffix, $limit, $update_frequency, $show_author, $show_avatar, $show_published, $links_new_window, $debug, $time_settings);
 			}
-
+			
 			// Output code that should appear after the widget
 			echo $after_widget;
 		}
@@ -203,84 +203,105 @@
 			$instance = wp_parse_args((array) $instance, $defaults);
 
 		?>
-			<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></label></p>
+			<div class="widget" style="border: 0">
+				<div class="widget-top" style="border: 0; background: inherit; cursor: default; width: 94%">
+					<div class="widget-title-action"><a class="widget-action hide-if-no-js" href="#available-widgets"></a></div>
+					<div class="widget-title" style="padding: 6px 0 0"><h3 style="margin: 0; cursor: default">General Settings</h3></div>
+				</div>
+				<div class="widget-inside" style="display: block; border: 1px solid #DFDFDF; padding: 5px; width: 86%;">
+					<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('usernames'); ?>"><?php _e('Twitter usernames (separated by spaces):'); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id('usernames'); ?>" name="<?php echo $this->get_field_name('usernames'); ?>"><?php echo $instance['usernames']; ?></textarea></label></p>
+					<p><label for="<?php echo $this->get_field_id('usernames'); ?>"><?php _e('Twitter usernames (separated by spaces):'); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id('usernames'); ?>" name="<?php echo $this->get_field_name('usernames'); ?>"><?php echo $instance['usernames']; ?></textarea></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('usernameSuffix'); ?>"><?php _e('Username suffix (e.g. " said "):'); ?> <input class="widefat" id="<?php echo $this->get_field_id('usernameSuffix'); ?>" name="<?php echo $this->get_field_name('usernameSuffix'); ?>" type="text" value="<?php echo $instance['usernameSuffix']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id('usernameSuffix'); ?>"><?php _e('Username suffix (e.g. " said "):'); ?> <input class="widefat" id="<?php echo $this->get_field_id('usernameSuffix'); ?>" name="<?php echo $this->get_field_name('usernameSuffix'); ?>" type="text" value="<?php echo $instance['usernameSuffix']; ?>" /></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('limit'); ?>"><?php _e('Max tweets to display:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $instance['limit']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('updateFrequency'); ?>"><?php _e('Update frequency:'); ?> <select id="<?php echo $this->get_field_id('updateFrequency'); ?>" name="<?php echo $this->get_field_name('updateFrequency'); ?>" class="widefat">
-				<option value="-1" <?php if (strcmp($instance['updateFrequency'], -1) == 0) echo ' selected="selected"'; ?>>Live (uncached)</option>
-				<option value="0" <?php if (strcmp($instance['updateFrequency'], 0) == 0) echo ' selected="selected"'; ?>>Live (cached)</option>
-				<option value="1" <?php if (strcmp($instance['updateFrequency'], 1) == 0) echo ' selected="selected"'; ?>>Hourly</option>
-				<option value="2" <?php if (strcmp($instance['updateFrequency'], 2) == 0) echo ' selected="selected"'; ?>>Every 2 hours</option>
-				<option value="4" <?php if (strcmp($instance['updateFrequency'], 4) == 0) echo ' selected="selected"'; ?>>Every 4 hours</option>
-				<option value="12" <?php if (strcmp($instance['updateFrequency'], 12) == 0) echo ' selected="selected"'; ?>>Every 12 hours</option>
-				<option value="24" <?php if (strcmp($instance['updateFrequency'], 24) == 0) echo ' selected="selected"'; ?>>Every day</option>
-				<option value="48" <?php if (strcmp($instance['updateFrequency'], 48) == 0) echo ' selected="selected"'; ?>>Every 2 days</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('limit'); ?>"><?php _e('Max tweets to display:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $instance['limit']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('updateFrequency'); ?>"><?php _e('Update frequency:'); ?> <select id="<?php echo $this->get_field_id('updateFrequency'); ?>" name="<?php echo $this->get_field_name('updateFrequency'); ?>" class="widefat">
+						<option value="-1" <?php if (strcmp($instance['updateFrequency'], -1) == 0) echo ' selected="selected"'; ?>>Live (uncached)</option>
+						<option value="0" <?php if (strcmp($instance['updateFrequency'], 0) == 0) echo ' selected="selected"'; ?>>Live (cached)</option>
+						<option value="1" <?php if (strcmp($instance['updateFrequency'], 1) == 0) echo ' selected="selected"'; ?>>Hourly</option>
+						<option value="2" <?php if (strcmp($instance['updateFrequency'], 2) == 0) echo ' selected="selected"'; ?>>Every 2 hours</option>
+						<option value="4" <?php if (strcmp($instance['updateFrequency'], 4) == 0) echo ' selected="selected"'; ?>>Every 4 hours</option>
+						<option value="12" <?php if (strcmp($instance['updateFrequency'], 12) == 0) echo ' selected="selected"'; ?>>Every 12 hours</option>
+						<option value="24" <?php if (strcmp($instance['updateFrequency'], 24) == 0) echo ' selected="selected"'; ?>>Every day</option>
+						<option value="48" <?php if (strcmp($instance['updateFrequency'], 48) == 0) echo ' selected="selected"'; ?>>Every 2 days</option>
+					</select></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('showAuthor'); ?>"><?php _e('Show author:'); ?> <select id="<?php echo $this->get_field_id('showAuthor'); ?>" name="<?php echo $this->get_field_name('showAuthor'); ?>" class="widefat">
-				<option value="none" <?php if (strcmp($instance['showAuthor'], "none") == 0) echo ' selected="selected"'; ?>>None</option>
-				<option value="name" <?php if (strcmp($instance['showAuthor'], "name") == 0) echo ' selected="selected"'; ?>>Name</option>
-				<option value="username" <?php if (strcmp($instance['showAuthor'], "username") == 0) echo ' selected="selected"'; ?>>Username</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('showAuthor'); ?>"><?php _e('Show author:'); ?> <select id="<?php echo $this->get_field_id('showAuthor'); ?>" name="<?php echo $this->get_field_name('showAuthor'); ?>" class="widefat">
+						<option value="none" <?php if (strcmp($instance['showAuthor'], "none") == 0) echo ' selected="selected"'; ?>>None</option>
+						<option value="name" <?php if (strcmp($instance['showAuthor'], "name") == 0) echo ' selected="selected"'; ?>>Name</option>
+						<option value="username" <?php if (strcmp($instance['showAuthor'], "username") == 0) echo ' selected="selected"'; ?>>Username</option>
+					</select></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('showAvatar'); ?>"><?php _e('Show author\'s avatar:'); ?> <select id="<?php echo $this->get_field_id('showAvatar'); ?>" name="<?php echo $this->get_field_name('showAvatar'); ?>" class="widefat">
-				<option <?php if ($instance['showAvatar'] == true) echo 'selected="selected"'; ?>>Yes</option>
-				<option <?php if ($instance['showAvatar'] == false) echo 'selected="selected"'; ?>>No</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('showAvatar'); ?>"><?php _e('Show author\'s avatar:'); ?> <select id="<?php echo $this->get_field_id('showAvatar'); ?>" name="<?php echo $this->get_field_name('showAvatar'); ?>" class="widefat">
+						<option <?php if ($instance['showAvatar'] == true) echo 'selected="selected"'; ?>>Yes</option>
+						<option <?php if ($instance['showAvatar'] == false) echo 'selected="selected"'; ?>>No</option>
+					</select></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('showPublished'); ?>"><?php _e('Show when published:'); ?> <select id="<?php echo $this->get_field_id('showPublished'); ?>" name="<?php echo $this->get_field_name('showPublished'); ?>" class="widefat">
-				<option <?php if ($instance['showPublished'] == true) echo 'selected="selected"'; ?>>Yes</option>
-				<option <?php if ($instance['showPublished'] == false) echo 'selected="selected"'; ?>>No</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('showPublished'); ?>"><?php _e('Show when published:'); ?> <select id="<?php echo $this->get_field_id('showPublished'); ?>" name="<?php echo $this->get_field_name('showPublished'); ?>" class="widefat">
+						<option <?php if ($instance['showPublished'] == true) echo 'selected="selected"'; ?>>Yes</option>
+						<option <?php if ($instance['showPublished'] == false) echo 'selected="selected"'; ?>>No</option>
+					</select></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('linksNewWindow'); ?>"><?php _e('Open links in new window:'); ?> <select id="<?php echo $this->get_field_id('linksNewWindow'); ?>" name="<?php echo $this->get_field_name('linksNewWindow'); ?>" class="widefat">
-				<option <?php if ($instance['linksNewWindow'] == true) echo 'selected="selected"'; ?>>Yes</option>
-				<option <?php if ($instance['linksNewWindow'] == false) echo 'selected="selected"'; ?>>No</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('linksNewWindow'); ?>"><?php _e('Open links in new window:'); ?> <select id="<?php echo $this->get_field_id('linksNewWindow'); ?>" name="<?php echo $this->get_field_name('linksNewWindow'); ?>" class="widefat">
+						<option <?php if ($instance['linksNewWindow'] == true) echo 'selected="selected"'; ?>>Yes</option>
+						<option <?php if ($instance['linksNewWindow'] == false) echo 'selected="selected"'; ?>>No</option>
+					</select></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('noCache'); ?>"><?php _e('Prevent caching e.g. by WP Super Cache:'); ?> <select id="<?php echo $this->get_field_id('noCache'); ?>" name="<?php echo $this->get_field_name('noCache'); ?>" class="widefat">
-				<option <?php if ($instance['noCache'] == true) echo 'selected="selected"'; ?>>Yes</option>
-				<option <?php if ($instance['noCache'] == false) echo 'selected="selected"'; ?>>No</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('noCache'); ?>"><?php _e('Prevent caching e.g. by WP Super Cache:'); ?> <select id="<?php echo $this->get_field_id('noCache'); ?>" name="<?php echo $this->get_field_name('noCache'); ?>" class="widefat">
+						<option <?php if ($instance['noCache'] == true) echo 'selected="selected"'; ?>>Yes</option>
+						<option <?php if ($instance['noCache'] == false) echo 'selected="selected"'; ?>>No</option>
+					</select></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('useCurl'); ?>"><?php _e('Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):'); ?> <select id="<?php echo $this->get_field_id('useCurl'); ?>" name="<?php echo $this->get_field_name('useCurl'); ?>" class="widefat">
-				<option <?php if ($instance['useCurl'] == true) echo 'selected="selected"'; ?>>Yes</option>
-				<option <?php if ($instance['useCurl'] == false) echo 'selected="selected"'; ?>>No</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('useCurl'); ?>"><?php _e('Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):'); ?> <select id="<?php echo $this->get_field_id('useCurl'); ?>" name="<?php echo $this->get_field_name('useCurl'); ?>" class="widefat">
+						<option <?php if ($instance['useCurl'] == true) echo 'selected="selected"'; ?>>Yes</option>
+						<option <?php if ($instance['useCurl'] == false) echo 'selected="selected"'; ?>>No</option>
+					</select></label></p>
 
-			<p><label for="<?php echo $this->get_field_id('debug'); ?>"><?php _e('Output debug messages:'); ?> <select id="<?php echo $this->get_field_id('debug'); ?>" name="<?php echo $this->get_field_name('debug'); ?>" class="widefat">
-				<option <?php if ($instance['debug'] == true) echo 'selected="selected"'; ?>>Yes</option>
-				<option <?php if ($instance['debug'] == false) echo 'selected="selected"'; ?>>No</option>
-			</select></label></p>
+					<p><label for="<?php echo $this->get_field_id('debug'); ?>"><?php _e('Output debug messages:'); ?> <select id="<?php echo $this->get_field_id('debug'); ?>" name="<?php echo $this->get_field_name('debug'); ?>" class="widefat">
+						<option <?php if ($instance['debug'] == true) echo 'selected="selected"'; ?>>Yes</option>
+						<option <?php if ($instance['debug'] == false) echo 'selected="selected"'; ?>>No</option>
+					</select></label></p>
+				</div>
+			</div>
 			
-			<h3>Time Messages (optional)</h3>
+			<div class="widget" style="border: 0">
+				<div class="widget-top" style="border: 0; background: inherit; cursor: default; width: 94%">
+					<div class="widget-title-action"><a class="widget-action hide-if-no-js" href="#available-widgets"></a></div>
+					<div class="widget-title" style="padding: 6px 0 0"><h3 style="margin: 0; cursor: default">Time Messages</h3></div>
+				</div>
+				<div class="widget-inside" style="border: 1px solid #DFDFDF; padding: 5px; width: 86%;">
+					<p>NOTE: The editing of these messages is optional.</p>
+					
+					<p><label for="<?php echo $this->get_field_id('timeThisHappened'); ?>"><?php _e('Time prefix:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeThisHappened'); ?>" name="<?php echo $this->get_field_name('timeThisHappened'); ?>" type="text" value="<?php echo $instance['timeThisHappened']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('timeLessMin'); ?>"><?php _e('Less than 59 seconds ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeLessMin'); ?>" name="<?php echo $this->get_field_name('timeLessMin'); ?>" type="text" value="<?php echo $instance['timeLessMin']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('timeMin'); ?>"><?php _e('Less than 1 minute 59 seconds ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeMin'); ?>" name="<?php echo $this->get_field_name('timeMin'); ?>" type="text" value="<?php echo $instance['timeMin']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('timeMoreMins'); ?>"><?php _e('Less than 50 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeMoreMins'); ?>" name="<?php echo $this->get_field_name('timeMoreMins'); ?>" type="text" value="<?php echo $instance['timeMoreMins']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('time1Hour'); ?>"><?php _e('Less than 89 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time1Hour'); ?>" name="<?php echo $this->get_field_name('time1Hour'); ?>" type="text" value="<?php echo $instance['time1Hour']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('time2Hours'); ?>"><?php _e('Less than 150 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time2Hours'); ?>" name="<?php echo $this->get_field_name('time2Hours'); ?>" type="text" value="<?php echo $instance['time2Hours']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('timePreciseHours'); ?>"><?php _e('Less than 23 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timePreciseHours'); ?>" name="<?php echo $this->get_field_name('timePreciseHours'); ?>" type="text" value="<?php echo $instance['timePreciseHours']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('time1Day'); ?>"><?php _e('Less than 36 hours:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time1Day'); ?>" name="<?php echo $this->get_field_name('time1Day'); ?>" type="text" value="<?php echo $instance['time1Day']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('time2Days'); ?>"><?php _e('Less than 48 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time2Days'); ?>" name="<?php echo $this->get_field_name('time2Days'); ?>" type="text" value="<?php echo $instance['time2Days']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('timeManyDays'); ?>"><?php _e('More than 48 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeManyDays'); ?>" name="<?php echo $this->get_field_name('timeManyDays'); ?>" type="text" value="<?php echo $instance['timeManyDays']; ?>" /></label></p>
+					
+					<p><label for="<?php echo $this->get_field_id('timeNoRecent'); ?>"><?php _e('No recent tweets:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeNoRecent'); ?>" name="<?php echo $this->get_field_name('timeNoRecent'); ?>" type="text" value="<?php echo $instance['timeNoRecent']; ?>" /></label></p>
+				</div>
+			</div>
 			
-			<p><label for="<?php echo $this->get_field_id('timeThisHappened'); ?>"><?php _e('Time prefix:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeThisHappened'); ?>" name="<?php echo $this->get_field_name('timeThisHappened'); ?>" type="text" value="<?php echo $instance['timeThisHappened']; ?>" /></label></p>
+			<h3>Support Development</h3>
 			
-			<p><label for="<?php echo $this->get_field_id('timeLessMin'); ?>"><?php _e('Less than 59 seconds ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeLessMin'); ?>" name="<?php echo $this->get_field_name('timeLessMin'); ?>" type="text" value="<?php echo $instance['timeLessMin']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('timeMin'); ?>"><?php _e('Less than 1 minute 59 seconds ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeMin'); ?>" name="<?php echo $this->get_field_name('timeMin'); ?>" type="text" value="<?php echo $instance['timeMin']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('timeMoreMins'); ?>"><?php _e('Less than 50 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeMoreMins'); ?>" name="<?php echo $this->get_field_name('timeMoreMins'); ?>" type="text" value="<?php echo $instance['timeMoreMins']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('time1Hour'); ?>"><?php _e('Less than 89 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time1Hour'); ?>" name="<?php echo $this->get_field_name('time1Hour'); ?>" type="text" value="<?php echo $instance['time1Hour']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('time2Hours'); ?>"><?php _e('Less than 150 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time2Hours'); ?>" name="<?php echo $this->get_field_name('time2Hours'); ?>" type="text" value="<?php echo $instance['time2Hours']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('timePreciseHours'); ?>"><?php _e('Less than 23 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timePreciseHours'); ?>" name="<?php echo $this->get_field_name('timePreciseHours'); ?>" type="text" value="<?php echo $instance['timePreciseHours']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('time1Day'); ?>"><?php _e('Less than 36 hours:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time1Day'); ?>" name="<?php echo $this->get_field_name('time1Day'); ?>" type="text" value="<?php echo $instance['time1Day']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('time2Days'); ?>"><?php _e('Less than 48 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time2Days'); ?>" name="<?php echo $this->get_field_name('time2Days'); ?>" type="text" value="<?php echo $instance['time2Days']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('timeManyDays'); ?>"><?php _e('More than 48 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeManyDays'); ?>" name="<?php echo $this->get_field_name('timeManyDays'); ?>" type="text" value="<?php echo $instance['timeManyDays']; ?>" /></label></p>
-			
-			<p><label for="<?php echo $this->get_field_id('timeNoRecent'); ?>"><?php _e('No recent tweets:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeNoRecent'); ?>" name="<?php echo $this->get_field_name('timeNoRecent'); ?>" type="text" value="<?php echo $instance['timeNoRecent']; ?>" /></label></p>
+			<p>If you would like to support development of ThinkTwit donations are gratefully accepted:</p>
+			<p style="text-align:center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E" target="_blank"><img src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" alt="PayPal — The safer, easier way to pay online." /></a><img src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" alt="" width="1" height="1" border="0" /></p>
 		<?php
 		}
 		
