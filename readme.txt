@@ -159,7 +159,7 @@ This is because you haven't specified a space within your CSS. One way to do thi
 
 If you wish to use shortcode to access ThinkTwit you must use the following format:
 
-`[thinktwit unique_id=x use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x update_frequency=x show_username=none|name|username 
+`[thinktwit unique_id=x use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x max-days=x update_frequency=x show_username=none|name|username 
 show_avatar=0|1 show_published=0|1 links_new_window=0|1 debug=0|1 time_this_happened="xxx" time_less_min="xxx" time_min="xxx" time_more_mins="xxx" 
 time_1_hour="xxx" time_2_hours="xxx" time_precise_hours="xxx" time_1_day="xxx" time_2_days="xxx" time_many_days="xxx" time_no_recent="xxx"]`
 
@@ -170,21 +170,22 @@ otherwise enter an integer for the number of hours between updates.
 
 Yes you can output ThinkTwit programmatically, e.g. in a template, using the following command:
 
-`<?php echo Foo::thinktwit_output("thinktwit-oa-" . 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22); ?>`
+`<?php echo ThinkTwit::thinktwit_output("thinktwit-oa-" . 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23); ?>`
 
 1. Uniqe ID: integer - You should give this a unique id for caching or styling.
-1. Use CURL: boolean - Indicates whether or not to use CURL.
+1. Use CURL: boolean - Indicates whether or not to use CURL - 0 is false and 1 is true.
 1. Usernames: string - The list of Twitter usernames to output tweets for.
 1. Username Suffix: string - The text that should appear after a username e.g. " said: ".
 1. Limit: int - The maximum number of tweets to display.
+1. Max Days: int - The maximum age in days of the tweets to be displayed.
 1. Update Frequency - int - Minus 1 indicates live (uncached), 0 indicates live (cached), and anything else indicates the number of 
 hours between getting updates from Twitter.
-1. Show Username: boolean - None indicates no username should be shown, name indicates the user's full name should be shown and
+1. Show Username: string - None indicates no username should be shown, name indicates the user's full name should be shown and
 username indicates the user's username should be shown.
-1. Show Avatar: boolean - Indicates whether the Twitter user's avatar should be displayed.
-1. Show Published: boolean - Indicates whether the time the tweet was made should be displayed e.g. "This happened a day ago".
-1. Links New Window: boolean - Indicates whether links should be opened in a new window.
-1. Debug: boolean - Indicates whether to turn on debugging mode.
+1. Show Avatar: boolean - Indicates whether the Twitter user's avatar should be displayed - 0 is false and 1 is true.
+1. Show Published: boolean - Indicates whether the time the tweet was made should be displayed e.g. "This happened a day ago" - 0 is false and 1 is true.
+1. Links New Window: boolean - Indicates whether links should be opened in a new window - 0 is false and 1 is true.
+1. Debug: boolean - Indicates whether to turn on debugging mode - 0 is false and 1 is true.
 1. Time this happened: string - Time prefix (default: "This happened").
 1. Time less min: string - Time less than 1 minute (default: "less than a minute ago").
 1. Time min: string - Time approximately 1 minute ago (default: "about a minute ago").
@@ -225,6 +226,13 @@ to turn on or off caching, and to decide how often to update the cache
 
 
 == Changelog ==
+
+= 1.2.2 =
+- (14 Oct 2011) Fixed incorrect PHP function call example in FAQ, fixed incorrect "Show Username" type in FAQ, fixed incorrect
+boolean values in FAQ, removed silly copyright statement in comments, added link to FAQ within Plugins description to aid use 
+of shortcode, fixed (intermittent) bad check of boolean for displaying avatars and function call and added limit to the maximum 
+days of tweets to be output (NOTE: if upgrading and already using PHP function call please add the max_days parameter after limit 
+- parameter 5)
 
 = 1.2.1 =
 - (07 Aug 2011) Added donation links and expandable menus within the widget settings
@@ -309,8 +317,11 @@ updated readme with new FAQ and uninstall instructions
 
 == Upgrade Notice ==
 
+= 1.2.2 =
+- Multiple fixes - NOTE: please add max_days value in shortcodes and PHP function calls, and set setting within widget settings
+
 = 1.2.0 =
-- Most flexible version to date with correct visibility of functions to prevent overlap with other plugins - many other updates included.
+- Most flexible version to date with correct visibility of functions to prevent overlap with other plugins - many other updates included
 
 = 1.1.0 =
-- Correctly uses Widget API to allow multiple instantiations - many other updates included.
+- Correctly uses Widget API to allow multiple instantiations - many other updates included
