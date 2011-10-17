@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or PHP function, visit the <a href="http://wordpress.org/extend/plugins/thinktwit/faq/" target="blank">ThinkTwit FAQ</a> for instructions
-    Version: 1.2.1
+    Version: 1.2.2
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
