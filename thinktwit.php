@@ -2,8 +2,8 @@
 /*
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
-    Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or PHP function, visit the <a href="http://wordpress.org/extend/plugins/thinktwit/faq/" target="blank">ThinkTwit FAQ</a> for instructions
-    Version: 1.2.2
+    Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
+    Version: 1.3.0
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,29 +21,50 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("TIME_THIS_HAPPENED", "This happened ");
-	define("TIME_LESS_MIN",      "less than a minute ago");
-	define("TIME_MIN",           "about a minute ago");
-	define("TIME_MORE_MINS",     " minutes ago");
-	define("TIME_1_HOUR",        "about an hour ago");
-	define("TIME_2_HOURS",       "a couple of hours ago");
-	define("TIME_PRECISE_HOURS", "about =x= hours ago");
-	define("TIME_1_DAY",         "a day ago");
-	define("TIME_2_DAYS",        "almost 2 days ago");
-	define("TIME_MANY_DAYS",     " days ago");
-	define("TIME_NO_RECENT",     "There have been no recent tweets");
+	define("USERNAMES", 			"stephenpickett");
+	define("USERNAME_SUFFIX", 		" said: ");
+	define("LIMIT", 				5);
+	define("MAX_DAYS", 				7);
+	define("UPDATE_FREQUENCY", 		0);
+	define("SHOW_USERNAME", 		"name");
+	define("SHOW_AVATAR", 			1);
+	define("SHOW_PUBLISHED", 		1);
+	define("LINKS_NEW_WINDOW", 		1);
+	define("NO_CACHE", 				0);
+	define("USE_CURL", 				0);
+	define("DEBUG", 				0);
+	define("TIME_THIS_HAPPENED",	"This happened ");
+	define("TIME_LESS_MIN",      	"less than a minute ago");
+	define("TIME_MIN",           	"about a minute ago");
+	define("TIME_MORE_MINS",     	" minutes ago");
+	define("TIME_1_HOUR",        	"about an hour ago");
+	define("TIME_2_HOURS",       	"a couple of hours ago");
+	define("TIME_PRECISE_HOURS", 	"about =x= hours ago");
+	define("TIME_1_DAY",         	"a day ago");
+	define("TIME_2_DAYS",        	"almost 2 days ago");
+	define("TIME_MANY_DAYS",     	" days ago");
+	define("TIME_NO_RECENT",     	"There have been no recent tweets");
 
 	class ThinkTwit extends WP_Widget {	
 		// Constructor
 		public function ThinkTwit() {
 			// Set the description of the widget
-			$widget_ops = array('description' => 'Outputs tweets from one or more Twitter users through the Widget interface');
-			
-			// Override the default constructor, passing the name and description
-			parent::WP_Widget('thinkTwit', $name = 'ThinkTwit', $widget_ops);
+			$widget_ops = array("description" => "Outputs tweets from one or more Twitter users through the Widget interface");
 
 			// Load jQuery
-			wp_enqueue_script('jquery');
+			wp_enqueue_script("jquery");
+			
+			// Load stylesheet
+			$thinktwit_style_url = plugins_url("thinktwit.css", __FILE__); // Respects SSL, stylesheet is relative to the current file
+			$thinktwit_style_file = WP_PLUGIN_DIR . "/thinktwit/thinktwit.css";
+			
+			if (file_exists($thinktwit_style_file)) {
+				wp_register_style("thinktwit", $thinktwit_style_url);
+				wp_enqueue_style("thinktwit");
+			}
+			
+			// Override the default constructor, passing the name and description
+			parent::WP_Widget("thinkTwit", $name = "ThinkTwit", $widget_ops);
 		}
 
 		// Display the widget
@@ -51,36 +72,36 @@
 			extract($args);
 
 			// Get the div id of the widget
-			$widget_id        = $args['widget_id'];
+			$widget_id        = $args["widget_id"];
 
 			// Store the widget values in variables
-			$title            = apply_filters('widget_title', $instance['title']);
-			$usernames        = $instance['usernames'];
-			$username_suffix  = $instance['usernameSuffix'];
-			$limit            = $instance['limit'];
-			$max_days         = $instance['maxDays'];
-			$update_frequency = $instance['updateFrequency'];
-			$show_author      = $instance['showAuthor'];
-			$show_avatar      = $instance['showAvatar'];
-			$show_published   = isset($instance['showPublished']) ? $instance['showPublished'] : false;
-			$links_new_window = isset($instance['linksNewWindow']) ? $instance['linksNewWindow'] : false;
-			$no_cache         = isset($instance['noCache']) ? $instance['noCache'] : false;
-			$use_curl         = isset($instance['useCurl']) ? $instance['useCurl'] : false;
-			$debug            = isset($instance['debug']) ? $instance['debug'] : false;
+			$title            = apply_filters("widget_title", $instance["title"]);
+			$usernames        = $instance["usernames"];
+			$username_suffix  = $instance["username_suffix"];
+			$limit            = $instance["limit"];
+			$max_days         = $instance["max_days"];
+			$update_frequency = $instance["update_frequency"];
+			$show_username    = $instance["show_username"];
+			$show_avatar      = $instance["show_avatar"];
+			$show_published   = isset($instance["show_published"]) ? $instance["show_published"] : false;
+			$links_new_window = isset($instance["links_new_window"]) ? $instance["links_new_window"] : false;
+			$no_cache         = isset($instance["no_cache"]) ? $instance["no_cache"] : false;
+			$use_curl         = isset($instance["use_curl"]) ? $instance["use_curl"] : false;
+			$debug            = isset($instance["debug"]) ? $instance["debug"] : false;
 			
 			// Times
 			$time_settings = array(11);
-			$time_settings[0] = $instance['timeThisHappened'];
-			$time_settings[1] = $instance['timeLessMin'];
-			$time_settings[2] = $instance['timeMin'];
-			$time_settings[3] = $instance['timeMoreMins'];
-			$time_settings[4] = $instance['time1Hour'];
-			$time_settings[5] = $instance['time2Hours'];
-			$time_settings[6] = $instance['timePreciseHours'];
-			$time_settings[7] = $instance['time1Day'];
-			$time_settings[8] = $instance['time2Days'];
-			$time_settings[9] = $instance['timeManyDays'];
-			$time_settings[10]= $instance['timeNoRecent'];
+			$time_settings[0] = $instance["time_this_happened"];
+			$time_settings[1] = $instance["time_less_min"];
+			$time_settings[2] = $instance["time_min"];
+			$time_settings[3] = $instance["time_more_mins"];
+			$time_settings[4] = $instance["time_1_hour"];
+			$time_settings[5] = $instance["time_2_hours"];
+			$time_settings[6] = $instance["time_precise_hours"];
+			$time_settings[7] = $instance["time_1_day"];
+			$time_settings[8] = $instance["time_2_days"];
+			$time_settings[9] = $instance["time_many_days"];
+			$time_settings[10]= $instance["time_no_recent"];
 			
 			// Output code that should appear before the widget
 			echo $before_widget;
@@ -90,48 +111,11 @@
 				echo $before_title . $title . $after_title;
 
 			// If the user selected to not cache the widget then output AJAX method
-			if ($no_cache) { ?>
-				<script type="text/javascript">
-					jQuery(document).ready(function($){
-						$.ajax({
-						  type : "GET",
-						  url : "index.php",
-						  data : { thinktwit_request             : "parse_feed",
-                                   thinktwit_widget_id           : "<?php echo $widget_id; ?>",
-								   thinktwit_use_curl            : "<?php echo $use_curl; ?>",
-								   thinktwit_usernames           : "<?php echo $usernames; ?>",
-								   thinktwit_username_suffix     : "<?php echo $username_suffix; ?>",
-								   thinktwit_limit               : "<?php echo $limit; ?>",
-								   thinktwit_max_days            : "<?php echo $max_days; ?>",
-								   thinktwit_update_frequency    : "<?php echo $update_frequency; ?>",
-								   thinktwit_show_author         : "<?php echo $show_author; ?>",
-								   thinktwit_show_avatar         : "<?php echo $show_avatar; ?>",
-								   thinktwit_show_published      : "<?php echo $show_published; ?>",
-								   thinktwit_links_new_window    : "<?php echo $links_new_window; ?>",
-								   thinktwit_debug               : "<?php echo $debug; ?>",
-								   thinktwit_time_this_happened  : "<?php echo $time_settings[0]; ?>",
-								   thinktwit_time_less_min       : "<?php echo $time_settings[1]; ?>",
-								   thinktwit_time_min            : "<?php echo $time_settings[2]; ?>",
-								   thinktwit_time_more_mins      : "<?php echo $time_settings[3]; ?>",
-								   thinktwit_time_1_hour         : "<?php echo $time_settings[4]; ?>",
-								   thinktwit_time_2_hours        : "<?php echo $time_settings[5]; ?>",
-								   thinktwit_time_precise_hours  : "<?php echo $time_settings[6]; ?>",
-								   thinktwit_time_1_day          : "<?php echo $time_settings[7]; ?>",
-								   thinktwit_time_2_days         : "<?php echo $time_settings[8]; ?>",
-								   thinktwit_time_many_days      : "<?php echo $time_settings[9]; ?>",
-								   thinktwit_time_no_recent      : "<?php echo $time_settings[10]; ?>"
-								 },
-						  success : function(response) {
-							// The server has finished executing PHP and has returned something, so display it!
-							$("#<?php echo $widget_id; ?>").append(response);
-						  }
-						});
-					});
-				</script>
-			<?php
+			if ($no_cache) { 
+				echo ThinkTwit::output_ajax($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings);
 			// Otherwise output HTML method
 			} else {
-				echo ThinkTwit::parse_feed($widget_id, $use_curl, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_author, $show_avatar, $show_published, $links_new_window, $debug, $time_settings);
+				echo ThinkTwit::parse_feed($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings);
 			}
 			
 			// Output code that should appear after the widget
@@ -143,30 +127,30 @@
 			$instance = $old_instance;
 
 			// Strip tags and update the widget settings
-			$instance['title']            = strip_tags($new_instance['title']);
-			$instance['usernames']        = strip_tags($new_instance['usernames']);
-			$instance['usernameSuffix']   = strip_tags($new_instance['usernameSuffix']);
-			$instance['limit']            = strip_tags($new_instance['limit']);
-			$instance['maxDays']          = strip_tags($new_instance['maxDays']);
-			$instance['updateFrequency']  = strip_tags($new_instance['updateFrequency']);
-			$instance['showAuthor']       = strip_tags($new_instance['showAuthor']);
-			$instance['showAvatar']       = (strip_tags($new_instance['showAvatar']) == "Yes" ? true : false);
-			$instance['showPublished']    = (strip_tags($new_instance['showPublished']) == "Yes" ? true : false);
-			$instance['linksNewWindow']   = (strip_tags($new_instance['linksNewWindow']) == "Yes" ? true : false);
-			$instance['noCache']          = (strip_tags($new_instance['noCache']) == "Yes" ? true : false);
-			$instance['useCurl']          = (strip_tags($new_instance['useCurl']) == "Yes" ? true : false);
-			$instance['debug']            = (strip_tags($new_instance['debug']) == "Yes" ? true : false);
-			$instance['timeThisHappened'] = strip_tags($new_instance['timeThisHappened']);
-			$instance['timeLessMin']      = strip_tags($new_instance['timeLessMin']);
-			$instance['timeMin']          = strip_tags($new_instance['timeMin']);
-			$instance['timeMoreMins']     = strip_tags($new_instance['timeMoreMins']);
-			$instance['time1Hour']        = strip_tags($new_instance['time1Hour']);
-			$instance['time2Hours']       = strip_tags($new_instance['time2Hours']);
-			$instance['timePreciseHours'] = strip_tags($new_instance['timePreciseHours']);
-			$instance['time1Day']         = strip_tags($new_instance['time1Day']);
-			$instance['time2Days']        = strip_tags($new_instance['time2Days']);
-			$instance['timeManyDays']     = strip_tags($new_instance['timeManyDays']);
-			$instance['timeNoRecent']     = strip_tags($new_instance['timeNoRecent']);
+			$instance["title"]              = strip_tags($new_instance["title"]);
+			$instance["usernames"]          = strip_tags($new_instance["usernames"]);
+			$instance["username_suffix"]    = strip_tags($new_instance["username_suffix"]);
+			$instance["limit"]              = strip_tags($new_instance["limit"]);
+			$instance["max_days"]           = strip_tags($new_instance["max_days"]);
+			$instance["update_frequency"]   = strip_tags($new_instance["update_frequency"]);
+			$instance["show_username"]      = strip_tags($new_instance["show_username"]);
+			$instance["show_avatar"]        = (strip_tags($new_instance["show_avatar"]) == "Yes" ? 1 : 0);
+			$instance["show_published"]     = (strip_tags($new_instance["show_published"]) == "Yes" ? 1 : 0);
+			$instance["links_new_window"]   = (strip_tags($new_instance["links_new_window"]) == "Yes" ? 1 : 0);
+			$instance["no_cache"]           = (strip_tags($new_instance["no_cache"]) == "Yes" ? 1 : 0);
+			$instance["use_curl"]           = (strip_tags($new_instance["use_curl"]) == "Yes" ? 1 : 0);
+			$instance["debug"]              = (strip_tags($new_instance["debug"]) == "Yes" ? 1 : 0);
+			$instance["time_this_happened"] = strip_tags($new_instance["time_this_happened"]);
+			$instance["time_less_min"]      = strip_tags($new_instance["time_less_min"]);
+			$instance["time_min"]           = strip_tags($new_instance["time_min"]);
+			$instance["time_more_mins"]     = strip_tags($new_instance["time_more_mins"]);
+			$instance["time_1_hour"]        = strip_tags($new_instance["time_1_hour"]);
+			$instance["time_2_hours"]       = strip_tags($new_instance["time_2_hours"]);
+			$instance["time_precise_hours"] = strip_tags($new_instance["time_precise_hours"]);
+			$instance["time_1_day"]         = strip_tags($new_instance["time_1_day"]);
+			$instance["time_2_days"]        = strip_tags($new_instance["time_2_days"]);
+			$instance["time_many_days"]     = strip_tags($new_instance["time_many_days"]);
+			$instance["time_no_recent"]     = strip_tags($new_instance["time_no_recent"]);
 
 			return $instance;
 		}
@@ -174,30 +158,30 @@
 		// Output admin form for updating the widget
 		public function form($instance) {
 			// Set up some default widget settings
-			$defaults = array('title'            => 'My Tweets',
-							  'usernames'        => 'stephenpickett',
-							  'usernameSuffix'   => ' said: ',
-							  'limit'            => 5,
-							  'maxDays'          => 7,
-							  'updateFrequency'  => 0,
-							  'showAuthor'       => 'name',
-							  'showAvatar'       => true,
-							  'showPublished'    => true,
-							  'linksNewWindow'   => true,
-							  'noCache'          => false,
-							  'useCurl'          => false,
-							  'debug'            => false,
-							  'timeThisHappened' => TIME_THIS_HAPPENED,
-							  'timeLessMin'      => TIME_LESS_MIN,
-							  'timeMin'          => TIME_MIN,
-							  'timeMoreMins'     => TIME_MORE_MINS,
-							  'time1Hour'        => TIME_1_HOUR,
-							  'time2Hours'       => TIME_2_HOURS,
-							  'timePreciseHours' => TIME_PRECISE_HOURS,
-							  'time1Day'         => TIME_1_DAY,
-							  'time2Days'        => TIME_2_DAYS,
-							  'timeManyDays'     => TIME_MANY_DAYS,
-							  'timeNoRecent'     => TIME_NO_RECENT
+			$defaults = array("title"              => "My Tweets",
+							  "usernames"          => USERNAMES,
+							  "username_suffix"    => USERNAME_SUFFIX,
+							  "limit"              => LIMIT,
+							  "max_days"           => MAX_DAYS,
+							  "update_frequency"   => UPDATE_FREQUENCY,
+							  "show_username"      => SHOW_USERNAME,
+							  "show_avatar"        => SHOW_AVATAR,
+							  "show_published"     => SHOW_PUBLISHED,
+							  "links_new_window"   => LINKS_NEW_WINDOW,
+							  "no_cache"           => NO_CACHE,
+							  "use_curl"           => USE_CURL,
+							  "debug"              => DEBUG,
+							  "time_this_happened" => TIME_THIS_HAPPENED,
+							  "time_less_min"      => TIME_LESS_MIN,
+							  "time_min"           => TIME_MIN,
+							  "time_more_mins"     => TIME_MORE_MINS,
+							  "time_1_hour"        => TIME_1_HOUR,
+							  "time_2_hours"       => TIME_2_HOURS,
+							  "time_precise_hours" => TIME_PRECISE_HOURS,
+							  "time_1_day"         => TIME_1_DAY,
+							  "time_2_days"        => TIME_2_DAYS,
+							  "time_many_days"     => TIME_MANY_DAYS,
+							  "time_no_recent"     => TIME_NO_RECENT
 							 );
 							 
 			$instance = wp_parse_args((array) $instance, $defaults);
@@ -209,61 +193,61 @@
 					<div class="widget-title" style="padding: 6px 0 0"><h3 style="margin: 0; cursor: default">General Settings</h3></div>
 				</div>
 				<div class="widget-inside" style="display: block; border: 1px solid #DFDFDF; padding: 5px; width: 86%;">
-					<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("title"); ?>"><?php _e("Title:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo $instance["title"]; ?>" /></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('usernames'); ?>"><?php _e('Twitter usernames (separated by spaces):'); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id('usernames'); ?>" name="<?php echo $this->get_field_name('usernames'); ?>"><?php echo $instance['usernames']; ?></textarea></label></p>
+					<p><label for="<?php echo $this->get_field_id("usernames"); ?>"><?php _e("Twitter usernames (separated by spaces):"); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id("usernames"); ?>" name="<?php echo $this->get_field_name("usernames"); ?>"><?php echo $instance["usernames"]; ?></textarea></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('usernameSuffix'); ?>"><?php _e('Username suffix (e.g. " said "):'); ?> <input class="widefat" id="<?php echo $this->get_field_id('usernameSuffix'); ?>" name="<?php echo $this->get_field_name('usernameSuffix'); ?>" type="text" value="<?php echo $instance['usernameSuffix']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("username_suffix"); ?>"><?php _e("Username suffix (e.g. \" said \"):"); ?> <input class="widefat" id="<?php echo $this->get_field_id("username_suffix"); ?>" name="<?php echo $this->get_field_name("username_suffix"); ?>" type="text" value="<?php echo $instance["username_suffix"]; ?>" /></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('limit'); ?>"><?php _e('Max tweets to display:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $instance['limit']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("limit"); ?>"><?php _e("Max tweets to display:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("limit"); ?>" name="<?php echo $this->get_field_name("limit"); ?>" type="text" value="<?php echo $instance["limit"]; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('maxDays'); ?>"><?php _e('Max days to display:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('maxDays'); ?>" name="<?php echo $this->get_field_name('maxDays'); ?>" type="text" value="<?php echo $instance['maxDays']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("max_days"); ?>"><?php _e("Max days to display:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("max_days"); ?>" name="<?php echo $this->get_field_name("max_days"); ?>" type="text" value="<?php echo $instance["max_days"]; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('updateFrequency'); ?>"><?php _e('Update frequency:'); ?> <select id="<?php echo $this->get_field_id('updateFrequency'); ?>" name="<?php echo $this->get_field_name('updateFrequency'); ?>" class="widefat">
-						<option value="-1" <?php if (strcmp($instance['updateFrequency'], -1) == 0) echo ' selected="selected"'; ?>>Live (uncached)</option>
-						<option value="0" <?php if (strcmp($instance['updateFrequency'], 0) == 0) echo ' selected="selected"'; ?>>Live (cached)</option>
-						<option value="1" <?php if (strcmp($instance['updateFrequency'], 1) == 0) echo ' selected="selected"'; ?>>Hourly</option>
-						<option value="2" <?php if (strcmp($instance['updateFrequency'], 2) == 0) echo ' selected="selected"'; ?>>Every 2 hours</option>
-						<option value="4" <?php if (strcmp($instance['updateFrequency'], 4) == 0) echo ' selected="selected"'; ?>>Every 4 hours</option>
-						<option value="12" <?php if (strcmp($instance['updateFrequency'], 12) == 0) echo ' selected="selected"'; ?>>Every 12 hours</option>
-						<option value="24" <?php if (strcmp($instance['updateFrequency'], 24) == 0) echo ' selected="selected"'; ?>>Every day</option>
-						<option value="48" <?php if (strcmp($instance['updateFrequency'], 48) == 0) echo ' selected="selected"'; ?>>Every 2 days</option>
+					<p><label for="<?php echo $this->get_field_id("update_frequency"); ?>"><?php _e("Update frequency:"); ?> <select id="<?php echo $this->get_field_id("update_frequency"); ?>" name="<?php echo $this->get_field_name("update_frequency"); ?>" class="widefat">
+						<option value="-1" <?php if (strcmp($instance["update_frequency"], -1) == 0) echo " selected=\"selected\""; ?>>Live (uncached)</option>
+						<option value="0" <?php if (strcmp($instance["update_frequency"], 0) == 0) echo " selected=\"selected\""; ?>>Live (cached)</option>
+						<option value="1" <?php if (strcmp($instance["update_frequency"], 1) == 0) echo " selected=\"selected\""; ?>>Hourly</option>
+						<option value="2" <?php if (strcmp($instance["update_frequency"], 2) == 0) echo " selected=\"selected\""; ?>>Every 2 hours</option>
+						<option value="4" <?php if (strcmp($instance["update_frequency"], 4) == 0) echo " selected=\"selected\""; ?>>Every 4 hours</option>
+						<option value="12" <?php if (strcmp($instance["update_frequency"], 12) == 0) echo " selected=\"selected\""; ?>>Every 12 hours</option>
+						<option value="24" <?php if (strcmp($instance["update_frequency"], 24) == 0) echo " selected=\"selected\""; ?>>Every day</option>
+						<option value="48" <?php if (strcmp($instance["update_frequency"], 48) == 0) echo " selected=\"selected\""; ?>>Every 2 days</option>
 					</select></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('showAuthor'); ?>"><?php _e('Show author:'); ?> <select id="<?php echo $this->get_field_id('showAuthor'); ?>" name="<?php echo $this->get_field_name('showAuthor'); ?>" class="widefat">
-						<option value="none" <?php if (strcmp($instance['showAuthor'], "none") == 0) echo ' selected="selected"'; ?>>None</option>
-						<option value="name" <?php if (strcmp($instance['showAuthor'], "name") == 0) echo ' selected="selected"'; ?>>Name</option>
-						<option value="username" <?php if (strcmp($instance['showAuthor'], "username") == 0) echo ' selected="selected"'; ?>>Username</option>
+					<p><label for="<?php echo $this->get_field_id("show_username"); ?>"><?php _e("Show username:"); ?> <select id="<?php echo $this->get_field_id("show_username"); ?>" name="<?php echo $this->get_field_name("show_username"); ?>" class="widefat">
+						<option value="none" <?php if (strcmp($instance["show_username"], "none") == 0) echo " selected=\"selected\""; ?>>None</option>
+						<option value="name" <?php if (strcmp($instance["show_username"], "name") == 0) echo " selected=\"selected\""; ?>>Name</option>
+						<option value="username" <?php if (strcmp($instance["show_username"], "username") == 0) echo " selected=\"selected\""; ?>>Username</option>
 					</select></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('showAvatar'); ?>"><?php _e('Show author\'s avatar:'); ?> <select id="<?php echo $this->get_field_id('showAvatar'); ?>" name="<?php echo $this->get_field_name('showAvatar'); ?>" class="widefat">
-						<option <?php if ($instance['showAvatar'] == true) echo 'selected="selected"'; ?>>Yes</option>
-						<option <?php if ($instance['showAvatar'] == false) echo 'selected="selected"'; ?>>No</option>
+					<p><label for="<?php echo $this->get_field_id("show_avatar"); ?>"><?php _e("Show username's avatar:"); ?> <select id="<?php echo $this->get_field_id("show_avatar"); ?>" name="<?php echo $this->get_field_name("show_avatar"); ?>" class="widefat">
+						<option <?php if ($instance["show_avatar"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
+						<option <?php if ($instance["show_avatar"] == 0) echo "selected=\"selected\""; ?>>No</option>
 					</select></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('showPublished'); ?>"><?php _e('Show when published:'); ?> <select id="<?php echo $this->get_field_id('showPublished'); ?>" name="<?php echo $this->get_field_name('showPublished'); ?>" class="widefat">
-						<option <?php if ($instance['showPublished'] == true) echo 'selected="selected"'; ?>>Yes</option>
-						<option <?php if ($instance['showPublished'] == false) echo 'selected="selected"'; ?>>No</option>
+					<p><label for="<?php echo $this->get_field_id("show_published"); ?>"><?php _e("Show when published:"); ?> <select id="<?php echo $this->get_field_id("show_published"); ?>" name="<?php echo $this->get_field_name("show_published"); ?>" class="widefat">
+						<option <?php if ($instance["show_published"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
+						<option <?php if ($instance["show_published"] == 0) echo "selected=\"selected\""; ?>>No</option>
 					</select></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('linksNewWindow'); ?>"><?php _e('Open links in new window:'); ?> <select id="<?php echo $this->get_field_id('linksNewWindow'); ?>" name="<?php echo $this->get_field_name('linksNewWindow'); ?>" class="widefat">
-						<option <?php if ($instance['linksNewWindow'] == true) echo 'selected="selected"'; ?>>Yes</option>
-						<option <?php if ($instance['linksNewWindow'] == false) echo 'selected="selected"'; ?>>No</option>
+					<p><label for="<?php echo $this->get_field_id("links_new_window"); ?>"><?php _e("Open links in new window:"); ?> <select id="<?php echo $this->get_field_id("links_new_window"); ?>" name="<?php echo $this->get_field_name("links_new_window"); ?>" class="widefat">
+						<option <?php if ($instance["links_new_window"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
+						<option <?php if ($instance["links_new_window"] == 0) echo "selected=\"selected\""; ?>>No</option>
 					</select></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('noCache'); ?>"><?php _e('Prevent caching e.g. by WP Super Cache:'); ?> <select id="<?php echo $this->get_field_id('noCache'); ?>" name="<?php echo $this->get_field_name('noCache'); ?>" class="widefat">
-						<option <?php if ($instance['noCache'] == true) echo 'selected="selected"'; ?>>Yes</option>
-						<option <?php if ($instance['noCache'] == false) echo 'selected="selected"'; ?>>No</option>
+					<p><label for="<?php echo $this->get_field_id("no_cache"); ?>"><?php _e("Prevent caching e.g. by WP Super Cache:"); ?> <select id="<?php echo $this->get_field_id("no_cache"); ?>" name="<?php echo $this->get_field_name("no_cache"); ?>" class="widefat">
+						<option <?php if ($instance["no_cache"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
+						<option <?php if ($instance["no_cache"] == 0) echo "selected=\"selected\""; ?>>No</option>
 					</select></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('useCurl'); ?>"><?php _e('Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):'); ?> <select id="<?php echo $this->get_field_id('useCurl'); ?>" name="<?php echo $this->get_field_name('useCurl'); ?>" class="widefat">
-						<option <?php if ($instance['useCurl'] == true) echo 'selected="selected"'; ?>>Yes</option>
-						<option <?php if ($instance['useCurl'] == false) echo 'selected="selected"'; ?>>No</option>
+					<p><label for="<?php echo $this->get_field_id("use_curl"); ?>"><?php _e("Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):"); ?> <select id="<?php echo $this->get_field_id("use_curl"); ?>" name="<?php echo $this->get_field_name("use_curl"); ?>" class="widefat">
+						<option <?php if ($instance["use_curl"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
+						<option <?php if ($instance["use_curl"] == 0) echo "selected=\"selected\""; ?>>No</option>
 					</select></label></p>
 
-					<p><label for="<?php echo $this->get_field_id('debug'); ?>"><?php _e('Output debug messages:'); ?> <select id="<?php echo $this->get_field_id('debug'); ?>" name="<?php echo $this->get_field_name('debug'); ?>" class="widefat">
-						<option <?php if ($instance['debug'] == true) echo 'selected="selected"'; ?>>Yes</option>
-						<option <?php if ($instance['debug'] == false) echo 'selected="selected"'; ?>>No</option>
+					<p><label for="<?php echo $this->get_field_id("debug"); ?>"><?php _e("Output debug messages:"); ?> <select id="<?php echo $this->get_field_id("debug"); ?>" name="<?php echo $this->get_field_name("debug"); ?>" class="widefat">
+						<option <?php if ($instance["debug"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
+						<option <?php if ($instance["debug"] == 0) echo "selected=\"selected\""; ?>>No</option>
 					</select></label></p>
 				</div>
 			</div>
@@ -276,27 +260,27 @@
 				<div class="widget-inside" style="border: 1px solid #DFDFDF; padding: 5px; width: 86%;">
 					<p>NOTE: The editing of these messages is optional.</p>
 					
-					<p><label for="<?php echo $this->get_field_id('timeThisHappened'); ?>"><?php _e('Time prefix:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeThisHappened'); ?>" name="<?php echo $this->get_field_name('timeThisHappened'); ?>" type="text" value="<?php echo $instance['timeThisHappened']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_this_happened"); ?>"><?php _e("Time prefix:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_this_happened"); ?>" name="<?php echo $this->get_field_name("time_this_happened"); ?>" type="text" value="<?php echo $instance['time_this_happened']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('timeLessMin'); ?>"><?php _e('Less than 59 seconds ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeLessMin'); ?>" name="<?php echo $this->get_field_name('timeLessMin'); ?>" type="text" value="<?php echo $instance['timeLessMin']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_less_min"); ?>"><?php _e("Less than 59 seconds ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_less_min"); ?>" name="<?php echo $this->get_field_name("time_less_min"); ?>" type="text" value="<?php echo $instance['time_less_min']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('timeMin'); ?>"><?php _e('Less than 1 minute 59 seconds ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeMin'); ?>" name="<?php echo $this->get_field_name('timeMin'); ?>" type="text" value="<?php echo $instance['timeMin']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_min"); ?>"><?php _e("Less than 1 minute 59 seconds ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_min"); ?>" name="<?php echo $this->get_field_name("time_min"); ?>" type="text" value="<?php echo $instance['time_min']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('timeMoreMins'); ?>"><?php _e('Less than 50 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeMoreMins'); ?>" name="<?php echo $this->get_field_name('timeMoreMins'); ?>" type="text" value="<?php echo $instance['timeMoreMins']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_more_mins"); ?>"><?php _e("Less than 50 minutes ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_more_mins"); ?>" name="<?php echo $this->get_field_name("time_more_mins"); ?>" type="text" value="<?php echo $instance['time_more_mins']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('time1Hour'); ?>"><?php _e('Less than 89 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time1Hour'); ?>" name="<?php echo $this->get_field_name('time1Hour'); ?>" type="text" value="<?php echo $instance['time1Hour']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_1_hour"); ?>"><?php _e("Less than 89 minutes ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_1_hour"); ?>" name="<?php echo $this->get_field_name("time_1_hour"); ?>" type="text" value="<?php echo $instance['time_1_hour']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('time2Hours'); ?>"><?php _e('Less than 150 minutes ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time2Hours'); ?>" name="<?php echo $this->get_field_name('time2Hours'); ?>" type="text" value="<?php echo $instance['time2Hours']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_2_hours"); ?>"><?php _e("Less than 150 minutes ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_2_hours"); ?>" name="<?php echo $this->get_field_name("time_2_hours"); ?>" type="text" value="<?php echo $instance['time_2_hours']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('timePreciseHours'); ?>"><?php _e('Less than 23 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timePreciseHours'); ?>" name="<?php echo $this->get_field_name('timePreciseHours'); ?>" type="text" value="<?php echo $instance['timePreciseHours']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_precise_hours"); ?>"><?php _e("Less than 23 hours ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_precise_hours"); ?>" name="<?php echo $this->get_field_name("time_precise_hours"); ?>" type="text" value="<?php echo $instance['time_precise_hours']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('time1Day'); ?>"><?php _e('Less than 36 hours:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time1Day'); ?>" name="<?php echo $this->get_field_name('time1Day'); ?>" type="text" value="<?php echo $instance['time1Day']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_1_day"); ?>"><?php _e("Less than 36 hours:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_1_day"); ?>" name="<?php echo $this->get_field_name("time_1_day"); ?>" type="text" value="<?php echo $instance['time_1_day']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('time2Days'); ?>"><?php _e('Less than 48 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('time2Days'); ?>" name="<?php echo $this->get_field_name('time2Days'); ?>" type="text" value="<?php echo $instance['time2Days']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_2_days"); ?>"><?php _e("Less than 48 hours ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_2_days"); ?>" name="<?php echo $this->get_field_name("time_2_days"); ?>" type="text" value="<?php echo $instance['time_2_days']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('timeManyDays'); ?>"><?php _e('More than 48 hours ago:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeManyDays'); ?>" name="<?php echo $this->get_field_name('timeManyDays'); ?>" type="text" value="<?php echo $instance['timeManyDays']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_many_days"); ?>"><?php _e("More than 48 hours ago:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_many_days"); ?>" name="<?php echo $this->get_field_name("time_many_days"); ?>" type="text" value="<?php echo $instance['time_many_days']; ?>" /></label></p>
 					
-					<p><label for="<?php echo $this->get_field_id('timeNoRecent'); ?>"><?php _e('No recent tweets:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('timeNoRecent'); ?>" name="<?php echo $this->get_field_name('timeNoRecent'); ?>" type="text" value="<?php echo $instance['timeNoRecent']; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("time_no_recent"); ?>"><?php _e("No recent tweets:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_no_recent"); ?>" name="<?php echo $this->get_field_name("time_no_recent"); ?>" type="text" value="<?php echo $instance['time_no_recent']; ?>" /></label></p>
 				</div>
 			</div>
 			
@@ -305,6 +289,50 @@
 			<p>If you would like to support development of ThinkTwit donations are gratefully accepted:</p>
 			<p style="text-align:center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E" target="_blank"><img src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" alt="PayPal — The safer, easier way to pay online." /></a><img src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" alt="" width="1" height="1" border="0" /></p>
 		<?php
+		}
+	
+		// Function for handling AJAX requests
+		public function ajax_request_handler() {
+			// Check that all parameters have been passed
+			if ((isset($_GET["thinktwit_request"]) && ($_GET["thinktwit_request"] == "parse_feed")) && isset($_GET["thinktwit_widget_id"]) && 
+			  isset($_GET["thinktwit_usernames"]) && isset($_GET["thinktwit_username_suffix"]) && isset($_GET["thinktwit_limit"]) && 
+			  isset($_GET["thinktwit_max_days"]) && isset($_GET["thinktwit_update_frequency"]) && isset($_GET["thinktwit_show_username"]) && 
+			  isset($_GET["thinktwit_show_published"]) && isset($_GET["thinktwit_links_new_window"]) && isset($_GET["thinktwit_use_curl"]) && 
+			  isset($_GET["thinktwit_debug"]) && isset($_GET["thinktwit_time_this_happened"]) && isset($_GET["thinktwit_time_less_min"]) && 
+			  isset($_GET["thinktwit_time_min"]) && isset($_GET["thinktwit_time_more_mins"]) && isset($_GET["thinktwit_time_1_hour"]) && 
+			  isset($_GET["thinktwit_time_2_hours"]) && isset($_GET["thinktwit_time_precise_hours"]) && isset($_GET["thinktwit_time_1_day"]) && 
+			  isset($_GET["thinktwit_time_2_days"]) && isset($_GET["thinktwit_time_many_days"]) && isset($_GET["thinktwit_time_no_recent"])) {
+			  
+				// Create an array to contain the time settings
+				$time_settings = array(11);
+
+				$time_settings[0] = strip_tags($_GET["thinktwit_time_this_happened"]);
+				$time_settings[1] = strip_tags($_GET["thinktwit_time_less_min"]);
+				$time_settings[2] = strip_tags($_GET["thinktwit_time_min"]);
+				$time_settings[3] = strip_tags($_GET["thinktwit_time_more_mins"]);
+				$time_settings[4] = strip_tags($_GET["thinktwit_time_1_hour"]);
+				$time_settings[5] = strip_tags($_GET["thinktwit_time_2_hours"]);
+				$time_settings[6] = strip_tags($_GET["thinktwit_time_precise_hours"]);
+				$time_settings[7] = strip_tags($_GET["thinktwit_time_1_day"]);
+				$time_settings[8] = strip_tags($_GET["thinktwit_time_2_days"]);
+				$time_settings[9] = strip_tags($_GET["thinktwit_time_many_days"]);
+				$time_settings[10] = strip_tags($_GET["thinktwit_time_no_recent"]);
+	
+			  
+				// Output the feed and exit the call
+				echo ThinkTwit::parse_feed(strip_tags($_GET["thinktwit_widget_id"]), strip_tags($_GET["thinktwit_usernames"]), strip_tags($_GET["thinktwit_username_suffix"]), 
+				  strip_tags($_GET["thinktwit_limit"]), strip_tags($_GET["thinktwit_max_days"]), strip_tags($_GET["thinktwit_update_frequency"]), 
+				  strip_tags($_GET["thinktwit_show_username"]), strip_tags($_GET["thinktwit_show_avatar"]), strip_tags($_GET["thinktwit_show_published"]), 
+				  strip_tags($_GET["thinktwit_links_new_window"]), strip_tags($_GET["thinktwit_use_curl"]), strip_tags($_GET["thinktwit_debug"]), 
+				  $time_settings);
+
+				exit();
+			} elseif (isset($_GET["thinktwit_request"]) && ($_GET["thinktwit_request"] == "parse_feed")) {
+				// Otherwise display an error and exit the call
+				echo "<p class=\"thinkTwitError\">Error: Unable to display tweets.</p>";
+				
+				exit();
+			}
 		}
 		
 		// Returns the avatar for a given Twitter username
@@ -364,15 +392,15 @@
 				$tweets = ThinkTwit::get_tweets_from_twitter($url, $use_curl);
 			} else {
 				// Otherwise, get values from cache
-				$lastUpdate = ThinkTwit::get_tweets_from_cache($widget_id);
+				$last_update = ThinkTwit::get_tweets_from_cache($widget_id);
 				
 				// Ensure the database contained tweets
-				if ($lastUpdate != FALSE) {
+				if ($last_update != FALSE) {
 					// Get the tweets from the last update
-					$tweets = $lastUpdate[0];
+					$tweets = $last_update[0];
 					
 					// Get the time when the last update was cached
-					$cachedTime = $lastUpdate[1];
+					$cachedTime = $last_update[1];
 				} else {
 					// If it didn't then create an empty array
 					$tweets = array();
@@ -397,7 +425,7 @@
 					$tweets = ThinkTwit::remove_empty_tweets($tweets);
 					
 					// Sort array by date
-					ThinkTwit::sort_tweets($tweets, 'timestamp');
+					ThinkTwit::sort_tweets($tweets, "timestamp");
 					
 					// Remove any tweets that are duplicates
 					$tweets = ThinkTwit::remove_duplicates($tweets);
@@ -524,10 +552,156 @@
 			
 			return $new_array;
 		}
+		
+		// Outputs the AJAX code to handle no-caching
+		public static function output_ajax($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings) {
+			// TODO why is this not outputting any tweets?
+			return 
+				"<script type=\"text/javascript\">
+					jQuery(document).ready(function($){
+						$.ajax({
+							type : \"GET\",
+							url : \"index.php\",
+							data : { 
+								thinktwit_request             : \"parse_feed\",
+								thinktwit_widget_id           : \"" . $widget_id . "\",
+								thinktwit_usernames           : \"" . $usernames . "\",
+								thinktwit_username_suffix     : \"" . $username_suffix . "\",
+								thinktwit_limit               : \"" . $limit . "\",
+								thinktwit_max_days            : \"" . $max_days . "\",
+								thinktwit_update_frequency    : \"" . $update_frequency . "\",
+								thinktwit_show_username       : \"" . $show_username . "\",
+								thinktwit_show_avatar         : \"" . $show_avatar . "\",
+								thinktwit_show_published      : \"" . $show_published . "\",
+								thinktwit_links_new_window    : \"" . $links_new_window . "\",
+								thinktwit_use_curl            : \"" . $use_curl . "\",
+								thinktwit_debug               : \"" . $debug . "\",
+								thinktwit_time_this_happened  : \"" . $time_settings[0] . "\",
+								thinktwit_time_less_min       : \"" . $time_settings[1] . "\",
+								thinktwit_time_min            : \"" . $time_settings[2] . "\",
+								thinktwit_time_more_mins      : \"" . $time_settings[3] . "\",
+								thinktwit_time_1_hour         : \"" . $time_settings[4] . "\",
+								thinktwit_time_2_hours        : \"" . $time_settings[5] . "\",
+								thinktwit_time_precise_hours  : \"" . $time_settings[6] . "\",
+								thinktwit_time_1_day          : \"" . $time_settings[7] . "\",
+								thinktwit_time_2_days         : \"" . $time_settings[8] . "\",
+								thinktwit_time_many_days      : \"" . $time_settings[9] . "\",
+								thinktwit_time_no_recent      : \"" . $time_settings[10] . "\"
+							},
+							success : function(response) {
+								// The server has finished executing PHP and has returned something, so display it!
+								$(\"#" . $widget_id . "\").append(response);
+							}
+						});
+					});
+				</script>";
+		}
+		
+		// Public accessor to output parse_feed
+		public static function output_anywhere($args) {
+			// Ensure each argument has a value
+			if (isset($args["widget_id"])) {
+				$args["widget_id"] = "thinktwit-oa-" . $args["widget_id"];
+			} else {
+				$args["widget_id"] = "thinktwit-oa-0";
+			}
+				
+			if (!isset($args["usernames"]))
+				$args["usernames"] = USERNAMES;
+				
+			if (!isset($args["username_suffix"]))
+				$args["username_suffix"] = USERNAME_SUFFIX;
+				
+			if (!isset($args["limit"]))
+				$args["limit"] = LIMIT;
+				
+			if (!isset($args["max_days"]))
+				$args["max_days"] = MAX_DAYS;
+			
+			if (!isset($args["update_frequency"]))
+				$args["update_frequency"] = UPDATE_FREQUENCY;
+			
+			if (!isset($args["show_username"]))
+				$args["show_username"] = SHOW_USERNAME;
+			
+			if (!isset($args["show_avatar"]))
+				$args["show_avatar"] = SHOW_AVATAR;
+			
+			if (!isset($args["show_published"]))
+				$args["show_published"] = SHOW_PUBLISHED;
+			
+			if (!isset($args["links_new_window"]))
+				$args["links_new_window"] = LINKS_NEW_WINDOW;
+			
+			if (!isset($args["no_cache"]))
+				$args["no_cache"] = NO_CACHE;
+			
+			if (!isset($args["use_curl"]))
+				$args["use_curl"] = USE_CURL;
+			
+			if (!isset($args["debug"]))
+				$args["debug"] = DEBUG;
+			
+			if (!isset($args["time_this_happened"]))
+				$args["time_this_happened"] = TIME_THIS_HAPPENED;
+			
+			if (!isset($args["time_less_min"]))
+				$args["time_less_min"] = TIME_LESS_MIN;
+			
+			if (!isset($args["time_min"]))
+				$args["time_min"] = TIME_MIN;
+			
+			if (!isset($args["time_more_mins"]))
+				$args["time_more_mins"] = TIME_MORE_MINS;
+			
+			if (!isset($args["time_1_hour"]))
+				$args["time_1_hour"] = TIME_1_HOUR;
+			
+			if (!isset($args["time_2_hours"]))
+				$args["time_2_hours"] = TIME_2_HOURS;
+			
+			if (!isset($args["time_precise_hours"]))
+				$args["time_precise_hours"] = TIME_PRECISE_HOURS;
+			
+			if (!isset($args["time_1_day"]))
+				$args["time_1_day"] = TIME_1_DAY;
+			
+			if (!isset($args["time_2_days"]))
+				$args["time_2_days"] = TIME_2_DAYS;
+			
+			if (!isset($args["time_many_days"]))
+				$args["time_many_days"] = TIME_MANY_DAYS;
+			
+			if (!isset($args["time_no_recent"]))
+				$args["time_no_recent"] = TIME_NO_RECENT;
+					  		  										 
+			// Create an array to contain the time settings
+			$time_settings = array(11);
+			
+			$time_settings[0] = $args["time_this_happened"];
+			$time_settings[1] = $args["time_less_min"];
+			$time_settings[2] = $args["time_min"];
+			$time_settings[3] = $args["time_more_mins"];
+			$time_settings[4] = $args["time_1_hour"];
+			$time_settings[5] = $args["time_2_hours"];
+			$time_settings[6] = $args["time_precise_hours"];
+			$time_settings[7] = $args["time_1_day"];
+			$time_settings[8] = $args["time_2_days"];
+			$time_settings[9] = $args["time_many_days"];
+			$time_settings[10] = $args["time_no_recent"];
+			
+			// If the user selected to use no-caching output AJAX code
+			if ($args["no_cache"]) { 
+				return "<div id=\"" . $args["widget_id"] . "\">" . ThinkTwit::output_ajax($args["widget_id"], $args["usernames"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings) . "</div>";
+			// Otherwise output HTML method
+			} else {
+				return ThinkTwit::parse_feed($args["widget_id"], $args["usernames"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings);
+			}
+		}
 
-		// Returns the tweets subjects to the given parameters
-		private static function parse_feed($widget_id, $use_curl, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, 
-		  $links_new_window, $debug, $time_settings) {
+		// Returns the tweets, subject to the given parameters
+		private static function parse_feed($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, 
+		  $links_new_window, $use_curl, $debug, $time_settings) {
 			
 			$output = "";
 
@@ -551,6 +725,7 @@
 				$output .= "<p>show_published: " . $show_published . "</p>";
 				$output .= "<p>links_new_window: " . $links_new_window . "</p>";
 				$output .= "<p>url: " . $url . "</p>";
+				$output .= "<p>debug: " . $debug . "</p>";
 				$output .= "<p>time_this_happened: " . $time_settings[0] . "</p>";
 				$output .= "<p>time_less_min: " . $time_settings[1] . "</p>";
 				$output .= "<p>time_min: " . $time_settings[2] . "</p>";
@@ -589,7 +764,7 @@
 					}
 
 					// Output the link to the poster's profile
-					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window == true ? " target=\"blank\"" : "") . " class=\"thinkTwitAuthor\" rel=\"nofollow\">";
+					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window ? " target=\"blank\"" : "") . " class=\"thinkTwitUsername\" rel=\"nofollow\">";
 					
 					// Get the URL of the poster's avatar
 					$url = ThinkTwit::get_twitter_avatar($tweet->getUsername(), $use_curl);
@@ -611,7 +786,7 @@
 					$output .= "<span class=\"thinkTwitContent\">";
 					
 					// Check if the user wants URL's to open in a new window
-					if ($links_new_window == true) {
+					if ($links_new_window) {
 						// Find the URL's in the content
 						$url_strings = explode("href=\"", $tweet->getContent());
 
@@ -641,7 +816,7 @@
 					$output .= "</span>";
 
 					// Check if the user wants to show the published date
-					if ($show_published == true) {
+					if ($show_published) {
 						$output .= "<span class=\"thinkTwitPublished\">" . $time_settings[0] . ThinkTwit::relative_created_at(strtotime($tweet->getTimestamp()), $time_settings) . "</span>";
 					}
 
@@ -655,7 +830,7 @@
 
 			$output .= "</ol>";
 
-			return apply_filters('think_twit', $output);
+			return apply_filters("think_twit", $output);
 		}
 
 		// Given a PHP time this returns how long ago that time was, in easy to understand English
@@ -751,6 +926,62 @@
 			return $new_array;
 		}
 		
+		// Function to handle shortcode
+		public function shortcode_handler($atts) {
+			extract(shortcode_atts(array(
+				"unique_id"          => 0,
+				"usernames"          => USERNAMES,
+				"username_suffix"    => USERNAME_SUFFIX,
+				"limit"              => LIMIT,
+				"max_days"           => MAX_DAYS,
+				"update_frequency"   => UPDATE_FREQUENCY,
+				"show_username"      => SHOW_USERNAME,
+				"show_avatar"        => SHOW_AVATAR,
+				"show_published"     => SHOW_PUBLISHED,
+				"links_new_window"   => LINKS_NEW_WINDOW,
+				"no_cache"           => NO_CACHE,
+				"use_curl"           => USE_CURL,
+				"debug"              => DEBUG,
+				"time_this_happened" => TIME_THIS_HAPPENED,
+				"time_less_min"      => TIME_LESS_MIN,
+				"time_min"           => TIME_MIN,
+				"time_more_mins"     => TIME_MORE_MINS,
+				"time_1_hour"        => TIME_1_HOUR,
+				"time_2_hours"       => TIME_2_HOURS,
+				"time_precise_hours" => TIME_PRECISE_HOURS,
+				"time_1_day"         => TIME_1_DAY,
+				"time_2_days"        => TIME_2_DAYS,
+				"time_many_days"     => TIME_MANY_DAYS,
+				"time_no_recent"     => TIME_NO_RECENT
+			), $atts));
+			
+			// Modify unique id to lock it to shortcodes
+			$unique_id = "thinktwit-sc-" . $unique_id;
+						 
+			// Create an array to contain the time settings
+			$time_settings = array(11);
+
+			$time_settings[0] = $time_this_happened;
+			$time_settings[1] = $time_less_min;
+			$time_settings[2] = $time_min;
+			$time_settings[3] = $time_more_mins;
+			$time_settings[4] = $time_1_hour;
+			$time_settings[5] = $time_2_hours;
+			$time_settings[6] = $time_precise_hours;
+			$time_settings[7] = $time_1_day;
+			$time_settings[8] = $time_2_days;
+			$time_settings[9] = $time_many_days;
+			$time_settings[10] = $time_no_recent;
+
+			// If user selected to use no-caching output AJAX code
+			if ($no_cache) {
+				return "<div id=\"" . $unique_id . "\">" . ThinkTwit::output_ajax($unique_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings) . "</div>";
+			// Otherwise output HTML method
+			} else {
+				return ThinkTwit::parse_feed($unique_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings);
+			}
+		}
+		
 		// Bubble sorts the tweets in array upon the timestamp
 		private static function sort_tweets(&$array) {
 			// Loop down through the array
@@ -774,29 +1005,6 @@
 			}
 			
 			return $array;
-		}
-		
-		// Public function for call anywhere
-		public static function thinktwit_output($widget_id, $use_curl, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $debug, 
-		  $time_this_happened = TIME_THIS_HAPPENED, $time_less_min = TIME_LESS_MIN, $time_min = TIME_MIN, $time_more_mins = TIME_MORE_MINS, $time_1_hour = TIME_1_HOUR, $time_2_hours = TIME_2_HOURS, 
-		  $time_precise_hours = TIME_PRECISE_HOURS, $time_1_day = TIME_1_DAY, $time_2_days = TIME_2_DAYS, $time_many_days = TIME_MANY_DAYS, $time_no_recent = TIME_NO_RECENT) {
-		  										 
-			// Create an array to contain the time settings
-			$time_settings = array(11);
-			
-			$time_settings[0] = $time_this_happened;
-			$time_settings[1] = $time_less_min;
-			$time_settings[2] = $time_min;
-			$time_settings[3] = $time_more_mins;
-			$time_settings[4] = $time_1_hour;
-			$time_settings[5] = $time_2_hours;
-			$time_settings[6] = $time_precise_hours;
-			$time_settings[7] = $time_1_day;
-			$time_settings[8] = $time_2_days;
-			$time_settings[9] = $time_many_days;
-			$time_settings[10] = $time_no_recent;
-			
-			return ThinkTwit::parse_feed($widget_id, $use_curl, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $debug, $time_settings);
 		}
 		
 		// Returns the given array but trimmed to the size of n
@@ -893,80 +1101,13 @@
 			$this->timestamp = trim($timestamp);
 		}
 	}
-	
-	// Function for handling AJAX requests
-	function thinktwit_request_handler() {
-		// Check that all parameters have been passed
-		if ((isset($_GET['thinktwit_request']) && ($_GET['thinktwit_request'] == 'parse_feed')) && isset($_GET['thinktwit_widget_id']) && 
-		  isset($_GET['thinktwit_use_curl']) && isset($_GET['thinktwit_usernames']) && isset($_GET['thinktwit_username_suffix']) && 
-		  isset($_GET['thinktwit_limit']) && isset($_GET['thinktwit_max_days']) && isset($_GET['thinktwit_update_frequency']) && 
-		  isset($_GET['thinktwit_show_author']) && isset($_GET['thinktwit_show_published']) && isset($_GET['thinktwit_links_new_window']) && 
-		  isset($_GET['thinktwit_debug']) && isset($_GET['thinktwit_time_this_happened']) && isset($_GET['thinktwit_time_less_min']) && 
-		  isset($_GET['thinktwit_time_min']) && isset($_GET['thinktwit_time_more_mins']) && isset($_GET['thinktwit_time_1_hour']) && 
-		  isset($_GET['thinktwit_time_2_hours']) && isset($_GET['thinktwit_time_precise_hours']) && isset($_GET['thinktwit_time_1_day']) && 
-		  isset($_GET['thinktwit_time_2_days']) && isset($_GET['thinktwit_time_many_days']) && isset($_GET['thinktwit_time_no_recent'])) {
-		  
-			// Output the feed and exit the call
-			echo ThinkTwit::thinktwit_output(strip_tags($_GET['thinktwit_widget_id']), strip_tags($_GET['thinktwit_use_curl']), strip_tags($_GET['thinktwit_usernames']),
-			  strip_tags($_GET['thinktwit_username_suffix']), strip_tags($_GET['thinktwit_limit']), strip_tags($_GET['thinktwit_max_days']), 
-			  strip_tags($_GET['thinktwit_update_frequency']), strip_tags($_GET['thinktwit_show_author']), strip_tags($_GET['thinktwit_show_avatar']), 
-			  strip_tags($_GET['thinktwit_show_published']), strip_tags($_GET['thinktwit_links_new_window']), strip_tags($_GET['thinktwit_debug']), 
-			  strip_tags($_GET['thinktwit_time_this_happened']), strip_tags($_GET['thinktwit_time_less_min']), strip_tags($_GET['thinktwit_time_min']), 
-			  strip_tags($_GET['thinktwit_time_more_mins']), strip_tags($_GET['thinktwit_time_1_hour']), strip_tags($_GET['thinktwit_time_2_hours']), 
-			  strip_tags($_GET['thinktwit_time_precise_hours']), strip_tags($_GET['thinktwit_time_1_day']), strip_tags($_GET['thinktwit_time_2_days']), 
-			  strip_tags($_GET['thinktwit_time_many_days']), strip_tags($_GET['thinktwit_time_no_recent']));
-
-			exit();
-		} elseif (isset($_GET['thinktwit_request']) && ($_GET['thinktwit_request'] == 'parse_feed')) {
-			// Otherwise display an error and exit the call
-			echo "<p class=\"thinkTwitError\">Error: Unable to display tweets.</p>";
-			
-			exit();
-		}
-	}
-
-	// Function to handle shortcode
-	// [thinktwit unique_id=x use_curl=0|1 usernames="xxx yyy" username_suffix="xxx" limit=x max_days=x update_frequency=x show_username=none|name|username 
-	// show_avatar=0|1 show_published=0|1 links_new_window=0|1 debug=0|1 time_this_happened="xxx" time_less_min="xxx" time_min="xxx" time_more_mins="xxx" 
-	// time_1_hour="xxx" time_2_hours="xxx" time_precise_hours="xxx" time_1_day="xxx" time_2_days="xxx" time_many_days="xxx" time_no_recent="xxx"]
-	function thinktwit_shortcode_handler($atts) {
-		extract(shortcode_atts(array(
-			'unique_id'          => 0,
-			'use_curl'           => false,
-			'usernames'          => 'stephenpickett',
-			'username_suffix'    => ' said: ',
-			'limit'              => 5,
-			'max_days'           => 7,
-			'update_frequency'   => 0,
-			'show_username'      => 'name',
-			'show_avatar'        => true,
-			'show_published'     => true,
-			'links_new_window'   => true,
-			'debug'              => false,
-			'time_this_happened' => TIME_THIS_HAPPENED,
-			'time_less_min'      => TIME_LESS_MIN,
-			'time_min'           => TIME_MIN,
-			'time_more_mins'     => TIME_MORE_MINS,
-			'time_1_hour'        => TIME_1_HOUR,
-			'time_2_hours'       => TIME_2_HOURS,
-			'time_precise_hours' => TIME_PRECISE_HOURS,
-			'time_1_day'         => TIME_1_DAY,
-			'time_2_days'        => TIME_2_DAYS,
-			'time_many_days'     => TIME_MANY_DAYS,
-			'time_no_recent'     => TIME_NO_RECENT
-		), $atts));
-					
-		// Pass the variables, but use the unique id rather than widget id
-		return ThinkTwit::thinktwit_output("thinktwit-sc-" . $unique_id, $use_curl, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, 
-		  $links_new_window, $debug, $time_this_happened, $time_less_min, $time_min, $time_more_mins, $time_1_hour, $time_2_hours, $time_precise_hours, $time_1_day, $time_2_days, $time_many_days, $time_no_recent);
-	}
 
 	// Add shortcode
-	add_shortcode('thinktwit', 'thinktwit_shortcode_handler');
+	add_shortcode("thinktwit", "ThinkTwit::shortcode_handler");
 
 	// Add the handler to init()
-	add_action('init', 'thinktwit_request_handler');
+	add_action("init", "ThinkTwit::ajax_request_handler");
 
 	// Register the widget to be initiated
-	add_action('widgets_init', create_function('', 'return register_widget("ThinkTwit");'));
+	add_action("widgets_init", create_function("", "return register_widget(\"ThinkTwit\");"));
 ?>
