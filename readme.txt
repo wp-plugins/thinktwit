@@ -1,8 +1,8 @@
 === ThinkTwit ===
-Contributors: stephen.pickett
+Contributors: stephen.pickett, smcphill
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E
 Author URI: http://www.thepicketts.org
-Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shorecode, css
+Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
 Tested up to: 3.2.1
 Stable tag: trunk
@@ -271,6 +271,9 @@ to turn on or off caching, and to decide how often to update the cache
 
 
 == Changelog ==
+
+= 1.3.1 =
+- (10 Nov 2011) Minor fix to resolve "file_get_contents" bug introduced in 1.3.0
 
 = 1.3.0 =
 - (25 Oct 2011) MAJOR UPDATES:

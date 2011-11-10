@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
-    Version: 1.3.0
+    Version: 1.3.1
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -292,7 +292,7 @@
 		}
 	
 		// Function for handling AJAX requests
-		public function ajax_request_handler() {
+		public static function ajax_request_handler() {
 			// Check that all parameters have been passed
 			if ((isset($_GET["thinktwit_request"]) && ($_GET["thinktwit_request"] == "parse_feed")) && isset($_GET["thinktwit_widget_id"]) && 
 			  isset($_GET["thinktwit_usernames"]) && isset($_GET["thinktwit_username_suffix"]) && isset($_GET["thinktwit_limit"]) && 
@@ -555,7 +555,6 @@
 		
 		// Outputs the AJAX code to handle no-caching
 		public static function output_ajax($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings) {
-			// TODO why is this not outputting any tweets?
 			return 
 				"<script type=\"text/javascript\">
 					jQuery(document).ready(function($){
@@ -927,7 +926,7 @@
 		}
 		
 		// Function to handle shortcode
-		public function shortcode_handler($atts) {
+		public static function shortcode_handler($atts) {
 			extract(shortcode_atts(array(
 				"unique_id"          => 0,
 				"usernames"          => USERNAMES,
