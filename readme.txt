@@ -272,6 +272,10 @@ to turn on or off caching, and to decide how often to update the cache
 
 == Changelog ==
 
+= 1.3.2 =
+- (12 Feb 2012) Added ThinkTwit versioning for making future upgrades more smooth, removed extraneous parameter when calling sort_tweets
+and added settings that stores current ThinkTwit version and a list of all the cache names used
+
 = 1.3.1 =
 - (10 Nov 2011) Minor fix to resolve "file_get_contents" bug introduced in 1.3.0
 

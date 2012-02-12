@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
-    Version: 1.3.1
+    Version: 1.3.2
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,6 +21,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+	define("VERSION",				"1.3.2");
 	define("USERNAMES", 			"stephenpickett");
 	define("USERNAME_SUFFIX", 		" said: ");
 	define("LIMIT", 				5);
@@ -46,6 +47,11 @@
 	define("TIME_NO_RECENT",     	"There have been no recent tweets");
 
 	class ThinkTwit extends WP_Widget {	
+		// Returns the current ThinkTwit version
+		public static function get_version() {
+			return VERSION;
+		}
+		
 		// Constructor
 		public function ThinkTwit() {
 			// Set the description of the widget
@@ -425,7 +431,7 @@
 					$tweets = ThinkTwit::remove_empty_tweets($tweets);
 					
 					// Sort array by date
-					ThinkTwit::sort_tweets($tweets, "timestamp");
+					ThinkTwit::sort_tweets($tweets);
 					
 					// Remove any tweets that are duplicates
 					$tweets = ThinkTwit::remove_duplicates($tweets);
@@ -1025,6 +1031,45 @@
 			
 			// Store the tweets in the database with the given timestamp
 			update_option("widget_" . $widget_id . "_cache", array($tweets, $timestamp));
+			
+			do {
+				// Get our widget settings
+				$settings = get_option("widget_thinktwit_settings");
+							
+				// If settings isn't an array
+				if (!is_array($settings)) {
+					// Store updated timestamp
+					$current_updated = microtime(); // For some reason some values are coming up identical between shortcode and widget when you have multiple widgets - how??
+					
+					// Create the array with the minimum required values
+					$settings = array("version" => ThinkTwit::get_version(), "cache_names" => array("widget_" . $widget_id . "_cache"), "updated" => $current_updated);
+				} else {
+					// Otherwise, add the widget cache name to the array
+					array_push($settings["cache_names"], "widget_" . $widget_id . "_cache");
+					
+					// Return a unique copy of the array to ensure we don't have duplicates
+					$settings["cache_names"] = array_unique($settings["cache_names"]);
+					
+					// Store the current updated timestamp
+					$current_updated = $settings["updated"];
+					
+					// Update the updated timestamp
+					$settings["updated"] = microtime();
+				}
+				
+				// Get a fresh copy of the settings so we can compare the timestamp with our settings timestamp
+				// (if there is a difference then settings have been updated since we started, so repeat process)
+				$fresh_settings = get_option("widget_thinktwit_settings");
+				
+				// Check that the fresh settings exist or else we will be stuck in a loop
+				if (!is_array($fresh_settings)) {
+					// If they don't lets just take a copy of our settings
+					$fresh_settings = $settings;
+				}
+			} while($current_updated != $fresh_settings["updated"]);
+			
+			// Store the name of the cache in our settings
+			update_option("widget_thinktwit_settings", $settings);
 		}
 	}
 	
