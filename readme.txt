@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.2.1
+Tested up to: 3.3.2
 Stable tag: trunk
 
 Outputs tweets from one or more Twitter users. Activated through the Widget interface, shortcode or Output Anywhere (PHP function call)
@@ -32,13 +32,13 @@ Features:
  * Can specify maximum number of days back to display
  * Supports no-caching, to prevent caching of tweets by caching engines such as WP Super Cache
  * Supports CURL as an alternative to access the Twitter API if URL file-access is disabled
- * Supports optional caching of tweets
+ * Supports optional caching of tweets and avatars
  * Can display the avatar of the Twitter user
  * Output can be filtered (using apply_filters)
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.2.1, not tested with other versions
+ * Works with Wordpress 2.8.6 to 3.3.2, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
 
@@ -49,6 +49,8 @@ Requirements/Restrictions:
 in WordPress
 
 1. Activate the plugin through the `Plugins` menu in WordPress
+
+1. Ensure the `images` directory exists in the `thinktwit` folder with 755 permissions
 
 Updates are automatic. Click on `Upgrade Automatically` if prompted from the admin menu. If you ever have to manually 
 upgrade, simply replace the files with those from the new version.
@@ -261,6 +263,15 @@ http://digwp.com/2010/02/remove-nofollow-attributes-from-post-content/
 * Update frequency - indicates how often Twitter should be contacted to get a list of tweets. Use this
 to turn on or off caching, and to decide how often to update the cache
 
+= Why aren't my avatar images showing? =
+
+The `images` folder may not exist or it may not be writeable (this folder is required for caching avatars). You must create the directory if it
+doesn't already exist or you must chmod it to 755.
+
+= How often do avatars get updated? =
+
+Once every 24 hours (assuming a request is made in this period). This value is not currently configurable.
+
 
 == Screenshots ==
 
@@ -271,6 +282,10 @@ to turn on or off caching, and to decide how often to update the cache
 
 
 == Changelog ==
+
+= 1.3.3 =
+- (02 Jun 2012) get_twitter_avatar() replaced with Twitter avatar API, added ability to cache user avatars and changed wording of TIME_1_DAY
+from "about a day ago" to "yesterday"
 
 = 1.3.2 =
 - (12 Feb 2012) Added ThinkTwit versioning for making future upgrades more smooth, removed extraneous parameter when calling sort_tweets
@@ -381,6 +396,9 @@ updated readme with new FAQ and uninstall instructions
 - (21 Jan 2010) Initial Release
 
 == Upgrade Notice ==
+
+= 1.3.3 =
+- Now supports caching of avatars!
 
 = 1.3.0 =
 - Multiple fixes - NOTE: Please follow uninstallation instructions and install fresh, update shortcodes and Output Anywhere (PHP function call)!

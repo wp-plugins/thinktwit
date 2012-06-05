@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
-    Version: 1.3.2
+    Version: 1.3.3
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.2");
+	define("VERSION",				"1.3.3");
 	define("USERNAMES", 			"stephenpickett");
 	define("USERNAME_SUFFIX", 		" said: ");
 	define("LIMIT", 				5);
@@ -41,7 +41,7 @@
 	define("TIME_1_HOUR",        	"about an hour ago");
 	define("TIME_2_HOURS",       	"a couple of hours ago");
 	define("TIME_PRECISE_HOURS", 	"about =x= hours ago");
-	define("TIME_1_DAY",         	"a day ago");
+	define("TIME_1_DAY",         	"yesterday");
 	define("TIME_2_DAYS",        	"almost 2 days ago");
 	define("TIME_MANY_DAYS",     	" days ago");
 	define("TIME_NO_RECENT",     	"There have been no recent tweets");
@@ -341,51 +341,87 @@
 			}
 		}
 		
-		// Returns the avatar for a given Twitter username
-		private static function get_twitter_avatar($username, $use_curl) {
-			$url = "http://twitter.com/users/" . $username . ".xml";
+		// Downloads the avatar for the given username, using CURL if specified
+		private static function download_avatar($use_curl, $username) {
+			// Get the URL of the poster's avatar
+			$url = "http://twitter.com/api/users/profile_image/" . $username;
 			
-			// If user wishes to use CURL
-			if ($use_curl) {
-				// Initiate a CURL object
-				$ch = curl_init();
-
-				// Set the URL
-				curl_setopt($ch, CURLOPT_URL, $url);
-
-				// Set to return a string
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-				// Set the timeout
-				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-
-				// Execute the API call
-				$feed = curl_exec($ch);
-
-				// Close the CURL object
-				curl_close($ch);
+			// Get image MIME type
+			$mime = ThinkTwit::get_image_mime_type($url);
+			
+			// Store the filename
+			$filename = $username . $mime;
+			$dir = plugin_dir_path( __FILE__ ) . '/images/';
+			
+			// First of all check if the folder exists
+			if (!file_exists($dir)) {
+				// If it doesn't then create it with write permissions
+				wp_mkdir_p($dir);
 			} else {
-				// Execute the API call
-				$feed = file_get_contents($url);
+				// And if it exists then check it is writeable
+				if (!is_writable($dir)) {
+					// If it isn't writeable then make it writeable
+					chmod($dir, 0755);
+				}
 			}
-
-			// Put all entries into an array
-			$xml = explode("<user>", $feed);
-
-			// Check that there was a valid user found (if so it returns <user> if not it returns <hash>)
-			if (count($xml) > 1) {
-				// Get the image URL XML (the first instance is <user> and the rest is the remainder)
-				$image_url = explode("<profile_image_url>", $xml[1]);
-
-				// Clean up the image URL (get everything before the closing tag)
-				$clean_image_url = explode("</profile_image_url>", $image_url[1]);
-
-				// Return the image URL
-				return $clean_image_url[0];
+			
+			// If file doesn't exist or file is older than 24 hours
+			if (!file_exists($dir . $filename) || time() - filemtime(realpath($dir . $filename)) >= (60 * 60 * 24)) {					
+				// Download and save the image using CURL or file_put_contents
+				if ($use_curl) {
+					// Initiate a CURL object and open the image URL
+					$ch = curl_init($url);
+					
+					// Open file location to save in using write binary mode
+					$fp = fopen($dir . $filename, 'wb');
+					
+					// Set to return a file, to write in to fp
+					curl_setopt($ch, CURLOPT_FILE, $fp);
+					
+					// Set to not include the header in the output
+					curl_setopt($ch, CURLOPT_HEADER, 0);
+					
+					// Execute the call
+					curl_exec($ch);
+					
+					// Close the CURL object
+					curl_close($ch);
+					
+					// Close the file object
+					fclose($fp);
+				} else {
+					// Download the file without CURL
+					file_put_contents($dir . $filename, file_get_contents($url));
+				}
 			}
-
-			// If nothing was found return false
-			return false;
+			
+			return $filename;
+		}
+		
+		// Returns the MIME type (jpeg, png or gif - only allowed by Twitter) of the image at the given URL
+		private static function get_image_mime_type($url) {
+			// Use getimagesize to get the MIME type
+			$size = getimagesize($url);
+			
+			// Return the corresponding file extension
+			switch ($size['mime']) {
+				case 'image/gif':
+					return ".gif";
+					
+					break;
+				case 'image/jpeg':
+					return ".jpg";
+					
+					break;
+				case 'image/png':
+					return ".png";
+					
+					break;
+				default:
+					return ".jpg";
+					
+					break;
+			}
 		}
 
 		// Returns an array of Tweets from the cache or from Twitter depending on state of cache
@@ -531,9 +567,11 @@
 					$clean_content[0] = str_replace("&amp;lt", "<", $clean_content[0]);
 					$clean_content[0] = str_replace("&amp;gt", ">", $clean_content[0]);
 					$clean_content[0] = str_replace("&quot;", "\"", $clean_content[0]);
+					
+					$filename = ThinkTwit::download_avatar($use_curl, trim($clean_name_1[0]));
 
 					// Create a tweet and add it to the array
-					$tweets[] = new Tweet($clean_uri[0], $clean_name[0], trim($clean_name_1[0]), $clean_content[0], $clean_published[0]);
+					$tweets[] = new Tweet($clean_uri[0], $filename, $clean_name[0], trim($clean_name_1[0]), $clean_content[0], $clean_published[0]);;
 				}
 			}
 
@@ -771,8 +809,23 @@
 					// Output the link to the poster's profile
 					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window ? " target=\"blank\"" : "") . " class=\"thinkTwitUsername\" rel=\"nofollow\">";
 					
+					// If the avatar is empty (this should only happen after an upgrade)
+					if (!$tweet->getAvatar()) {
+						// Download the avatar (we need the filename but we should make sure that the file is there anyway)
+						$filename = ThinkTwit::download_avatar($use_curl, $tweet->getUsername());
+						
+						// Store the filename in the tweet
+						$tweet->setAvatar($filename);
+						
+						// Store the tweet in the array of tweets
+						$tweets[$i] = $tweet;
+						
+						// Update the cache with the updated tweets array
+						ThinkTwit::update_cache($tweets, $widget_id);
+					}
+					
 					// Get the URL of the poster's avatar
-					$url = ThinkTwit::get_twitter_avatar($tweet->getUsername(), $use_curl);
+					$url = plugins_url( 'images/' . $tweet->getAvatar() , __FILE__ );
 
 					// Check if the user wants to display the poster's avatar and that we can actually find one
 					if ($show_avatar && $url != false) {
@@ -1076,23 +1129,25 @@
 	// Class for storing a tweet
 	class Tweet {
 		protected $url;
+		protected $avatar;
 		protected $name;
 		protected $username;
 		protected $content;
 		protected $timestamp;
 
 		// Constructor
-		public function __construct($url, $name, $username, $content, $timestamp) {
-			$this->url = $url;
-			$this->name = $name;
-			$this->username = $username;
-			$this->content = $content;
-			$this->timestamp = $timestamp;
+		public function __construct($url, $avatar, $name, $username, $content, $timestamp) {
+			$this->url = trim($url);
+			$this->avatar = trim($avatar);
+			$this->name = trim($name);
+			$this->username = trim($username);
+			$this->content = trim($content);
+			$this->timestamp = trim($timestamp);
 		}
 
 		// toString method outputs the contents of the Tweet
 		public function __toString() {
-			return "[url=$this->url, name=$this->name, username=$this->username, content='$this->content', timestamp=$this->timestamp]";
+			return "[url=$this->url, avatar=$this->avatar, name=$this->name, username=$this->username, content='$this->content', timestamp=$this->timestamp]";
 		}
 
 		// Returns the tweet's URL
@@ -1103,6 +1158,16 @@
 		// Sets the tweet's URL
 		public function setUrl($url) {
 			$this->url = trim($url);
+		}
+
+		// Returns the tweet's avatar filename
+		public function getAvatar() {
+			return $this->avatar;
+		}
+
+		// Sets the tweet's avatar filename
+		public function setAvatar($avatar) {
+			$this->avatar = trim($avatar);
 		}
 
 		// Returns the tweet's Twitter name
