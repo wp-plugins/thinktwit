@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
-    Version: 1.3.3
+    Version: 1.3.4
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.3");
+	define("VERSION",				"1.3.4");
 	define("USERNAMES", 			"stephenpickett");
 	define("USERNAME_SUFFIX", 		" said: ");
 	define("LIMIT", 				5);
@@ -341,6 +341,23 @@
 			}
 		}
 		
+		// Looks in the downloaded file for a Twitter message that says the request was redirected, if found returns the URL to use instead
+		private static function check_avatar_for_redirect($location) {
+			// Get the file
+			$file = file_get_contents($location);
+			
+			// First of all look for the redirect
+			if (strpos($file, "redirected")) {
+				// We have found a redirect, so next look for the URL between double quotes
+				if (preg_match('/"([^"]+)"/', $str, $m)) {
+					// If we find a match (we should) then return the URL
+					return $m[1]; 
+				}
+			}
+			
+			return false;
+		}
+		
 		// Downloads the avatar for the given username, using CURL if specified
 		private static function download_avatar($use_curl, $username) {
 			// Get the URL of the poster's avatar
@@ -365,34 +382,39 @@
 				}
 			}
 			
-			// If file doesn't exist or file is older than 24 hours
-			if (!file_exists($dir . $filename) || time() - filemtime(realpath($dir . $filename)) >= (60 * 60 * 24)) {					
-				// Download and save the image using CURL or file_put_contents
-				if ($use_curl) {
-					// Initiate a CURL object and open the image URL
-					$ch = curl_init($url);
-					
-					// Open file location to save in using write binary mode
-					$fp = fopen($dir . $filename, 'wb');
-					
-					// Set to return a file, to write in to fp
-					curl_setopt($ch, CURLOPT_FILE, $fp);
-					
-					// Set to not include the header in the output
-					curl_setopt($ch, CURLOPT_HEADER, 0);
-					
-					// Execute the call
-					curl_exec($ch);
-					
-					// Close the CURL object
-					curl_close($ch);
-					
-					// Close the file object
-					fclose($fp);
-				} else {
-					// Download the file without CURL
-					file_put_contents($dir . $filename, file_get_contents($url));
+			while ($url) {
+				// If file doesn't exist or file is older than 24 hours
+				if (!file_exists($dir . $filename) || time() - filemtime(realpath($dir . $filename)) >= (60 * 60 * 24)) {					
+					// Download and save the image using CURL or file_put_contents
+					if ($use_curl) {
+						// Initiate a CURL object and open the image URL
+						$ch = curl_init($url);
+						
+						// Open file location to save in using write binary mode
+						$fp = fopen($dir . $filename, 'wb');
+						
+						// Set to return a file, to write in to fp
+						curl_setopt($ch, CURLOPT_FILE, $fp);
+						
+						// Set to not include the header in the output
+						curl_setopt($ch, CURLOPT_HEADER, 0);
+						
+						// Execute the call
+						curl_exec($ch);
+						
+						// Close the CURL object
+						curl_close($ch);
+						
+						// Close the file object
+						fclose($fp);
+					} else {
+						// Download the file without CURL
+						file_put_contents($dir . $filename, file_get_contents(htmlspecialchars($url)));
+					}
 				}
+				
+				// Check the contents for a redirect (this should return false and break the loop once it has a working file)
+				$url = ThinkTwit::check_avatar_for_redirect($dir . $filename);
 			}
 			
 			return $filename;
@@ -401,7 +423,7 @@
 		// Returns the MIME type (jpeg, png or gif - only allowed by Twitter) of the image at the given URL
 		private static function get_image_mime_type($url) {
 			// Use getimagesize to get the MIME type
-			$size = getimagesize($url);
+			$size = @getimagesize($url);
 			
 			// Return the corresponding file extension
 			switch ($size['mime']) {
@@ -522,7 +544,7 @@
 				curl_close($ch);
 			} else {
 				// Execute the API call
-				$feed = file_get_contents($url);
+				$feed = @file_get_contents($url);
 			}
 
 			// Put all entries into an array
@@ -822,6 +844,15 @@
 						
 						// Update the cache with the updated tweets array
 						ThinkTwit::update_cache($tweets, $widget_id);
+					} else {
+						// But if it does exist then get the full file path
+						$file = plugin_dir_path( __FILE__ ) . '/images/' . $tweet->getAvatar();
+						
+						// And if the file doesn't exist
+						if (!file_exists($file)) {
+							// Then download it
+							$filename = ThinkTwit::download_avatar($use_curl, $tweet->getUsername());
+						}
 					}
 					
 					// Get the URL of the poster's avatar

@@ -283,6 +283,10 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
+= 1.3.4 =
+- (24 Jun 2012) Detects when Twitter displays a redirect URL when using the avatar API and downloads avatar from that URL instead, ignores
+errors when trying to get the file size of an avatar or when getting tweets and checks if the avatar that is supposed to be displayed exists
+
 = 1.3.3 =
 - (02 Jun 2012) get_twitter_avatar() replaced with Twitter avatar API, added ability to cache user avatars and changed wording of TIME_1_DAY
 from "about a day ago" to "yesterday"
