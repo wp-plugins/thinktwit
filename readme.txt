@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.3.2
+Tested up to: 3.4.1
 Stable tag: trunk
 
 Outputs tweets from one or more Twitter users. Activated through the Widget interface, shortcode or Output Anywhere (PHP function call)
@@ -38,7 +38,7 @@ Features:
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.3.2, not tested with other versions
+ * Works with Wordpress 2.8.6 to 3.4.1, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
 
@@ -179,13 +179,7 @@ NOTE: You can leave out any parameter to use the default, but be aware to change
 
 == Uninstall ==
   ------------------------------------
-To uninstall simply deactivate, delete the `thinktwit` directory from `wp-content/plugins/` and then delete the following option 
-from the `wp_options` table:
-
- * widget_thinktwit
- * widget_`<widgetid>`_cache (where `<widgetid>` is the system generated id for each widget instance e.g. thinktwit-3)
- * widget_thinktwit-sc-`<unique id>`_cache (where `<unique id>` is your specified unique id for each shortcode instance e.g. thinktwit-sc-3)
- * widget_thinktwit-oa-`<unique id>`_cache (where `<unique id>` is your specified unique id for each Output Anywhere instance e.g. thinktwit-sc-3)
+To uninstall simply deactivate and then delete through the Plugins admin interface. All options and files will be automatically removed.
 
 
 == Frequently Asked Questions ==
@@ -227,7 +221,7 @@ NOTE: Be sure to use the id to access each style in order to over-write the defa
 
 = How do I stop caching in caching engines such as WP Super Cache? =
 
-Turn on no-caching.
+Turn on no-caching in the widget settings.
 
 = How does no-caching work? =
 
@@ -282,6 +276,10 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 
 == Changelog ==
+
+= 1.3.5 =
+- (11 Jul 2012) Added code to delete old avatars (doesn't work if owner of avatars is different to running process), supress errors on chmod
+and delete of directories and added code to remove all options on uninstallation
 
 = 1.3.4 =
 - (24 Jun 2012) Detects when Twitter displays a redirect URL when using the avatar API and downloads avatar from that URL instead, ignores

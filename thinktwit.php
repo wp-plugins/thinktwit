@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
-    Version: 1.3.4
+    Version: 1.3.5
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.4");
+	define("VERSION",				"1.3.5");
 	define("USERNAMES", 			"stephenpickett");
 	define("USERNAME_SUFFIX", 		" said: ");
 	define("LIMIT", 				5);
@@ -993,6 +993,40 @@
 				}
 			}
 			
+			// NOTE: This code doesn't work if the owner of the file is different to the user of the running process
+			// Get a listing of the images directory
+			if ($handle = opendir(plugin_dir_path( __FILE__ ) . '/images/')) {
+				// Iterate through the listing
+				while (false !== ($entry = readdir($handle))) {
+					// Ignore . and ..
+					if ($entry != "." && $entry != "..") {
+						// Look for the last fullstop in the filename so that we can get the username
+						$fullstop = strrpos ($entry, ".");
+						
+						// If there is no fullstop then we don't want to process any further (this shouldn't ever happen)
+						if ($fullstop !== FALSE) {
+							// Get filename but ignore the extension
+							$username = substr($entry, 0, $fullstop);
+							
+							// If the filename is not in $usernames
+							if (strlen(stristr($usernames,$username)) == 0) {
+								// If the file exists
+								if (file_exists($entry)) {
+									// First of all make it fully writeable to ensure we can delete it
+									@chmod($entry, 0777);
+									
+									// Then delete it
+									@unlink($entry);
+								}
+							}
+						}
+					}
+				}
+				
+				// Close the directory stream
+				closedir($handle);
+			}
+			
 			return $new_array;
 		}
 		
@@ -1107,7 +1141,7 @@
 			
 			return $new_array;
 		}
-		
+				
 		// Updates the cache with the given Tweets and stores the time of the update
 		private static function update_cache($tweets, $widget_id, $timestamp = -1) {
 			// If timestamp is -1 (default) then get the current time
