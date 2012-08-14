@@ -1025,10 +1025,10 @@
 				
 				// Close the directory stream
 				closedir($handle);
-			}
+			}*/
 			
 			return $new_array;
-		}*/
+		}
 		
 		// Returns an array with tweets older than max days removed
 		private static function remove_old_tweets($array, $max_days) {
