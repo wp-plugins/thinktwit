@@ -1,5 +1,5 @@
 === ThinkTwit ===
-Contributors: stephen.pickett, smcphill
+Contributors: stephen.pickett
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
@@ -17,7 +17,7 @@ It uses the Twitter ATOM API to access tweets which can be cached. It is very si
 Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode or Output Anywhere (PHP function call). 
 Updated regularly!
 
-Plugin URI: http://www.thepicketts.org/thinktwit/
+**Support:** http://www.thepicketts.org/thinktwit/ or on Twitter **@stephenpickett**
 
 Features:
 --------
@@ -50,7 +50,7 @@ in WordPress
 
 1. Activate the plugin through the `Plugins` menu in WordPress
 
-1. Ensure the `images` directory exists in the `thinktwit` folder with 755 permissions
+1. Ensure the `images` directory exists in the `thinktwit` folder with 777 permissions
 
 Updates are automatic. Click on `Upgrade Automatically` if prompted from the admin menu. If you ever have to manually 
 upgrade, simply replace the files with those from the new version.
@@ -277,6 +277,9 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
+= 1.3.6 =
+- (14 Aug 2012) Removed code which was potentially incorrectly removing non-images (especially root index.php) when deleting old avatars
+
 = 1.3.5 =
 - (11 Jul 2012) Added code to delete old avatars (doesn't work if owner of avatars is different to running process), supress errors on chmod
 and delete of directories and added code to remove all options on uninstallation
@@ -398,6 +401,9 @@ updated readme with new FAQ and uninstall instructions
 - (21 Jan 2010) Initial Release
 
 == Upgrade Notice ==
+
+= 1.3.6 =
+- Important fix to bug potentially deleting index.php in root - highly recommend upgrading!
 
 = 1.3.3 =
 - Now supports caching of avatars!

@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
-    Version: 1.3.5
+    Version: 1.3.6
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.5");
+	define("VERSION",				"1.3.6");
 	define("USERNAMES", 			"stephenpickett");
 	define("USERNAME_SUFFIX", 		" said: ");
 	define("LIMIT", 				5);
@@ -368,7 +368,7 @@
 			
 			// Store the filename
 			$filename = $username . $mime;
-			$dir = plugin_dir_path( __FILE__ ) . '/images/';
+			$dir = plugin_dir_path( __FILE__ ) . 'images/';
 			
 			// First of all check if the folder exists
 			if (!file_exists($dir)) {
@@ -378,7 +378,7 @@
 				// And if it exists then check it is writeable
 				if (!is_writable($dir)) {
 					// If it isn't writeable then make it writeable
-					chmod($dir, 0755);
+					chmod($dir, 0777);
 				}
 			}
 			
@@ -846,7 +846,7 @@
 						ThinkTwit::update_cache($tweets, $widget_id);
 					} else {
 						// But if it does exist then get the full file path
-						$file = plugin_dir_path( __FILE__ ) . '/images/' . $tweet->getAvatar();
+						$file = plugin_dir_path( __FILE__ ) . 'images/' . $tweet->getAvatar();
 						
 						// And if the file doesn't exist
 						if (!file_exists($file)) {
@@ -995,13 +995,13 @@
 			
 			// NOTE: This code doesn't work if the owner of the file is different to the user of the running process
 			// Get a listing of the images directory
-			if ($handle = opendir(plugin_dir_path( __FILE__ ) . '/images/')) {
+			/*if ($handle = opendir(plugin_dir_path( __FILE__ ) . 'images/')) {
 				// Iterate through the listing
 				while (false !== ($entry = readdir($handle))) {
-					// Ignore . and ..
-					if ($entry != "." && $entry != "..") {
+					// Ignore . and .., and make sure that we are dealing with a png, jpg or gif
+					if ($entry != "." && $entry != ".." && (strpos($entry, ".png") || strpos($entry, ".jpg") || strpos($entry, ".gif"))) {
 						// Look for the last fullstop in the filename so that we can get the username
-						$fullstop = strrpos ($entry, ".");
+						$fullstop = strrpos($entry, ".");
 						
 						// If there is no fullstop then we don't want to process any further (this shouldn't ever happen)
 						if ($fullstop !== FALSE) {
@@ -1024,7 +1024,7 @@
 				}
 				
 				// Close the directory stream
-				closedir($handle);
+				closedir($handle);*/
 			}
 			
 			return $new_array;
@@ -1275,6 +1275,14 @@
 			$this->timestamp = trim($timestamp);
 		}
 	}
+	
+	function widget_inject(){
+		global $pagenow;
+		if($pagenow == "widgets.php"){
+			echo "jQuery('#widgets-left').prepend('My jQuery Added Header');";
+		}
+	}
+	add_action("admin_footer", "widget_inject");
 
 	// Add shortcode
 	add_shortcode("thinktwit", "ThinkTwit::shortcode_handler");
