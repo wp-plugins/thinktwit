@@ -7,15 +7,15 @@ Requires at least: 2.8.6
 Tested up to: 3.4.1
 Stable tag: trunk
 
-Outputs tweets from one or more Twitter users. Activated through the Widget interface, shortcode or Output Anywhere (PHP function call)
+Outputs tweets from any Twitter users (hashtag/keyword filterable) through the Widget interface. Can be called via shortcode or PHP function call
 
 
 == Description ==
 
-ThinkTwit is a highly customisable plugin that can output tweets from multiple users (something that very few other plugins can do successfully). 
-It uses the Twitter ATOM API to access tweets which can be cached. It is very simple, yet flexible and easily customised. It can be placed on your 
-Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode or Output Anywhere (PHP function call). 
-Updated regularly!
+ThinkTwit is a highly customisable plugin that can output tweets from multiple users (something that very few other plugins can do successfully), 
+filterable by #hashtag or keyword. It uses the Twitter ATOM API to access tweets which can be cached. It is very simple, yet flexible and easily 
+customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode or Output 
+Anywhere (PHP function call). Updated regularly!
 
 **Support:** http://www.thepicketts.org/thinktwit/ or on Twitter **@stephenpickett**
 
@@ -28,6 +28,7 @@ Features:
  * Multiple instances can be deployed (like other widgets/plugins)
  * JavaScript is not required (unless no-caching is activated)
  * Can specify multiple usernames
+ * Tweets can be filtered by #hashtag or keyword
  * Can specify maximum number of tweets
  * Can specify maximum number of days back to display
  * Supports no-caching, to prevent caching of tweets by caching engines such as WP Super Cache
@@ -35,6 +36,7 @@ Features:
  * Supports optional caching of tweets and avatars
  * Can display the avatar of the Twitter user
  * Output can be filtered (using apply_filters)
+ * Can optionally output "Follow @username" links
  
 Requirements/Restrictions:
 -------------------------
@@ -68,6 +70,7 @@ ThinkTwit can be used in any page or post, or anywhere else configured to use sh
 `[thinktwit 
   unique_id=x 
   usernames="xxx yyy" 
+  hashtags="xxx" 
   username_suffix="xxx" 
   limit=x (int)
   max-days=x (int: 1 to 7)
@@ -75,6 +78,7 @@ ThinkTwit can be used in any page or post, or anywhere else configured to use sh
   show_author=none|name|username 
   show_avatar=1|0 
   show_published=1|0 
+  show_follow=1|0 
   links_new_window=1|0 
   no_cache=1|0 
   use_curl=1|0 
@@ -99,13 +103,15 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
 `<?php $args = array(
     'unique_id'          => 0,
     'usernames'          => "stephenpickett",
+    'hashtags'           => "thinktwit",
     'username_suffix'    => " said: ",
     'limit'              => 5,
     'max_days'           => 7,
     'update_frequency'   => 0,
-    'show_author'      => "name",
+    'show_author'        => "name",
     'show_avatar'        => 1,
     'show_published'     => 1,
+    'show_follow'        => 1,
     'links_new_window'   => 1,
     'no_cache'           => 0,
     'use_curl'           => 0,
@@ -128,6 +134,8 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
 
 **usernames**: *string* - The list of Twitter usernames to output tweets for.
 
+**hashtags**: *string* - The list of hashtags to output tweets for.
+
 **username_suffix**: *string* - The text that should appear after a username e.g. " said: ".
 
 **limit**: *int* - The maximum number of tweets to display.
@@ -143,6 +151,8 @@ username indicates the user's username should be shown.
 **show_avatar**: *boolean* - Indicates whether the Twitter user's avatar should be displayed - 1 for true and 0 for false.
 
 **show_published**: *boolean* - Indicates whether the time the tweet was made should be displayed e.g. "This happened a day ago" - 1 for true and 0 for false.
+
+**show_follow**: *boolean* - Indicates whether or not to show a "Follow @username" link for each username.
 
 **links_new_window**: *boolean* - Indicates whether links should be opened in a new window - 1 for true and 0 for false.
 
@@ -270,12 +280,17 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 == Screenshots ==
 
 1. screenshot-1.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage
-1. screenshot-2.png shows ThinkTwit working via shortcode within a blog post on the the ThinkTwit development homepage
-1. screenshot-3.png shows ThinkTwit working via a Output Anywhere (PHP function call) in the header of the ThinkTwit development homepage
-1. screenshot-4.png shows the settings that can be configured within the widget
+1. screenshot-1.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage but filtered by a hashtag
+1. screenshot-3.png shows ThinkTwit working via shortcode within a blog post on the the ThinkTwit development homepage
+1. screenshot-4.png shows ThinkTwit working via a Output Anywhere (PHP function call) in the header of the ThinkTwit development homepage
+1. screenshot-5.png shows the settings that can be configured within the widget
 
 
 == Changelog ==
+
+= 1.3.7 =
+- (02 Sep 2012) Added the ability to filter tweets by hashtag/keyword (thanks to Martijn Pantlin for the code), improvements to data loading
+when entries do not exist (rare, mostly during upgrades) and the option to show "Follow @username" links
 
 = 1.3.6 =
 - (14 Aug 2012) Removed code which was potentially incorrectly removing non-images (especially root index.php) when deleting old avatars

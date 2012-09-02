@@ -2,8 +2,8 @@
 /*
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
-    Description: Outputs tweets from one or more Twitter users through the Widget interface - can also be called via shortcode or Output Anywhere (PHP function call), visit the <a href="http://wordpress.org/extend/plugins/thinktwit/" target="blank">ThinkTwit plugin</a> for instructions
-    Version: 1.3.6
+    Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call
+    Version: 1.3.7
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,8 +21,9 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.6");
+	define("VERSION",				"1.3.7");
 	define("USERNAMES", 			"stephenpickett");
+	define("HASHTAGS", 				"");
 	define("USERNAME_SUFFIX", 		" said: ");
 	define("LIMIT", 				5);
 	define("MAX_DAYS", 				7);
@@ -30,6 +31,7 @@
 	define("SHOW_USERNAME", 		"name");
 	define("SHOW_AVATAR", 			1);
 	define("SHOW_PUBLISHED", 		1);
+	define("SHOW_FOLLOW",    		1);
 	define("LINKS_NEW_WINDOW", 		1);
 	define("NO_CACHE", 				0);
 	define("USE_CURL", 				0);
@@ -55,7 +57,7 @@
 		// Constructor
 		public function ThinkTwit() {
 			// Set the description of the widget
-			$widget_ops = array("description" => "Outputs tweets from one or more Twitter users through the Widget interface");
+			$widget_ops = array("description" => "Outputs tweets from one or more Twitter users through the Widget interface, filtered on a particular #hashtag(s)");
 
 			// Load jQuery
 			wp_enqueue_script("jquery");
@@ -82,32 +84,34 @@
 
 			// Store the widget values in variables
 			$title            = apply_filters("widget_title", $instance["title"]);
-			$usernames        = $instance["usernames"];
-			$username_suffix  = $instance["username_suffix"];
-			$limit            = $instance["limit"];
-			$max_days         = $instance["max_days"];
-			$update_frequency = $instance["update_frequency"];
-			$show_username    = $instance["show_username"];
-			$show_avatar      = $instance["show_avatar"];
-			$show_published   = isset($instance["show_published"]) ? $instance["show_published"] : false;
-			$links_new_window = isset($instance["links_new_window"]) ? $instance["links_new_window"] : false;
-			$no_cache         = isset($instance["no_cache"]) ? $instance["no_cache"] : false;
-			$use_curl         = isset($instance["use_curl"]) ? $instance["use_curl"] : false;
-			$debug            = isset($instance["debug"]) ? $instance["debug"] : false;
+			$usernames        = !isset($instance["usernames"])			? USERNAMES : $instance["usernames"];
+			$hashtags  	      = !isset($instance["hashtags"])			? HASHTAGS : $instance["hashtags"];
+			$username_suffix  = !isset($instance["username_suffix"])	? USERNAME_SUFFIX : $instance["username_suffix"];
+			$limit            = !isset($instance["limit"])				? LIMIT : $instance["limit"];
+			$max_days         = !isset($instance["max_days"])			? MAX_DAYS : $instance["max_days"];
+			$update_frequency = !isset($instance["update_frequency"])	? UPDATE_FREQUENCY : $instance["update_frequency"];
+			$show_username    = !isset($instance["show_username"])		? SHOW_USERNAME : $instance["show_username"];
+			$show_avatar      = !isset($instance["show_avatar"])		? SHOW_AVATAR : $instance["show_avatar"];
+			$show_published   = !isset($instance["show_published"])		? SHOW_PUBLISHED : $instance["show_published"];
+			$show_follow      = !isset($instance["show_follow"])		? SHOW_FOLLOW : $instance["show_follow"];
+			$links_new_window = !isset($instance["links_new_window"])	? LINKS_NEW_WINDOW : $instance["links_new_window"];
+			$no_cache         = !isset($instance["no_cache"])			? NO_CACHE : $instance["no_cache"];
+			$use_curl         = !isset($instance["use_curl"])			? USE_CURL : $instance["use_curl"];
+			$debug            = !isset($instance["debug"])				? DEBUG : $instance["debug"];
 			
 			// Times
 			$time_settings = array(11);
-			$time_settings[0] = $instance["time_this_happened"];
-			$time_settings[1] = $instance["time_less_min"];
-			$time_settings[2] = $instance["time_min"];
-			$time_settings[3] = $instance["time_more_mins"];
-			$time_settings[4] = $instance["time_1_hour"];
-			$time_settings[5] = $instance["time_2_hours"];
-			$time_settings[6] = $instance["time_precise_hours"];
-			$time_settings[7] = $instance["time_1_day"];
-			$time_settings[8] = $instance["time_2_days"];
-			$time_settings[9] = $instance["time_many_days"];
-			$time_settings[10]= $instance["time_no_recent"];
+			$time_settings[0] = !isset($instance["time_this_happened"])	? TIME_THIS_HAPPENED : $instance["time_this_happened"];
+			$time_settings[1] = !isset($instance["time_less_min"])		? TIME_LESS_MIN : $instance["time_less_min"];
+			$time_settings[2] = !isset($instance["time_min"])			? TIME_MIN : $instance["time_min"];
+			$time_settings[3] = !isset($instance["time_more_mins"])		? TIME_MORE_MINS : $instance["time_more_mins"];
+			$time_settings[4] = !isset($instance["time_1_hour"])		? TIME_1_HOUR : $instance["time_1_hour"];
+			$time_settings[5] = !isset($instance["time_2_hours"])		? TIME_2_HOURS : $instance["time_2_hours"];
+			$time_settings[6] = !isset($instance["time_precise_hours"])	? TIME_PRECISE_HOURS : $instance["time_precise_hours"];
+			$time_settings[7] = !isset($instance["time_1_day"])			? TIME_1_DAY : $instance["time_1_day"];
+			$time_settings[8] = !isset($instance["time_2_days"])		? TIME_2_DAYS : $instance["time_2_days"];
+			$time_settings[9] = !isset($instance["time_many_days"])		? TIME_MANY_DAYS : $instance["time_many_days"];
+			$time_settings[10]= !isset($instance["time_no_recent"])		? TIME_NO_RECENT : $instance["time_no_recent"];
 			
 			// Output code that should appear before the widget
 			echo $before_widget;
@@ -118,10 +122,10 @@
 
 			// If the user selected to not cache the widget then output AJAX method
 			if ($no_cache) { 
-				echo ThinkTwit::output_ajax($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings);
+				echo ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
 			// Otherwise output HTML method
 			} else {
-				echo ThinkTwit::parse_feed($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings);
+				echo ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
 			}
 			
 			// Output code that should appear after the widget
@@ -135,6 +139,7 @@
 			// Strip tags and update the widget settings
 			$instance["title"]              = strip_tags($new_instance["title"]);
 			$instance["usernames"]          = strip_tags($new_instance["usernames"]);
+			$instance["hashtags"]           = strip_tags($new_instance["hashtags"]);
 			$instance["username_suffix"]    = strip_tags($new_instance["username_suffix"]);
 			$instance["limit"]              = strip_tags($new_instance["limit"]);
 			$instance["max_days"]           = strip_tags($new_instance["max_days"]);
@@ -142,6 +147,7 @@
 			$instance["show_username"]      = strip_tags($new_instance["show_username"]);
 			$instance["show_avatar"]        = (strip_tags($new_instance["show_avatar"]) == "Yes" ? 1 : 0);
 			$instance["show_published"]     = (strip_tags($new_instance["show_published"]) == "Yes" ? 1 : 0);
+			$instance["show_follow"]        = (strip_tags($new_instance["show_follow"]) == "Yes" ? 1 : 0);
 			$instance["links_new_window"]   = (strip_tags($new_instance["links_new_window"]) == "Yes" ? 1 : 0);
 			$instance["no_cache"]           = (strip_tags($new_instance["no_cache"]) == "Yes" ? 1 : 0);
 			$instance["use_curl"]           = (strip_tags($new_instance["use_curl"]) == "Yes" ? 1 : 0);
@@ -166,6 +172,7 @@
 			// Set up some default widget settings
 			$defaults = array("title"              => "My Tweets",
 							  "usernames"          => USERNAMES,
+							  "hashtags"           => HASHTAGS,
 							  "username_suffix"    => USERNAME_SUFFIX,
 							  "limit"              => LIMIT,
 							  "max_days"           => MAX_DAYS,
@@ -173,6 +180,7 @@
 							  "show_username"      => SHOW_USERNAME,
 							  "show_avatar"        => SHOW_AVATAR,
 							  "show_published"     => SHOW_PUBLISHED,
+							  "show_follow"        => SHOW_FOLLOW,
 							  "links_new_window"   => LINKS_NEW_WINDOW,
 							  "no_cache"           => NO_CACHE,
 							  "use_curl"           => USE_CURL,
@@ -201,8 +209,10 @@
 				<div class="widget-inside" style="display: block; border: 1px solid #DFDFDF; padding: 5px; width: 86%;">
 					<p><label for="<?php echo $this->get_field_id("title"); ?>"><?php _e("Title:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo $instance["title"]; ?>" /></label></p>
 
-					<p><label for="<?php echo $this->get_field_id("usernames"); ?>"><?php _e("Twitter usernames (separated by spaces):"); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id("usernames"); ?>" name="<?php echo $this->get_field_name("usernames"); ?>"><?php echo $instance["usernames"]; ?></textarea></label></p>
+					<p><label for="<?php echo $this->get_field_id("usernames"); ?>"><?php _e("Twitter usernames (optional) separated by spaces:"); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id("usernames"); ?>" name="<?php echo $this->get_field_name("usernames"); ?>"><?php echo $instance["usernames"]; ?></textarea></label></p>
 
+					<p><label for="<?php echo $this->get_field_id("hashtags"); ?>"><?php _e("Twitter hashtags/keywords (optional):"); ?> <input class="widefat" id="<?php echo $this->get_field_id("hashtags"); ?>" name="<?php echo $this->get_field_name("hashtags"); ?>"  type="text" value="<?php echo $instance["hashtags"]; ?>" /></label></p>
+					
 					<p><label for="<?php echo $this->get_field_id("username_suffix"); ?>"><?php _e("Username suffix (e.g. \" said \"):"); ?> <input class="widefat" id="<?php echo $this->get_field_id("username_suffix"); ?>" name="<?php echo $this->get_field_name("username_suffix"); ?>" type="text" value="<?php echo $instance["username_suffix"]; ?>" /></label></p>
 
 					<p><label for="<?php echo $this->get_field_id("limit"); ?>"><?php _e("Max tweets to display:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("limit"); ?>" name="<?php echo $this->get_field_name("limit"); ?>" type="text" value="<?php echo $instance["limit"]; ?>" /></label></p>
@@ -234,6 +244,11 @@
 					<p><label for="<?php echo $this->get_field_id("show_published"); ?>"><?php _e("Show when published:"); ?> <select id="<?php echo $this->get_field_id("show_published"); ?>" name="<?php echo $this->get_field_name("show_published"); ?>" class="widefat">
 						<option <?php if ($instance["show_published"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
 						<option <?php if ($instance["show_published"] == 0) echo "selected=\"selected\""; ?>>No</option>
+					</select></label></p>
+
+					<p><label for="<?php echo $this->get_field_id("show_follow"); ?>"><?php _e("Show \"Follow @username\" links:"); ?> <select id="<?php echo $this->get_field_id("show_follow"); ?>" name="<?php echo $this->get_field_name("show_follow"); ?>" class="widefat">
+						<option <?php if ($instance["show_follow"] == 1) echo "selected=\"selected\""; ?>>Yes</option>
+						<option <?php if ($instance["show_follow"] == 0) echo "selected=\"selected\""; ?>>No</option>
 					</select></label></p>
 
 					<p><label for="<?php echo $this->get_field_id("links_new_window"); ?>"><?php _e("Open links in new window:"); ?> <select id="<?php echo $this->get_field_id("links_new_window"); ?>" name="<?php echo $this->get_field_name("links_new_window"); ?>" class="widefat">
@@ -301,13 +316,14 @@
 		public static function ajax_request_handler() {
 			// Check that all parameters have been passed
 			if ((isset($_GET["thinktwit_request"]) && ($_GET["thinktwit_request"] == "parse_feed")) && isset($_GET["thinktwit_widget_id"]) && 
-			  isset($_GET["thinktwit_usernames"]) && isset($_GET["thinktwit_username_suffix"]) && isset($_GET["thinktwit_limit"]) && 
-			  isset($_GET["thinktwit_max_days"]) && isset($_GET["thinktwit_update_frequency"]) && isset($_GET["thinktwit_show_username"]) && 
-			  isset($_GET["thinktwit_show_published"]) && isset($_GET["thinktwit_links_new_window"]) && isset($_GET["thinktwit_use_curl"]) && 
-			  isset($_GET["thinktwit_debug"]) && isset($_GET["thinktwit_time_this_happened"]) && isset($_GET["thinktwit_time_less_min"]) && 
-			  isset($_GET["thinktwit_time_min"]) && isset($_GET["thinktwit_time_more_mins"]) && isset($_GET["thinktwit_time_1_hour"]) && 
-			  isset($_GET["thinktwit_time_2_hours"]) && isset($_GET["thinktwit_time_precise_hours"]) && isset($_GET["thinktwit_time_1_day"]) && 
-			  isset($_GET["thinktwit_time_2_days"]) && isset($_GET["thinktwit_time_many_days"]) && isset($_GET["thinktwit_time_no_recent"])) {
+			  isset($_GET["thinktwit_usernames"]) && isset($_GET["thinktwit_hashtags"]) && isset($_GET["thinktwit_username_suffix"]) && 
+			  isset($_GET["thinktwit_limit"]) && isset($_GET["thinktwit_max_days"]) && isset($_GET["thinktwit_update_frequency"]) && 
+			  isset($_GET["thinktwit_show_username"]) && isset($_GET["thinktwit_show_published"]) && isset($_GET["thinktwit_show_follow"]) && 
+			  isset($_GET["thinktwit_links_new_window"]) && isset($_GET["thinktwit_use_curl"]) && isset($_GET["thinktwit_debug"]) && 
+			  isset($_GET["thinktwit_time_this_happened"]) && isset($_GET["thinktwit_time_less_min"]) && isset($_GET["thinktwit_time_min"]) && 
+			  isset($_GET["thinktwit_time_more_mins"]) && isset($_GET["thinktwit_time_1_hour"]) && isset($_GET["thinktwit_time_2_hours"]) && 
+			  isset($_GET["thinktwit_time_precise_hours"]) && isset($_GET["thinktwit_time_1_day"]) && isset($_GET["thinktwit_time_2_days"]) && 
+			  isset($_GET["thinktwit_time_many_days"]) && isset($_GET["thinktwit_time_no_recent"])) {
 			  
 				// Create an array to contain the time settings
 				$time_settings = array(11);
@@ -326,11 +342,11 @@
 	
 			  
 				// Output the feed and exit the call
-				echo ThinkTwit::parse_feed(strip_tags($_GET["thinktwit_widget_id"]), strip_tags($_GET["thinktwit_usernames"]), strip_tags($_GET["thinktwit_username_suffix"]), 
-				  strip_tags($_GET["thinktwit_limit"]), strip_tags($_GET["thinktwit_max_days"]), strip_tags($_GET["thinktwit_update_frequency"]), 
-				  strip_tags($_GET["thinktwit_show_username"]), strip_tags($_GET["thinktwit_show_avatar"]), strip_tags($_GET["thinktwit_show_published"]), 
-				  strip_tags($_GET["thinktwit_links_new_window"]), strip_tags($_GET["thinktwit_use_curl"]), strip_tags($_GET["thinktwit_debug"]), 
-				  $time_settings);
+				echo ThinkTwit::parse_feed(strip_tags($_GET["thinktwit_widget_id"]), strip_tags($_GET["thinktwit_usernames"]), strip_tags($_GET["thinktwit_hashtags"]), 
+				  strip_tags($_GET["thinktwit_username_suffix"]), strip_tags($_GET["thinktwit_limit"]), strip_tags($_GET["thinktwit_max_days"]), 
+				  strip_tags($_GET["thinktwit_update_frequency"]), strip_tags($_GET["thinktwit_show_username"]), strip_tags($_GET["thinktwit_show_avatar"]), 
+				  strip_tags($_GET["thinktwit_show_published"]), strip_tags($_GET["thinktwit_show_follow"]), strip_tags($_GET["thinktwit_links_new_window"]), 
+				  strip_tags($_GET["thinktwit_use_curl"]), strip_tags($_GET["thinktwit_debug"]), $time_settings);
 
 				exit();
 			} elseif (isset($_GET["thinktwit_request"]) && ($_GET["thinktwit_request"] == "parse_feed")) {
@@ -620,7 +636,7 @@
 		}
 		
 		// Outputs the AJAX code to handle no-caching
-		public static function output_ajax($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings) {
+		public static function output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings) {
 			return 
 				"<script type=\"text/javascript\">
 					jQuery(document).ready(function($){
@@ -631,6 +647,7 @@
 								thinktwit_request             : \"parse_feed\",
 								thinktwit_widget_id           : \"" . $widget_id . "\",
 								thinktwit_usernames           : \"" . $usernames . "\",
+								thinktwit_hashtags            : \"" . $hashtags . "\",
 								thinktwit_username_suffix     : \"" . $username_suffix . "\",
 								thinktwit_limit               : \"" . $limit . "\",
 								thinktwit_max_days            : \"" . $max_days . "\",
@@ -638,6 +655,7 @@
 								thinktwit_show_username       : \"" . $show_username . "\",
 								thinktwit_show_avatar         : \"" . $show_avatar . "\",
 								thinktwit_show_published      : \"" . $show_published . "\",
+								thinktwit_show_follow         : \"" . $show_follow . "\",
 								thinktwit_links_new_window    : \"" . $links_new_window . "\",
 								thinktwit_use_curl            : \"" . $use_curl . "\",
 								thinktwit_debug               : \"" . $debug . "\",
@@ -673,6 +691,9 @@
 				
 			if (!isset($args["usernames"]))
 				$args["usernames"] = USERNAMES;
+			
+			if (!isset($args["hashtags"]))
+				$args["hashtags"] = HASHTAGS;
 				
 			if (!isset($args["username_suffix"]))
 				$args["username_suffix"] = USERNAME_SUFFIX;
@@ -694,6 +715,9 @@
 			
 			if (!isset($args["show_published"]))
 				$args["show_published"] = SHOW_PUBLISHED;
+			
+			if (!isset($args["show_follow"]))
+				$args["show_follow"] = SHOW_FOLLOW;
 			
 			if (!isset($args["links_new_window"]))
 				$args["links_new_window"] = LINKS_NEW_WINDOW;
@@ -757,24 +781,30 @@
 			
 			// If the user selected to use no-caching output AJAX code
 			if ($args["no_cache"]) { 
-				return "<div id=\"" . $args["widget_id"] . "\">" . ThinkTwit::output_ajax($args["widget_id"], $args["usernames"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings) . "</div>";
+				return "<div id=\"" . $args["widget_id"] . "\">" . ThinkTwit::output_ajax($args["widget_id"], $args["usernames"], $args["hashtags"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["show_follow"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings) . "</div>";
 			// Otherwise output HTML method
 			} else {
-				return ThinkTwit::parse_feed($args["widget_id"], $args["usernames"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings);
+				return ThinkTwit::parse_feed($args["widget_id"], $args["usernames"], $args["hashtags"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["show_follow"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings);
 			}
 		}
-
+		
 		// Returns the tweets, subject to the given parameters
-		private static function parse_feed($widget_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, 
-		  $links_new_window, $use_curl, $debug, $time_settings) {
+		private static function parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, 
+		  $show_follow, $links_new_window, $use_curl, $debug, $time_settings) {
 			
 			$output = "";
 
 			// Contstruct a string of usernames to search for
 			$username_string = str_replace(" ", "+OR+from%3A", $usernames);
+			
+			// Replace hashes in hashtags with code for URL
+			$hashtags = str_replace("#", "%23", $hashtags);
+			
+			// Replace spaces in hashtags with plus signs
+			$hashtags = str_replace(" ", "+", $hashtags);
 
 			// Construct the URL to obtain the Twitter ATOM feed (XML)
-			$url = "http://search.twitter.com/search.atom?q=from%3A" . $username_string . "&rpp=" . $limit;
+			$url = "http://search.twitter.com/search.atom?q=from%3A" . $username_string . "+" . $hashtags . "&rpp=" . $limit;
 
 			// If user wishes to output debug info then do so
 			if ($debug) {
@@ -782,12 +812,14 @@
 				$output .= "<p>widget_id: " . $widget_id . "</p>";
 				$output .= "<p>use_curl: " . $use_curl . "</p>";
 				$output .= "<p>usernames: " . $usernames . "</p>";
+				$output .= "<p>hashtags: " . $hashtags . "</p>";
 				$output .= "<p>username_suffix: " . $username_suffix . "</p>";
 				$output .= "<p>limit: " . $limit . "</p>";
 				$output .= "<p>max_days: " . $max_days . "</p>";
 				$output .= "<p>show_username: " . $show_username . "</p>";
 				$output .= "<p>show_avatar: " . $show_avatar . "</p>";
 				$output .= "<p>show_published: " . $show_published . "</p>";
+				$output .= "<p>show_follow: " . $show_follow . "</p>";
 				$output .= "<p>links_new_window: " . $links_new_window . "</p>";
 				$output .= "<p>url: " . $url . "</p>";
 				$output .= "<p>debug: " . $debug . "</p>";
@@ -829,7 +861,7 @@
 					}
 
 					// Output the link to the poster's profile
-					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window ? " target=\"blank\"" : "") . " class=\"thinkTwitUsername\" rel=\"nofollow\">";
+					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window ? " target=\"blank\"" : "") . " title=\"" . $name . "\" class=\"thinkTwitUsername\" rel=\"nofollow\">";
 					
 					// If the avatar is empty (this should only happen after an upgrade)
 					if (!$tweet->getAvatar()) {
@@ -918,6 +950,16 @@
 			}
 
 			$output .= "</ol>";
+						
+			// Check if the user wants to show the "Follow @username" links
+			if ($show_follow) {
+				// If so then output one for each username
+				foreach(split(" ", $usernames) as $username) {
+					$output .= "<p class=\"thinkTwitFollow\"><a href=\"https://twitter.com/" . $username . "\" class=\"twitter-follow-button\" data-show-count=\"false\" data-dnt=\"true\">Follow @" . $username . "</a></p>";
+				}
+			}
+			
+			$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
 
 			return apply_filters("think_twit", $output);
 		}
@@ -1054,6 +1096,7 @@
 			extract(shortcode_atts(array(
 				"unique_id"          => 0,
 				"usernames"          => USERNAMES,
+				"hashtags"           => HASHTAGS,
 				"username_suffix"    => USERNAME_SUFFIX,
 				"limit"              => LIMIT,
 				"max_days"           => MAX_DAYS,
@@ -1061,6 +1104,7 @@
 				"show_username"      => SHOW_USERNAME,
 				"show_avatar"        => SHOW_AVATAR,
 				"show_published"     => SHOW_PUBLISHED,
+				"show_follow"        => SHOW_FOLLOW,
 				"links_new_window"   => LINKS_NEW_WINDOW,
 				"no_cache"           => NO_CACHE,
 				"use_curl"           => USE_CURL,
@@ -1098,10 +1142,10 @@
 
 			// If user selected to use no-caching output AJAX code
 			if ($no_cache) {
-				return "<div id=\"" . $unique_id . "\">" . ThinkTwit::output_ajax($unique_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings) . "</div>";
+				return "<div id=\"" . $unique_id . "\">" . ThinkTwit::output_ajax($unique_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings) . "</div>";
 			// Otherwise output HTML method
 			} else {
-				return ThinkTwit::parse_feed($unique_id, $usernames, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $links_new_window, $use_curl, $debug, $time_settings);
+				return ThinkTwit::parse_feed($unique_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
 			}
 		}
 		
@@ -1275,15 +1319,7 @@
 			$this->timestamp = trim($timestamp);
 		}
 	}
-	
-	function widget_inject(){
-		global $pagenow;
-		if($pagenow == "widgets.php"){
-			echo "jQuery('#widgets-left').prepend('My jQuery Added Header');";
-		}
-	}
-	add_action("admin_footer", "widget_inject");
-
+		
 	// Add shortcode
 	add_shortcode("thinktwit", "ThinkTwit::shortcode_handler");
 
