@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call
-    Version: 1.3.7
+    Version: 1.3.8
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.7");
+	define("VERSION",				"1.3.8");
 	define("USERNAMES", 			"stephenpickett");
 	define("HASHTAGS", 				"");
 	define("USERNAME_SUFFIX", 		" said: ");
@@ -201,12 +201,9 @@
 			$instance = wp_parse_args((array) $instance, $defaults);
 
 		?>
-			<div class="widget" style="border: 0">
-				<div class="widget-top" style="border: 0; background: inherit; cursor: default; width: 94%">
-					<div class="widget-title-action"><a class="widget-action hide-if-no-js" href="#available-widgets"></a></div>
-					<div class="widget-title" style="padding: 6px 0 0"><h3 style="margin: 0; cursor: default">General Settings</h3></div>
-				</div>
-				<div class="widget-inside" style="display: block; border: 1px solid #DFDFDF; padding: 5px; width: 86%;">
+			<div class="accordion">
+				<h3 class="head" style="background: #F1F1F1 url(images/arrows.png) no-repeat right 4px; padding: 4px; border: 1px solid #DFDFDF;">General Settings</h3>
+				<div>
 					<p><label for="<?php echo $this->get_field_id("title"); ?>"><?php _e("Title:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("title"); ?>" name="<?php echo $this->get_field_name("title"); ?>" type="text" value="<?php echo $instance["title"]; ?>" /></label></p>
 
 					<p><label for="<?php echo $this->get_field_id("usernames"); ?>"><?php _e("Twitter usernames (optional) separated by spaces:"); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id("usernames"); ?>" name="<?php echo $this->get_field_name("usernames"); ?>"><?php echo $instance["usernames"]; ?></textarea></label></p>
@@ -273,12 +270,9 @@
 				</div>
 			</div>
 			
-			<div class="widget" style="border: 0">
-				<div class="widget-top" style="border: 0; background: inherit; cursor: default; width: 94%">
-					<div class="widget-title-action"><a class="widget-action hide-if-no-js" href="#available-widgets"></a></div>
-					<div class="widget-title" style="padding: 6px 0 0"><h3 style="margin: 0; cursor: default">Time Messages</h3></div>
-				</div>
-				<div class="widget-inside" style="border: 1px solid #DFDFDF; padding: 5px; width: 86%;">
+			<div class="accordion">
+				<h3 class="head" style="background: #F1F1F1 url(images/arrows.png) no-repeat right 4px; padding: 4px; border: 1px solid #DFDFDF;">Time Messages</h3>
+				<div>
 					<p>NOTE: The editing of these messages is optional.</p>
 					
 					<p><label for="<?php echo $this->get_field_id("time_this_happened"); ?>"><?php _e("Time prefix:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("time_this_happened"); ?>" name="<?php echo $this->get_field_name("time_this_happened"); ?>" type="text" value="<?php echo $instance['time_this_happened']; ?>" /></label></p>
@@ -309,9 +303,56 @@
 			
 			<p>If you would like to support development of ThinkTwit donations are gratefully accepted:</p>
 			<p style="text-align:center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E" target="_blank"><img src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" alt="PayPal — The safer, easier way to pay online." /></a><img src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" alt="" width="1" height="1" border="0" /></p>
+			<p><a id="widget-thinktwit-<?php $id = explode("-", $this->get_field_id("widget_id")); echo $id[2]; ?>-reset_settings" href="#">Reset Settings</a></p>
+				
+			<script type="text/javascript">
+				jQuery(document).ready(function($) {
+					// Add accordion functionality
+					$('div[id$="thinktwit-<?php echo $id[2]; ?>"] .accordion .head').click(function() {
+						$(this).next().toggle('slow');
+						return false;
+					}).next().hide();
+					
+					// When reset_settings loads add the onclick function
+					$("#widget-thinktwit-<?php echo $id[2]; ?>-reset_settings").live("click", function() {					  
+						// Reset all of the values to their default
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-usernames").val("<?php echo USERNAMES; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-hashtags").val("<?php echo HASHTAGS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-username_suffix").val("<?php echo USERNAME_SUFFIX; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-limit").val("<?php echo LIMIT; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-max_days").val("<?php echo MAX_DAYS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-update_frequency").val("<?php echo UPDATE_FREQUENCY; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_username").val("<?php echo SHOW_USERNAME; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_avatar").val("<?php echo (SHOW_AVATAR ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_published").val("<?php echo (SHOW_PUBLISHED ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_follow").val("<?php echo (SHOW_FOLLOW ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-links_new_window").val("<?php echo (LINKS_NEW_WINDOW ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").val("<?php echo (NO_CACHE ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-use_curl").val("<?php echo (USE_CURL ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-debug").val("<?php echo (DEBUG ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_this_happened").val("<?php echo TIME_THIS_HAPPENED; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_less_min").val("<?php echo TIME_LESS_MIN; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_min").val("<?php echo TIME_MIN; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_more_mins").val("<?php echo TIME_MORE_MINS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_1_hour").val("<?php echo TIME_1_HOUR; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_2_hours").val("<?php echo TIME_2_HOURS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_precise_hours").val("<?php echo TIME_PRECISE_HOURS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_1_day").val("<?php echo TIME_1_DAY; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_2_days").val("<?php echo TIME_2_DAYS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_many_days").val("<?php echo TIME_MANY_DAYS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_no_recent").val("<?php echo TIME_NO_RECENT; ?>");
+						
+						// Focus on the usernames
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-usernames").focus();
+					
+						// Return false so that the standard click function doesn't occur (i.e. navigating to #)
+						return false;
+					});
+				});
+			</script>
 		<?php
 		}
-	
+					
 		// Function for handling AJAX requests
 		public static function ajax_request_handler() {
 			// Check that all parameters have been passed
@@ -1319,7 +1360,7 @@
 			$this->timestamp = trim($timestamp);
 		}
 	}
-		
+	
 	// Add shortcode
 	add_shortcode("thinktwit", "ThinkTwit::shortcode_handler");
 

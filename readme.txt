@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.4.1
+Tested up to: 3.4.2
 Stable tag: trunk
 
 Outputs tweets from any Twitter users (hashtag/keyword filterable) through the Widget interface. Can be called via shortcode or PHP function call
@@ -270,7 +270,7 @@ to turn on or off caching, and to decide how often to update the cache
 = Why aren't my avatar images showing? =
 
 The `images` folder may not exist or it may not be writeable (this folder is required for caching avatars). You must create the directory if it
-doesn't already exist or you must chmod it to 755.
+doesn't already exist or you must chmod it to 755 or higher so that the web server can write to the folder.
 
 = How often do avatars get updated? =
 
@@ -288,7 +288,9 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
-= 1.3.7 =
+= 1.3.8 =
+- (09 Sep 2012) Minor update: added "Reset Settings" link to options and replaced settings roll up workaround with proper jQuery code
+
 - (02 Sep 2012) Added the ability to filter tweets by hashtag/keyword (thanks to Martijn Pantlin for the code), improvements to data loading
 when entries do not exist (rare, mostly during upgrades) and the option to show "Follow @username" links
 
