@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call
-    Version: 1.3.8
+    Version: 1.3.9
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,7 +21,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.8");
+	define("VERSION",				"1.3.9");
 	define("USERNAMES", 			"stephenpickett");
 	define("HASHTAGS", 				"");
 	define("USERNAME_SUFFIX", 		" said: ");
@@ -415,6 +415,49 @@
 			return false;
 		}
 		
+		// Converts Twitter content to links e.g. @username, #hashtag, http://url
+		private static function convert_twitter_content_to_links($string) {
+			// Separate all "words" in to an array so that we can process each individually
+			$content_array = explode(" ", $string);
+			$output = "";
+			
+			// Loop through the array of "words"
+			foreach($content_array as $content) {
+				// If we find http
+				if(substr($content, 0, 7) == "http://") {
+					$content = "<a href=\"" . $content . "\">" . $content . "</a>";
+				}
+				
+				// If we find https
+				if(substr($content, 0, 8) == "https://") {
+					$content = "<a href=\"" . $content . "\">" . $content . "</a>";
+				}
+
+				// If we find www
+				if(substr($content, 0, 4) == "www.") {
+					$content = "<a href=\"http://" . $content . "\">" . $content . "</a>";
+				}
+				
+				// If we find @username
+				if(substr($content, 0, 1) == "@") {
+					$content = "<a href=\"http://twitter.com/" . $content . "\">" . $content . "</a>";
+				}
+				
+				// If we find #hashtag
+				if(substr($content, 0, 1) == "#") {
+					$content = "<a href=\"http://twitter.com/search/?src=hash&q=%23" . $content . "\">" . $content . "</a>";
+				}
+				
+				// Reinsert spaces that have been removed
+				$output .= " " . $content;
+			}
+
+			// Trim the output so that we don't have unnecessary spaces
+			$output = trim($output);
+			
+			return $output;
+		}
+		
 		// Downloads the avatar for the given username, using CURL if specified
 		private static function download_avatar($use_curl, $username) {
 			// Get the URL of the poster's avatar
@@ -566,7 +609,7 @@
 			
 			// Remove any tweets that are older than max days
 			$tweets = ThinkTwit::remove_old_tweets($tweets, $max_days);
-
+			
 			return $tweets;
 		}
 		
@@ -603,57 +646,31 @@
 				// Execute the API call
 				$feed = @file_get_contents($url);
 			}
+			
+			// Decode the JSON feed
+			$json = json_decode($feed, true);
 
-			// Put all entries into an array
-			$clean = explode("<entry>", $feed);
-
-			// Get the amount of entries
-			$amount = count($clean) - 1;
-
+			// Get the tweets from the JSON feed
+			$json_tweets = $json["results"];
+			
 			// Create an array to store the tweets
 			$tweets = array();
-
-			// Find out if there are any entires, if so output them
-			if ($amount > 0) {
-				// Loops through all the entries found in the XML feed
-				for ($i = 1; $i <= $amount; $i++) {
-					// Get the current entry
-					$entry_close = explode("</entry>", $clean[$i]);
-
-					// Get the content of the tweet
-					$clean_content_1 = explode("<content type=\"html\">", $entry_close[0]);
-					$clean_content = explode("</content>", $clean_content_1[1]);
-
-					// Get the name of who created the tweet
-					$clean_name_2 = explode("<name>", $entry_close[0]);
-					$clean_name_1 = explode("(", $clean_name_2[1]);
-					$clean_name = explode(")</name>", $clean_name_1[1]);
-
-					// Get the URI of the tweet source
-					$clean_uri_1 = explode("<uri>", $entry_close[0]);
-					$clean_uri = explode("</uri>", $clean_uri_1[1]);
-
-					// Get the date that the tweet was created
-					$clean_published_1 = explode("<published>", $entry_close[0]);
-					$clean_published = explode("</published>", $clean_published_1[1]);
-
-					// Make the links clickable
-					$clean_content[0] = str_replace("&lt;", "<", $clean_content[0]);
-					$clean_content[0] = str_replace("&gt;", ">", $clean_content[0]);
-					$clean_content[0] = str_replace("&amp;", "&", $clean_content[0]);
-					$clean_content[0] = str_replace("&apos;", "'", $clean_content[0]);
-					$clean_content[0] = str_replace("&amp;quot;", "&quot;", $clean_content[0]);
-					$clean_content[0] = str_replace("&amp;lt", "<", $clean_content[0]);
-					$clean_content[0] = str_replace("&amp;gt", ">", $clean_content[0]);
-					$clean_content[0] = str_replace("&quot;", "\"", $clean_content[0]);
-					
-					$filename = ThinkTwit::download_avatar($use_curl, trim($clean_name_1[0]));
-
-					// Create a tweet and add it to the array
-					$tweets[] = new Tweet($clean_uri[0], $filename, $clean_name[0], trim($clean_name_1[0]), $clean_content[0], $clean_published[0]);;
-				}
+			
+			// Loop through the tweets
+			foreach($json_tweets as $tweet) {
+				// Get the content of the tweet
+				$content = $tweet["text"];
+				
+				// Make the content links clickable
+				$content = ThinkTwit::convert_twitter_content_to_links($content);
+				
+				// Download the avatar and get the local filename
+				$filename = ThinkTwit::download_avatar($use_curl, $tweet["from_user"]);
+				
+				// Create a tweet and add it to the array
+				$tweets[] = new Tweet("http://twitter.com/" . $tweet["from_user"], $filename, $tweet["from_user_name"], $tweet["from_user"], $content, strtotime($tweet["created_at"]));
 			}
-
+			
 			return $tweets;
 		}
 		
@@ -844,8 +861,8 @@
 			// Replace spaces in hashtags with plus signs
 			$hashtags = str_replace(" ", "+", $hashtags);
 
-			// Construct the URL to obtain the Twitter ATOM feed (XML)
-			$url = "http://search.twitter.com/search.atom?q=from%3A" . $username_string . "+" . $hashtags . "&rpp=" . $limit;
+			// Construct the URL to obtain the Twitter Search JSON feed
+			$url = "http://search.twitter.com/search.json?q=from%3A" . $username_string . "+" . $hashtags . "&rpp=" . $limit;
 
 			// If user wishes to output debug info then do so
 			if ($debug) {
@@ -979,7 +996,7 @@
 
 					// Check if the user wants to show the published date
 					if ($show_published) {
-						$output .= "<span class=\"thinkTwitPublished\">" . $time_settings[0] . ThinkTwit::relative_created_at(strtotime($tweet->getTimestamp()), $time_settings) . "</span>";
+						$output .= "<span class=\"thinkTwitPublished\">" . $time_settings[0] . ThinkTwit::relative_created_at($tweet->getTimestamp(), $time_settings) . "</span>";
 					}
 
 					// Close the list item
@@ -1052,11 +1069,11 @@
 			$new_array = array();
 			
 			// Iterate through item
-			for($i = 0; $i < count($array); $i++) {
+			foreach($array as $tweet) {
 				// If the current item does have content
-				if ($array[$i]->getContent() != NULL && $array[$i]->getContent() != "") {
+				if ($tweet->getContent() != NULL && $tweet->getContent() != "") {
 					// Add it to the new array
-					$new_array[] = $array[$i];
+					$new_array[] = $tweet;
 				}
 			}
 			
@@ -1068,11 +1085,11 @@
 			$new_array = array();
 			
 			// Iterate through item
-			for($i = 0; $i < count($array); $i++) {
+			foreach($array as $tweet) {
 				// If the current item has a valid username
-				if (strlen(stristr($usernames,$array[$i]->getUsername())) > 0) {
+				if (strlen(stristr($usernames, $tweet->getUsername())) > 0) {
 					// Add it to the new array
-					$new_array[] = $array[$i];
+					$new_array[] = $tweet;
 				}
 			}
 			
@@ -1118,14 +1135,14 @@
 			$new_array = array();
 			
 			// Iterate through item
-			for($i = 0; $i < count($array); $i++) {
-				// Get the oldest date the tweet can be
-				$oldest_date = date("c", strtotime("-" . $max_days . " day" , strtotime(date("c"))));
-				
+			foreach($array as $tweet) {
+				// Get the oldest date the tweet can be (max days in seconds)
+				$oldest_date = time() - ($max_days * 24 * 60 * 60);
+
 				// If the current item is younger than the oldest date				
-				if ($array[$i]->getTimestamp() > $oldest_date) {
+				if ($tweet->getTimestamp() > $oldest_date) {
 					// Add it to the new array
-					$new_array[] = $array[$i];
+					$new_array[] = $tweet;
 				}
 			}
 			
@@ -1357,7 +1374,7 @@
 
 		// Sets the tweet's content
 		public function setTimestamp($timestamp) {
-			$this->timestamp = trim($timestamp);
+			$this->timestamp = $timestamp;
 		}
 	}
 	

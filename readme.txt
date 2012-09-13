@@ -13,7 +13,7 @@ Outputs tweets from any Twitter users (hashtag/keyword filterable) through the W
 == Description ==
 
 ThinkTwit is a highly customisable plugin that can output tweets from multiple users (something that very few other plugins can do successfully), 
-filterable by #hashtag or keyword. It uses the Twitter ATOM API to access tweets which can be cached. It is very simple, yet flexible and easily 
+filterable by #hashtag or keyword. It uses the Twitter Search JSON API to access tweets which can be cached. It is very simple, yet flexible and easily 
 customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode or Output 
 Anywhere (PHP function call). Updated regularly!
 
@@ -288,6 +288,11 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
+= 1.3.9 =
+- (13 Sep 2012) HOTFIX: Twitter have deprecated output of XML on the Twitter Search 1.0 API which itself has been deprecated which has caused
+strange output resulting in italics everywhere - this update switches to JSON on the version 1.0 API to immediately fix the issue until
+ThinkTwit can be re-written on the Twitter Search 1.1 API
+
 = 1.3.8 =
 - (09 Sep 2012) Minor update: added "Reset Settings" link to options and replaced settings roll up workaround with proper jQuery code
 
@@ -418,6 +423,11 @@ updated readme with new FAQ and uninstall instructions
 - (21 Jan 2010) Initial Release
 
 == Upgrade Notice ==
+
+= 1.3.9 =
+- HOTFIX: Everyone MUST download this hotfix or else ThinkTwit will gradually stop working (starting with italics all over the page) - Twitter 
+have deprecated the API used in ALL previous versions of ThinkTwit. After upgrading it is recommended to switch "Update frequency" to "Live 
+(Uncached)" and to reload your site before switching it back
 
 = 1.3.6 =
 - Important fix to bug potentially deleting index.php in root - highly recommend upgrading!
