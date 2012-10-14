@@ -2,8 +2,10 @@
 /*
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
-    Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call
-    Version: 1.3.9
+    Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call. If you 
+	use ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a>
+	and of course any blog articles on ThinkTwit or recommendations appreciated.
+    Version: 1.3.10
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -21,7 +23,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.9");
+	define("VERSION",				"1.3.10");
 	define("USERNAMES", 			"stephenpickett");
 	define("HASHTAGS", 				"");
 	define("USERNAME_SUFFIX", 		" said: ");
@@ -55,7 +57,7 @@
 		}
 		
 		// Constructor
-		public function ThinkTwit() {
+		public function ThinkTwit() {			
 			// Set the description of the widget
 			$widget_ops = array("description" => "Outputs tweets from one or more Twitter users through the Widget interface, filtered on a particular #hashtag(s)");
 
@@ -459,12 +461,9 @@
 		}
 		
 		// Downloads the avatar for the given username, using CURL if specified
-		private static function download_avatar($use_curl, $username) {
-			// Get the URL of the poster's avatar
-			$url = "http://twitter.com/api/users/profile_image/" . $username;
-			
+		private static function download_avatar($use_curl, $username, $image_url) {	
 			// Get image MIME type
-			$mime = ThinkTwit::get_image_mime_type($url);
+			$mime = ThinkTwit::get_image_mime_type($image_url);
 			
 			// Store the filename
 			$filename = $username . $mime;
@@ -482,13 +481,13 @@
 				}
 			}
 			
-			while ($url) {
+			while ($image_url) {
 				// If file doesn't exist or file is older than 24 hours
 				if (!file_exists($dir . $filename) || time() - filemtime(realpath($dir . $filename)) >= (60 * 60 * 24)) {					
 					// Download and save the image using CURL or file_put_contents
 					if ($use_curl) {
 						// Initiate a CURL object and open the image URL
-						$ch = curl_init($url);
+						$ch = curl_init($image_url);
 						
 						// Open file location to save in using write binary mode
 						$fp = fopen($dir . $filename, 'wb');
@@ -509,12 +508,12 @@
 						fclose($fp);
 					} else {
 						// Download the file without CURL
-						file_put_contents($dir . $filename, file_get_contents(htmlspecialchars($url)));
+						file_put_contents($dir . $filename, file_get_contents(htmlspecialchars($image_url)));
 					}
 				}
 				
 				// Check the contents for a redirect (this should return false and break the loop once it has a working file)
-				$url = ThinkTwit::check_avatar_for_redirect($dir . $filename);
+				$image_url = ThinkTwit::check_avatar_for_redirect($dir . $filename);
 			}
 			
 			return $filename;
@@ -656,19 +655,22 @@
 			// Create an array to store the tweets
 			$tweets = array();
 			
-			// Loop through the tweets
-			foreach($json_tweets as $tweet) {
-				// Get the content of the tweet
-				$content = $tweet["text"];
-				
-				// Make the content links clickable
-				$content = ThinkTwit::convert_twitter_content_to_links($content);
-				
-				// Download the avatar and get the local filename
-				$filename = ThinkTwit::download_avatar($use_curl, $tweet["from_user"]);
-				
-				// Create a tweet and add it to the array
-				$tweets[] = new Tweet("http://twitter.com/" . $tweet["from_user"], $filename, $tweet["from_user_name"], $tweet["from_user"], $content, strtotime($tweet["created_at"]));
+			// Check that values were returned
+			if (is_array($json_tweets)) {
+				// Loop through the tweets
+				foreach($json_tweets as $tweet) {
+					// Get the content of the tweet
+					$content = $tweet["text"];
+					
+					// Make the content links clickable
+					$content = ThinkTwit::convert_twitter_content_to_links($content);
+					
+					// Download the avatar and get the local filename
+					$filename = ThinkTwit::download_avatar($use_curl, $tweet["from_user"], $tweet["profile_image_url"]);
+					
+					// Create a tweet and add it to the array
+					$tweets[] = new Tweet("http://twitter.com/" . $tweet["from_user"], $filename, $tweet["profile_image_url"], $tweet["from_user_name"], $tweet["from_user"], $content, strtotime($tweet["created_at"]));
+				}
 			}
 			
 			return $tweets;
@@ -920,11 +922,11 @@
 
 					// Output the link to the poster's profile
 					$output .= "<a href=\"" . $tweet->getUrl() . "\"" . ($links_new_window ? " target=\"blank\"" : "") . " title=\"" . $name . "\" class=\"thinkTwitUsername\" rel=\"nofollow\">";
-					
+										
 					// If the avatar is empty (this should only happen after an upgrade)
 					if (!$tweet->getAvatar()) {
 						// Download the avatar (we need the filename but we should make sure that the file is there anyway)
-						$filename = ThinkTwit::download_avatar($use_curl, $tweet->getUsername());
+						$filename = ThinkTwit::download_avatar($use_curl, $tweet->getUsername(), $tweet->getAvatarUrl());
 						
 						// Store the filename in the tweet
 						$tweet->setAvatar($filename);
@@ -941,7 +943,7 @@
 						// And if the file doesn't exist
 						if (!file_exists($file)) {
 							// Then download it
-							$filename = ThinkTwit::download_avatar($use_curl, $tweet->getUsername());
+							$filename = ThinkTwit::download_avatar($use_curl, $tweet->getUsername(), $tweet->getAvatarUrl());
 						}
 					}
 					
@@ -1015,10 +1017,11 @@
 				foreach(split(" ", $usernames) as $username) {
 					$output .= "<p class=\"thinkTwitFollow\"><a href=\"https://twitter.com/" . $username . "\" class=\"twitter-follow-button\" data-show-count=\"false\" data-dnt=\"true\">Follow @" . $username . "</a></p>";
 				}
+				
+				// Output the script that adds the link functionality
+				$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
 			}
 			
-			$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
-
 			return apply_filters("think_twit", $output);
 		}
 
@@ -1297,15 +1300,17 @@
 	class Tweet {
 		protected $url;
 		protected $avatar;
+		protected $avatar_url;
 		protected $name;
 		protected $username;
 		protected $content;
 		protected $timestamp;
 
 		// Constructor
-		public function __construct($url, $avatar, $name, $username, $content, $timestamp) {
+		public function __construct($url, $avatar, $avatar_url, $name, $username, $content, $timestamp) {
 			$this->url = trim($url);
 			$this->avatar = trim($avatar);
+			$this->avatar_url = trim($avatar_url);
 			$this->name = trim($name);
 			$this->username = trim($username);
 			$this->content = trim($content);
@@ -1314,7 +1319,7 @@
 
 		// toString method outputs the contents of the Tweet
 		public function __toString() {
-			return "[url=$this->url, avatar=$this->avatar, name=$this->name, username=$this->username, content='$this->content', timestamp=$this->timestamp]";
+			return "[url=$this->url, avatar=$this->avatar, avatar_url=$this->avatar_url, name=$this->name, username=$this->username, content='$this->content', timestamp=$this->timestamp]";
 		}
 
 		// Returns the tweet's URL
@@ -1335,6 +1340,16 @@
 		// Sets the tweet's avatar filename
 		public function setAvatar($avatar) {
 			$this->avatar = trim($avatar);
+		}
+
+		// Returns the tweet's avatar URL
+		public function getAvatarUrl() {
+			return $this->avatar_url;
+		}
+
+		// Sets the tweet's avatar URL
+		public function setAvatarUrl($avatar_url) {
+			$this->avatar_url = trim($avatar_url);
 		}
 
 		// Returns the tweet's Twitter name

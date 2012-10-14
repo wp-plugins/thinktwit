@@ -288,6 +288,10 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
+= 1.3.10 =
+- (14 Oct 2012) Altered the way ThinkTwit downloads avatars so that it now uses the profile image URL from the JSON output, added a check to 
+ensure that tweets were actually returned from Twitter and made a change to prevent output of Follow script if Show follow links is no
+
 = 1.3.9 =
 - (13 Sep 2012) HOTFIX: Twitter have deprecated output of XML on the Twitter Search 1.0 API which itself has been deprecated which has caused
 strange output resulting in italics everywhere - this update switches to JSON on the version 1.0 API to immediately fix the issue until
@@ -296,6 +300,7 @@ ThinkTwit can be re-written on the Twitter Search 1.1 API
 = 1.3.8 =
 - (09 Sep 2012) Minor update: added "Reset Settings" link to options and replaced settings roll up workaround with proper jQuery code
 
+= 1.3.7 =
 - (02 Sep 2012) Added the ability to filter tweets by hashtag/keyword (thanks to Martijn Pantlin for the code), improvements to data loading
 when entries do not exist (rare, mostly during upgrades) and the option to show "Follow @username" links
 
