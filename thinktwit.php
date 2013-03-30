@@ -5,7 +5,7 @@
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call. If you 
 	use ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a>
 	and of course any blog articles on ThinkTwit or recommendations appreciated.
-    Version: 1.3.10
+    Version: 1.3.11
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -23,7 +23,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.10");
+	define("VERSION",				"1.3.11");
 	define("USERNAMES", 			"stephenpickett");
 	define("HASHTAGS", 				"");
 	define("USERNAME_SUFFIX", 		" said: ");
@@ -447,7 +447,7 @@
 				
 				// If we find #hashtag
 				if(substr($content, 0, 1) == "#") {
-					$content = "<a href=\"http://twitter.com/search/?src=hash&q=%23" . $content . "\">" . $content . "</a>";
+					$content = "<a href=\"http://twitter.com/search/?src=hash&q=%23" . substr($content, 1) . "\">" . $content . "</a>";
 				}
 				
 				// Reinsert spaces that have been removed
@@ -550,7 +550,13 @@
 			$tweets;
 
 			// First check that if the user wants live updates
-			if ($update_frequency == -1) {
+			if ($update_frequency == -1) {				
+				// Empty the cache so that next time caching is turned on it gets them fresh
+				$tweets = array();
+				
+				// Store updated array in cache
+				ThinkTwit::update_cache($tweets, $widget_id);
+				
 				// If so then just get the tweets live from Twitter
 				$tweets = ThinkTwit::get_tweets_from_twitter($url, $use_curl);
 			} else {

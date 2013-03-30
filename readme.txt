@@ -288,6 +288,11 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
+= 1.3.11 =
+- (30 Mar 2013) Modified "Live (uncached)" mode to clear out the cache so that it can be used to refresh your cache and fixed display of 
+hashtags that was causing a search error in Twitter (if you are caching tweets please set to uncached to clear out the incorrect tweets and 
+then you can start caching again)
+
 = 1.3.10 =
 - (14 Oct 2012) Altered the way ThinkTwit downloads avatars so that it now uses the profile image URL from the JSON output, added a check to 
 ensure that tweets were actually returned from Twitter and made a change to prevent output of Follow script if Show follow links is no
