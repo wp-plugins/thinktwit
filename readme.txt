@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.4.2
+Tested up to: 3.5.1
 Stable tag: trunk
 
 Outputs tweets from any Twitter users (hashtag/keyword filterable) through the Widget interface. Can be called via shortcode or PHP function call
@@ -13,9 +13,9 @@ Outputs tweets from any Twitter users (hashtag/keyword filterable) through the W
 == Description ==
 
 ThinkTwit is a highly customisable plugin that can output tweets from multiple users (something that very few other plugins can do successfully), 
-filterable by #hashtag or keyword. It uses the Twitter Search JSON API to access tweets which can be cached. It is very simple, yet flexible and easily 
-customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode or Output 
-Anywhere (PHP function call). Updated regularly!
+filterable by #hashtag or keyword. It uses the Twitter Search JSON API v1.1 to access tweets which can be cached. It is very simple, yet flexible 
+and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode 
+or Output Anywhere (PHP function call). Updated regularly!
 
 **Support:** http://www.thepicketts.org/thinktwit/ or on Twitter **@stephenpickett**
 
@@ -40,12 +40,30 @@ Features:
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.4.1, not tested with other versions
+ * Works with Wordpress 2.8.6 to 3.5.1, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
+ * Uses Twitter REST API v1.1 Application-only authentication and therefore requires an application key (see installation)
 
 
 == Installation ==
+
+= Obtaining a Twitter authentication key =
+
+1. Go to https://dev.twitter.com/apps/new
+
+1. Login using your standard Twitter credentials
+
+1. Complete the form:
+
+ * Name: ThinkTwit
+ * Description: ThinkTwit plugin
+ * Website: [url of your website]
+ * Callback URL: [url of your website]
+   
+1. Make a note of your "Consumer key" and "Consumer secret"
+
+= Installing plugin =
 
 1. Unpack the zip file and upload the `thinktwit` folder to the `/wp-content/plugins/` directory, or download through the `Plugins` menu 
 in WordPress
@@ -53,6 +71,10 @@ in WordPress
 1. Activate the plugin through the `Plugins` menu in WordPress
 
 1. Ensure the `images` directory exists in the `thinktwit` folder with 777 permissions
+
+1. Navigate to Settings->ThinkTwit from the Wordpress Dashboard
+
+1. Enter the "Consumer key" and "Consumer secret" obtained earlier and save your settings
 
 Updates are automatic. Click on `Upgrade Automatically` if prompted from the admin menu. If you ever have to manually 
 upgrade, simply replace the files with those from the new version.
@@ -74,7 +96,7 @@ ThinkTwit can be used in any page or post, or anywhere else configured to use sh
   username_suffix="xxx" 
   limit=x (int)
   max-days=x (int: 1 to 7)
-  update_frequency=x (int: -1 live (cached), 0 live (cached, otherwise enter an integer for the number of hours between updates)
+  update_frequency=x (int: -1 live (uncached), 0 live (cached, otherwise enter an integer for the number of hours between updates)
   show_author=none|name|username 
   show_avatar=1|0 
   show_published=1|0 
@@ -288,6 +310,11 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
+= 1.4.0 =
+- (25 May 2013) Updated to use Twitter REST API v1.1 - please note that after 11th June 2013 any version of ThinkTwit below 1.4.0 WILL NOT WORK
+due to changes in Twitter's API. You MUST follow the instructions in Installation in order to make ThinkTwit work with this new version - please
+read these before upgrading/installing!
+
 = 1.3.11 =
 - (30 Mar 2013) Modified "Live (uncached)" mode to clear out the cache so that it can be used to refresh your cache and fixed display of 
 hashtags that was causing a search error in Twitter (if you are caching tweets please set to uncached to clear out the incorrect tweets and 
@@ -433,6 +460,11 @@ updated readme with new FAQ and uninstall instructions
 - (21 Jan 2010) Initial Release
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+- URGENT: Everyone MUST download this new version or ThinkTwit will cease to work COMPLETELY and FOREVER. Twitter have depcrecated the v1.0 of 
+their API and this upgrade fixes it. You MUST also follow the Installation instructions to get the update to work! - please read these before 
+upgrading!
 
 = 1.3.9 =
 - HOTFIX: Everyone MUST download this hotfix or else ThinkTwit will gradually stop working (starting with italics all over the page) - Twitter 

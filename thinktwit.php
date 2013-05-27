@@ -5,7 +5,7 @@
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call. If you 
 	use ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a>
 	and of course any blog articles on ThinkTwit or recommendations appreciated.
-    Version: 1.3.11
+    Version: 1.4.0
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -23,7 +23,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.3.11");
+	define("VERSION",				"1.4.0");
 	define("USERNAMES", 			"stephenpickett");
 	define("HASHTAGS", 				"");
 	define("USERNAME_SUFFIX", 		" said: ");
@@ -50,6 +50,9 @@
 	define("TIME_MANY_DAYS",     	" days ago");
 	define("TIME_NO_RECENT",     	"There have been no recent tweets");
 
+	// Register the widget to be initiated
+	add_action("widgets_init", create_function("", "return register_widget(\"ThinkTwit\");"));
+
 	class ThinkTwit extends WP_Widget {	
 		// Returns the current ThinkTwit version
 		public static function get_version() {
@@ -57,7 +60,7 @@
 		}
 		
 		// Constructor
-		public function ThinkTwit() {			
+		public function __construct() {			
 			// Set the description of the widget
 			$widget_ops = array("description" => "Outputs tweets from one or more Twitter users through the Widget interface, filtered on a particular #hashtag(s)");
 
@@ -73,10 +76,23 @@
 				wp_enqueue_style("thinktwit");
 			}
 			
+			// Add shortcode
+			add_shortcode("thinktwit", "ThinkTwit::shortcode_handler");
+
+			// Add the handler to init()
+			add_action("init", "ThinkTwit::ajax_request_handler");
+			
+			// If the user is an admin add the plugin settings menu option
+			if (is_admin()){
+				// Add the menu option
+				add_action('admin_menu', 'ThinkTwit::admin_menu');
+				add_action('admin_init', 'ThinkTwit::admin_page_init');
+			}
+			
 			// Override the default constructor, passing the name and description
 			parent::WP_Widget("thinkTwit", $name = "ThinkTwit", $widget_ops);
 		}
-
+		
 		// Display the widget
 		public function widget($args, $instance) {
 			extract($args);
@@ -354,6 +370,133 @@
 			</script>
 		<?php
 		}
+		
+		// Displays the main admin options
+		public static function admin_page() {
+?>
+			<div class="wrap">
+				<?php screen_icon(); ?>
+				<h2>ThinkTwit Settings</h2>
+				<form method="post" action="options.php">
+					<?php settings_fields("thinktwit_options"); ?>
+					<?php do_settings_sections("thinktwit"); ?>
+					<?php submit_button(); ?>
+				</form>
+			</div>
+<?php
+		}
+		
+		// Initialise the admin page
+		public static function admin_page_init() {
+			// Add settings that we are going to store (these are strictly used other than to pass info as we save in options during sanitisation)
+			register_setting('thinktwit_options', 'twitter_api_settings', 'ThinkTwit::check_admin_settings');
+			
+			// Add a section to the page
+			add_settings_section(
+				"twitter_api_settings",
+				"Twitter API Settings",
+				"ThinkTwit::admin_page_section_info",
+				"thinktwit"
+			);
+
+			// Add settings to the section
+			add_settings_field(
+				"consumer_key", 
+				"Consumer key", 
+				"ThinkTwit::create_admin_page_key_field", 
+				"thinktwit",
+				"twitter_api_settings"			
+			);
+			
+			add_settings_field(
+				"consumer_secret", 
+				"Consumer secret", 
+				"ThinkTwit::create_admin_page_secret_field", 
+				"thinktwit",
+				"twitter_api_settings"			
+			);
+		}
+		
+		// Section message for the admin page
+		public static function admin_page_section_info(){
+			echo "Enter your Twitter Application authentication settings below:";
+		}
+		
+		// Checks the settings that are returned and stores the values in our options rather than using Settings API as intended
+		public static function check_admin_settings($input) {
+			// Get our widget settings
+			$settings = get_option("widget_thinktwit_settings");
+			$val = "";
+			
+			// If settings isn't an array
+			if (!is_array($settings)) {				
+				// Create the array with the minimum required values including the consumer key
+				if ($input["consumer_key"] != "") {
+					$val = $input["consumer_key"];
+					$settings = array("version" => ThinkTwit::get_version(), "consumer_key" => $input["consumer_key"]);
+				}
+				
+				// Create the array with the minimum required values including the consumer secret
+				if ($input["consumer_secret"] != "") {
+					$val = $input["consumer_secret"];
+					$settings = array("version" => ThinkTwit::get_version(), "consumer_secret" => $input["consumer_secret"]);
+				}
+			} else {
+				// Add the consumer key
+				if ($input["consumer_key"] != "") {
+					$val = $input["consumer_key"];
+					$settings["consumer_key"] = $input["consumer_key"];
+				}
+				
+				// Add the consumer secret
+				if ($input["consumer_secret"] != "") {
+					$val = $input["consumer_secret"];
+					$settings["consumer_secret"] = $input["consumer_secret"];
+				}
+			}
+				
+			// Store our options
+			update_option("widget_thinktwit_settings", $settings);
+			
+			// Return the value that was used
+			return $val;
+		}
+		
+		// Creates the consumer key field
+		public static function create_admin_page_key_field() {
+			// Get our options
+			$settings = get_option("widget_thinktwit_settings");
+			$consumer_key = "";
+			
+			// If settings isn't an array
+			if (is_array($settings) && isset($settings["consumer_key"])) {
+				$consumer_key = $settings["consumer_key"];
+			}
+?>
+			<input type="text" id="consumer_key" name="twitter_api_settings[consumer_key]" value="<?= $consumer_key; ?>" size="30" />
+<?php
+		}
+		
+		// Creates the consumer secret field
+		public static function create_admin_page_secret_field() {
+			// Get our options
+			$settings = get_option("widget_thinktwit_settings");
+			$consumer_secret = "";
+			
+			// If settings isn't an array
+			if (is_array($settings) && isset($settings["consumer_secret"])) {
+				$consumer_secret = $settings["consumer_secret"];
+			}
+		?>
+			<input type="text" id="consumer_secret" name="twitter_api_settings[consumer_secret]" value="<?= $consumer_secret; ?>" size="60" />
+<?php
+		}
+
+		// Function that will add a menu option for admin users
+		public static function admin_menu() {
+			// Add main menu option after Dashboard
+			add_options_page('ThinkTwit', 'ThinkTwit', 'administrator', 'thinktwit', 'ThinkTwit::admin_page');
+		}
 					
 		// Function for handling AJAX requests
 		public static function ajax_request_handler() {
@@ -418,6 +561,9 @@
 		}
 		
 		// Converts Twitter content to links e.g. @username, #hashtag, http://url
+		// TODO remove colon from @names, don't turn links containing "…" in to actual links, if a tweet does contain "…" then use 
+		// statuses/show/:id to get it (https://dev.twitter.com/docs/api/1.1/get/statuses/show/%3Aid) and if # contains anything other 
+		// than \w+ then exclude
 		private static function convert_twitter_content_to_links($string) {
 			// Separate all "words" in to an array so that we can process each individually
 			$content_array = explode(" ", $string);
@@ -628,13 +774,42 @@
 
 		// Returns an array of Tweets when given the URL to access and a boolean indicating whether to use CURL
 		private static function get_tweets_from_twitter($url, $use_curl) {
+			// Get our options
+			$settings = get_option("widget_thinktwit_settings");
+			$consumer_key = "";
+			$consumer_secret = "";
+			
+			// If settings isn't an array and the consumer values are set then get them
+			if (is_array($settings) && isset($settings['consumer_key']) && isset($settings['consumer_secret'])) {
+				$consumer_key = $settings['consumer_key'];
+				$consumer_secret = $settings['consumer_secret'];
+			}
+		
+			// Get the Twitter access token
+			$access_token = ThinkTwit::get_twitter_access_token($consumer_key, $consumer_secret, $use_curl);
+			
 			// If user wishes to use CURL
-			if ($use_curl) {
+			if ($use_curl) {			
+				// Set up the headers that will be used to make a call to the URL including the app name and the access token
+				$headers = array( 
+					"GET /oauth2/token HTTP/1.1", 
+					"Host: api.twitter.com", 
+					"User-Agent: ThinkTwit Twitter App v" . ThinkTwit::get_version(),
+					"Authorization: Bearer " . $access_token,
+					"Content-Type: application/x-www-form-urlencoded;charset=UTF-8", 
+				); 
+			
 				// Initiate a CURL object
 				$ch = curl_init();
 
 				// Set the URL
 				curl_setopt($ch, CURLOPT_URL, $url);
+				
+				// Set the headers we created
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+				
+				// Set option to not receive the headers
+				$header = curl_setopt($ch, CURLOPT_HEADER, 0);
 
 				// Set to return a string
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -647,16 +822,19 @@
 
 				// Close the CURL object
 				curl_close($ch);
-			} else {
-				// Execute the API call
-				$feed = @file_get_contents($url);
+			} else {				
+				// Create an options context that contains the headers used to make a call to the URL including the app name and the access token
+				$context = stream_context_create(array('http' => array('header' => 'Authorization: Bearer ' . $access_token)));
+			
+				// Execute the API call using the created headers
+				$feed = @file_get_contents($url, false, $context);
 			}
 			
 			// Decode the JSON feed
 			$json = json_decode($feed, true);
 
 			// Get the tweets from the JSON feed
-			$json_tweets = $json["results"];
+			$json_tweets = $json["statuses"];
 			
 			// Create an array to store the tweets
 			$tweets = array();
@@ -668,18 +846,102 @@
 					// Get the content of the tweet
 					$content = $tweet["text"];
 					
+					// Get the user details
+					$user = $tweet["user"];
+					
 					// Make the content links clickable
 					$content = ThinkTwit::convert_twitter_content_to_links($content);
 					
 					// Download the avatar and get the local filename
-					$filename = ThinkTwit::download_avatar($use_curl, $tweet["from_user"], $tweet["profile_image_url"]);
+					$filename = ThinkTwit::download_avatar($use_curl, $user["screen_name"], $user["profile_image_url"]);
 					
 					// Create a tweet and add it to the array
-					$tweets[] = new Tweet("http://twitter.com/" . $tweet["from_user"], $filename, $tweet["profile_image_url"], $tweet["from_user_name"], $tweet["from_user"], $content, strtotime($tweet["created_at"]));
+					$tweets[] = new Tweet("http://twitter.com/" . $user["screen_name"], $filename, $user["profile_image_url"], $user["name"], $user["screen_name"], $content, strtotime($tweet["created_at"]));
 				}
 			}
 			
 			return $tweets;
+		}
+		
+		// Returns the access token, created from the given consumer key and consumer secret, that is required to 
+		// make authenticated requests to API v1.1 (see https://dev.twitter.com/docs/api/1.1/post/oauth2/token)
+		private static function get_twitter_access_token($consumer_key, $consumer_secret, $use_curl) {
+			// Url encode the consumer_key and consumer_secret in accordance with RFC 1738
+			$encoded_consumer_key = urlencode($consumer_key);
+			$encoded_consumer_secret = urlencode($consumer_secret);
+			
+			// Concatenate encoded consumer, a colon character and the encoded consumer secret
+			$bearer_token = $encoded_consumer_key . ':' . $encoded_consumer_secret;
+			
+			// Base64-encode bearer token
+			$base64_encoded_bearer_token = base64_encode($bearer_token);
+			
+			// Twitter URL that authenticates bearer tokens
+			$url = "https://api.twitter.com/oauth2/token/";
+			
+			if ($use_curl) {
+				// Set up the headers that will be used to make a call to the URL including the app name and the encoded bearer token
+				$headers = array( 
+					"POST /oauth2/token HTTP/1.1", 
+					"Host: api.twitter.com", 
+					"User-Agent: ThinkTwit Twitter App v" . ThinkTwit::get_version(),
+					"Authorization: Basic " . $base64_encoded_bearer_token,
+					"Content-Type: application/x-www-form-urlencoded;charset=UTF-8", 
+					"Content-Length: 29"
+				);
+
+				// Setup curl
+				$ch = curl_init();
+				
+				// Set the URL
+				curl_setopt($ch, CURLOPT_URL, $url); 
+				
+				// Set the headers we created
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+				
+				// Set option to not receive the headers
+				$header = curl_setopt($ch, CURLOPT_HEADER, 0);
+				
+				// Set to use a POST call
+				curl_setopt($ch, CURLOPT_POST, 1);
+				
+				// Set the parameter to be sent (see 
+				curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
+				
+				// Set to return a string
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				
+				// Execute the call
+				$response = curl_exec($ch);
+				
+				// Close curl
+				curl_close($ch);
+			} else {				
+				// Create an options context that contains the headers used to make a call to the URL including the app name and the access token
+				$context = stream_context_create(array("http" => array("method" => "POST",
+																	   "header" => "POST /oauth2/token HTTP/1.1\r\n" .
+																				   "Host: api.twitter.com\r\n" .
+																				   "User-Agent: ThinkTwit Twitter App v" . ThinkTwit::get_version() . "\r\n" .
+																				   "Authorization: Basic " . $base64_encoded_bearer_token . "\r\n" .
+																				   "Content-Type: application/x-www-form-urlencoded;charset=UTF-8\r\n" .
+																				   "Content-Length: 29\r\n",
+																	    "content" => "grant_type=client_credentials")));
+			
+				// Execute the API call using the created headers
+				$response = file_get_contents($url, false, $context);
+			}
+
+			// Decode the returned JSON response
+			$json = json_decode($response, true);
+									
+			// Verify that the token is a bearer (by checking for errors first and then checking that the type is bearer)
+			if (!isset($json["errors"]) && $json["token_type"] == 'bearer') {
+				// If so then return the access token
+				return $json["access_token"];
+			} else {
+				// Otherwise if there were errors or the token was of the wrong type return null
+				return null;
+			}
 		}
 		
 		// Inserts the tweets in array1 and array2 to a new array
@@ -870,7 +1132,7 @@
 			$hashtags = str_replace(" ", "+", $hashtags);
 
 			// Construct the URL to obtain the Twitter Search JSON feed
-			$url = "http://search.twitter.com/search.json?q=from%3A" . $username_string . "+" . $hashtags . "&rpp=" . $limit;
+			$url = "https://api.twitter.com/1.1/search/tweets.json?q=from%3A" . $username_string . "+" . $hashtags . "&rpp=" . $limit;
 
 			// If user wishes to output debug info then do so
 			if ($debug) {
@@ -1016,7 +1278,8 @@
 			}
 
 			$output .= "</ol>";
-						
+			
+			// TODO Work out why this doesn't work with no_cache on
 			// Check if the user wants to show the "Follow @username" links
 			if ($show_follow) {
 				// If so then output one for each username
@@ -1268,7 +1531,7 @@
 				// If settings isn't an array
 				if (!is_array($settings)) {
 					// Store updated timestamp
-					$current_updated = microtime(); // For some reason some values are coming up identical between shortcode and widget when you have multiple widgets - how??
+					$current_updated = microtime(); // TODO For some reason some values are coming up identical between shortcode and widget when you have multiple widgets - how??
 					
 					// Create the array with the minimum required values
 					$settings = array("version" => ThinkTwit::get_version(), "cache_names" => array("widget_" . $widget_id . "_cache"), "updated" => $current_updated);
@@ -1398,13 +1661,4 @@
 			$this->timestamp = $timestamp;
 		}
 	}
-	
-	// Add shortcode
-	add_shortcode("thinktwit", "ThinkTwit::shortcode_handler");
-
-	// Add the handler to init()
-	add_action("init", "ThinkTwit::ajax_request_handler");
-
-	// Register the widget to be initiated
-	add_action("widgets_init", create_function("", "return register_widget(\"ThinkTwit\");"));
 ?>
