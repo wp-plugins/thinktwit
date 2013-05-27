@@ -928,7 +928,7 @@
 																	    "content" => "grant_type=client_credentials")));
 			
 				// Execute the API call using the created headers
-				$response = file_get_contents($url, false, $context);
+				$response = @file_get_contents($url, false, $context);
 			}
 
 			// Decode the returned JSON response
