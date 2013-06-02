@@ -310,6 +310,12 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 == Changelog ==
 
+= 1.4.1 =
+- (02 Jun 2013) Corrected failure to update ThinkTwit version stored in the database, made a minor addition to the new settings page that 
+additionally outputs other information (version, cache names and date of last update to cache) that is stored in the settings which may be 
+useful/interesting, fixed failure to limit number of tweets by specified value when showing live updates and fixed the follow button not loading
+when using no-caching
+
 = 1.4.0 =
 - (25 May 2013) Updated to use Twitter REST API v1.1 - please note that after 11th June 2013 any version of ThinkTwit below 1.4.0 WILL NOT WORK
 due to changes in Twitter's API. You MUST follow the instructions in Installation in order to make ThinkTwit work with this new version - please

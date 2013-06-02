@@ -5,7 +5,7 @@
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call. If you 
 	use ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a>
 	and of course any blog articles on ThinkTwit or recommendations appreciated.
-    Version: 1.4.0
+    Version: 1.4.1
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -23,7 +23,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.4.0");
+	define("VERSION",				"1.4.1");
 	define("USERNAMES", 			"stephenpickett");
 	define("HASHTAGS", 				"");
 	define("USERNAME_SUFFIX", 		" said: ");
@@ -391,11 +391,18 @@
 			// Add settings that we are going to store (these are strictly used other than to pass info as we save in options during sanitisation)
 			register_setting('thinktwit_options', 'twitter_api_settings', 'ThinkTwit::check_admin_settings');
 			
-			// Add a section to the page
+			// Add sections to the page
+			add_settings_section(
+				"general_settings",
+				"General Settings",
+				"ThinkTwit::admin_page_general_section_info",
+				"thinktwit"
+			);
+			
 			add_settings_section(
 				"twitter_api_settings",
 				"Twitter API Settings",
-				"ThinkTwit::admin_page_section_info",
+				"ThinkTwit::admin_page_twitter_section_info",
 				"thinktwit"
 			);
 
@@ -417,9 +424,37 @@
 			);
 		}
 		
-		// Section message for the admin page
-		public static function admin_page_section_info(){
-			echo "Enter your Twitter Application authentication settings below:";
+		// General section message for the admin page
+		public static function admin_page_general_section_info(){
+			// Get our widget settings
+			$settings = get_option("widget_thinktwit_settings");
+			
+			// If settings isn't an array
+			if (!is_array($settings)) {
+				$version = ThinkTwit::get_version();
+				$cache_names = "none";
+				$updated = "never";
+			} else {
+				$version = $settings["version"];
+				$cache_names = implode("<br />", $settings["cache_names"]);
+				
+				// Separate the Unix timestamp for easier disection
+				list($microSec, $timeStamp) = explode(" ", $settings["updated"]);
+				
+				// Format the timestamps correctly
+				$updated = date('D F jS, Y H:i:', $timeStamp) . (date('s', $timeStamp) + $microSec);
+			}
+			
+			echo "<p>The following values are for information only:</p>";
+			echo "<table class=\"form-table\"><tbody><tr valign=\"top\"><th scope=\"row\">Version</th><td>$version</td></tr>";
+			echo "<tr valign=\"top\"><th scope=\"row\">Cache names</th><td>$cache_names</td></tr>";
+			echo "<tr valign=\"top\"><th scope=\"row\">Last updated</th><td>$updated</td></tr>";
+			echo "</tbody></table>";
+		}
+		
+		// Twitter section message for the admin page
+		public static function admin_page_twitter_section_info(){
+			echo "<p>Enter your Twitter Application authentication settings below:</p>";
 		}
 		
 		// Checks the settings that are returned and stores the values in our options rather than using Settings API as intended
@@ -705,6 +740,11 @@
 				
 				// If so then just get the tweets live from Twitter
 				$tweets = ThinkTwit::get_tweets_from_twitter($url, $use_curl);
+					
+				// If necessary, shrink the array (limit minus 1 as we start array from zero)
+				if (count($tweets) > $limit) {
+					$tweets = ThinkTwit::trim_array($tweets, $limit);
+				}
 			} else {
 				// Otherwise, get values from cache
 				$last_update = ThinkTwit::get_tweets_from_cache($widget_id);
@@ -1279,7 +1319,6 @@
 
 			$output .= "</ol>";
 			
-			// TODO Work out why this doesn't work with no_cache on
 			// Check if the user wants to show the "Follow @username" links
 			if ($show_follow) {
 				// If so then output one for each username
@@ -1288,7 +1327,7 @@
 				}
 				
 				// Output the script that adds the link functionality
-				$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");</script>";
+				$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");twttr.widgets.load();</script>";
 			}
 			
 			return apply_filters("think_twit", $output);
@@ -1547,6 +1586,12 @@
 					
 					// Update the updated timestamp
 					$settings["updated"] = microtime();
+				}
+				
+				// Check if the stored version is the same as the current version
+				if ($settings["version"] != ThinkTwit::get_version()) {
+					// If not then update it
+					$settings["version"] = ThinkTwit::get_version();
 				}
 				
 				// Get a fresh copy of the settings so we can compare the timestamp with our settings timestamp
