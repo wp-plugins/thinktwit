@@ -5,7 +5,7 @@
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call. If you 
 	use ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a>
 	and of course any blog articles on ThinkTwit or recommendations appreciated.
-    Version: 1.4.1
+    Version: 1.4.2
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -23,32 +23,32 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("VERSION",				"1.4.1");
-	define("USERNAMES", 			"stephenpickett");
-	define("HASHTAGS", 				"");
-	define("USERNAME_SUFFIX", 		" said: ");
-	define("LIMIT", 				5);
-	define("MAX_DAYS", 				7);
-	define("UPDATE_FREQUENCY", 		0);
-	define("SHOW_USERNAME", 		"name");
-	define("SHOW_AVATAR", 			1);
-	define("SHOW_PUBLISHED", 		1);
-	define("SHOW_FOLLOW",    		1);
-	define("LINKS_NEW_WINDOW", 		1);
-	define("NO_CACHE", 				0);
-	define("USE_CURL", 				0);
-	define("DEBUG", 				0);
-	define("TIME_THIS_HAPPENED",	"This happened ");
-	define("TIME_LESS_MIN",      	"less than a minute ago");
-	define("TIME_MIN",           	"about a minute ago");
-	define("TIME_MORE_MINS",     	" minutes ago");
-	define("TIME_1_HOUR",        	"about an hour ago");
-	define("TIME_2_HOURS",       	"a couple of hours ago");
-	define("TIME_PRECISE_HOURS", 	"about =x= hours ago");
-	define("TIME_1_DAY",         	"yesterday");
-	define("TIME_2_DAYS",        	"almost 2 days ago");
-	define("TIME_MANY_DAYS",     	" days ago");
-	define("TIME_NO_RECENT",     	"There have been no recent tweets");
+	define("THINKTWIT_VERSION",				"1.4.2");
+	define("THINKTWIT_USERNAMES", 			"stephenpickett");
+	define("THINKTWIT_HASHTAGS", 			"");
+	define("THINKTWIT_USERNAME_SUFFIX", 	" said: ");
+	define("THINKTWIT_LIMIT", 				5);
+	define("THINKTWIT_MAX_DAYS", 			7);
+	define("THINKTWIT_UPDATE_FREQUENCY", 	0);
+	define("THINKTWIT_SHOW_USERNAME", 		"name");
+	define("THINKTWIT_SHOW_AVATAR", 		1);
+	define("THINKTWIT_SHOW_PUBLISHED", 		1);
+	define("THINKTWIT_SHOW_FOLLOW",    		1);
+	define("THINKTWIT_LINKS_NEW_WINDOW", 	1);
+	define("THINKTWIT_NO_CACHE", 			0);
+	define("THINKTWIT_USE_CURL", 			0);
+	define("THINKTWIT_DEBUG", 				0);
+	define("THINKTWIT_TIME_THIS_HAPPENED",	"This happened ");
+	define("THINKTWIT_TIME_LESS_MIN",      	"less than a minute ago");
+	define("THINKTWIT_TIME_MIN",           	"about a minute ago");
+	define("THINKTWIT_TIME_MORE_MINS",     	" minutes ago");
+	define("THINKTWIT_TIME_1_HOUR",        	"about an hour ago");
+	define("THINKTWIT_TIME_2_HOURS",       	"a couple of hours ago");
+	define("THINKTWIT_TIME_PRECISE_HOURS", 	"about =x= hours ago");
+	define("THINKTWIT_TIME_1_DAY",         	"yesterday");
+	define("THINKTWIT_TIME_2_DAYS",        	"almost 2 days ago");
+	define("THINKTWIT_TIME_MANY_DAYS",     	" days ago");
+	define("THINKTWIT_TIME_NO_RECENT",     	"There have been no recent tweets");
 
 	// Register the widget to be initiated
 	add_action("widgets_init", create_function("", "return register_widget(\"ThinkTwit\");"));
@@ -56,7 +56,7 @@
 	class ThinkTwit extends WP_Widget {	
 		// Returns the current ThinkTwit version
 		public static function get_version() {
-			return VERSION;
+			return THINKTWIT_VERSION;
 		}
 		
 		// Constructor
@@ -83,7 +83,7 @@
 			add_action("init", "ThinkTwit::ajax_request_handler");
 			
 			// If the user is an admin add the plugin settings menu option
-			if (is_admin()){
+			if (is_admin()) {
 				// Add the menu option
 				add_action('admin_menu', 'ThinkTwit::admin_menu');
 				add_action('admin_init', 'ThinkTwit::admin_page_init');
@@ -102,34 +102,34 @@
 
 			// Store the widget values in variables
 			$title            = apply_filters("widget_title", $instance["title"]);
-			$usernames        = !isset($instance["usernames"])			? USERNAMES : $instance["usernames"];
-			$hashtags  	      = !isset($instance["hashtags"])			? HASHTAGS : $instance["hashtags"];
-			$username_suffix  = !isset($instance["username_suffix"])	? USERNAME_SUFFIX : $instance["username_suffix"];
-			$limit            = !isset($instance["limit"])				? LIMIT : $instance["limit"];
-			$max_days         = !isset($instance["max_days"])			? MAX_DAYS : $instance["max_days"];
-			$update_frequency = !isset($instance["update_frequency"])	? UPDATE_FREQUENCY : $instance["update_frequency"];
-			$show_username    = !isset($instance["show_username"])		? SHOW_USERNAME : $instance["show_username"];
-			$show_avatar      = !isset($instance["show_avatar"])		? SHOW_AVATAR : $instance["show_avatar"];
-			$show_published   = !isset($instance["show_published"])		? SHOW_PUBLISHED : $instance["show_published"];
-			$show_follow      = !isset($instance["show_follow"])		? SHOW_FOLLOW : $instance["show_follow"];
-			$links_new_window = !isset($instance["links_new_window"])	? LINKS_NEW_WINDOW : $instance["links_new_window"];
-			$no_cache         = !isset($instance["no_cache"])			? NO_CACHE : $instance["no_cache"];
-			$use_curl         = !isset($instance["use_curl"])			? USE_CURL : $instance["use_curl"];
-			$debug            = !isset($instance["debug"])				? DEBUG : $instance["debug"];
+			$usernames        = !isset($instance["usernames"])			? THINKTWIT_USERNAMES : $instance["usernames"];
+			$hashtags  	      = !isset($instance["hashtags"])			? THINKTWIT_HASHTAGS : $instance["hashtags"];
+			$username_suffix  = !isset($instance["username_suffix"])	? THINKTWIT_USERNAME_SUFFIX : $instance["username_suffix"];
+			$limit            = !isset($instance["limit"])				? THINKTWIT_LIMIT : $instance["limit"];
+			$max_days         = !isset($instance["max_days"])			? THINKTWIT_MAX_DAYS : $instance["max_days"];
+			$update_frequency = !isset($instance["update_frequency"])	? THINKTWIT_UPDATE_FREQUENCY : $instance["update_frequency"];
+			$show_username    = !isset($instance["show_username"])		? THINKTWIT_SHOW_USERNAME : $instance["show_username"];
+			$show_avatar      = !isset($instance["show_avatar"])		? THINKTWIT_SHOW_AVATAR : $instance["show_avatar"];
+			$show_published   = !isset($instance["show_published"])		? THINKTWIT_SHOW_PUBLISHED : $instance["show_published"];
+			$show_follow      = !isset($instance["show_follow"])		? THINKTWIT_SHOW_FOLLOW : $instance["show_follow"];
+			$links_new_window = !isset($instance["links_new_window"])	? THINKTWIT_LINKS_NEW_WINDOW : $instance["links_new_window"];
+			$no_cache         = !isset($instance["no_cache"])			? THINKTWIT_NO_CACHE : $instance["no_cache"];
+			$use_curl         = !isset($instance["use_curl"])			? THINKTWIT_USE_CURL : $instance["use_curl"];
+			$debug            = !isset($instance["debug"])				? THINKTWIT_DEBUG : $instance["debug"];
 			
 			// Times
 			$time_settings = array(11);
-			$time_settings[0] = !isset($instance["time_this_happened"])	? TIME_THIS_HAPPENED : $instance["time_this_happened"];
-			$time_settings[1] = !isset($instance["time_less_min"])		? TIME_LESS_MIN : $instance["time_less_min"];
-			$time_settings[2] = !isset($instance["time_min"])			? TIME_MIN : $instance["time_min"];
-			$time_settings[3] = !isset($instance["time_more_mins"])		? TIME_MORE_MINS : $instance["time_more_mins"];
-			$time_settings[4] = !isset($instance["time_1_hour"])		? TIME_1_HOUR : $instance["time_1_hour"];
-			$time_settings[5] = !isset($instance["time_2_hours"])		? TIME_2_HOURS : $instance["time_2_hours"];
-			$time_settings[6] = !isset($instance["time_precise_hours"])	? TIME_PRECISE_HOURS : $instance["time_precise_hours"];
-			$time_settings[7] = !isset($instance["time_1_day"])			? TIME_1_DAY : $instance["time_1_day"];
-			$time_settings[8] = !isset($instance["time_2_days"])		? TIME_2_DAYS : $instance["time_2_days"];
-			$time_settings[9] = !isset($instance["time_many_days"])		? TIME_MANY_DAYS : $instance["time_many_days"];
-			$time_settings[10]= !isset($instance["time_no_recent"])		? TIME_NO_RECENT : $instance["time_no_recent"];
+			$time_settings[0] = !isset($instance["time_this_happened"])	? THINKTWIT_TIME_THIS_HAPPENED : $instance["time_this_happened"];
+			$time_settings[1] = !isset($instance["time_less_min"])		? THINKTWIT_TIME_LESS_MIN : $instance["time_less_min"];
+			$time_settings[2] = !isset($instance["time_min"])			? THINKTWIT_TIME_MIN : $instance["time_min"];
+			$time_settings[3] = !isset($instance["time_more_mins"])		? THINKTWIT_TIME_MORE_MINS : $instance["time_more_mins"];
+			$time_settings[4] = !isset($instance["time_1_hour"])		? THINKTWIT_TIME_1_HOUR : $instance["time_1_hour"];
+			$time_settings[5] = !isset($instance["time_2_hours"])		? THINKTWIT_TIME_2_HOURS : $instance["time_2_hours"];
+			$time_settings[6] = !isset($instance["time_precise_hours"])	? THINKTWIT_TIME_PRECISE_HOURS : $instance["time_precise_hours"];
+			$time_settings[7] = !isset($instance["time_1_day"])			? THINKTWIT_TIME_1_DAY : $instance["time_1_day"];
+			$time_settings[8] = !isset($instance["time_2_days"])		? THINKTWIT_TIME_2_DAYS : $instance["time_2_days"];
+			$time_settings[9] = !isset($instance["time_many_days"])		? THINKTWIT_TIME_MANY_DAYS : $instance["time_many_days"];
+			$time_settings[10]= !isset($instance["time_no_recent"])		? THINKTWIT_TIME_NO_RECENT : $instance["time_no_recent"];
 			
 			// Output code that should appear before the widget
 			echo $before_widget;
@@ -189,31 +189,31 @@
 		public function form($instance) {
 			// Set up some default widget settings
 			$defaults = array("title"              => "My Tweets",
-							  "usernames"          => USERNAMES,
-							  "hashtags"           => HASHTAGS,
-							  "username_suffix"    => USERNAME_SUFFIX,
-							  "limit"              => LIMIT,
-							  "max_days"           => MAX_DAYS,
-							  "update_frequency"   => UPDATE_FREQUENCY,
-							  "show_username"      => SHOW_USERNAME,
-							  "show_avatar"        => SHOW_AVATAR,
-							  "show_published"     => SHOW_PUBLISHED,
-							  "show_follow"        => SHOW_FOLLOW,
-							  "links_new_window"   => LINKS_NEW_WINDOW,
-							  "no_cache"           => NO_CACHE,
-							  "use_curl"           => USE_CURL,
-							  "debug"              => DEBUG,
-							  "time_this_happened" => TIME_THIS_HAPPENED,
-							  "time_less_min"      => TIME_LESS_MIN,
-							  "time_min"           => TIME_MIN,
-							  "time_more_mins"     => TIME_MORE_MINS,
-							  "time_1_hour"        => TIME_1_HOUR,
-							  "time_2_hours"       => TIME_2_HOURS,
-							  "time_precise_hours" => TIME_PRECISE_HOURS,
-							  "time_1_day"         => TIME_1_DAY,
-							  "time_2_days"        => TIME_2_DAYS,
-							  "time_many_days"     => TIME_MANY_DAYS,
-							  "time_no_recent"     => TIME_NO_RECENT
+							  "usernames"          => THINKTWIT_USERNAMES,
+							  "hashtags"           => THINKTWIT_HASHTAGS,
+							  "username_suffix"    => THINKTWIT_USERNAME_SUFFIX,
+							  "limit"              => THINKTWIT_LIMIT,
+							  "max_days"           => THINKTWIT_MAX_DAYS,
+							  "update_frequency"   => THINKTWIT_UPDATE_FREQUENCY,
+							  "show_username"      => THINKTWIT_SHOW_USERNAME,
+							  "show_avatar"        => THINKTWIT_SHOW_AVATAR,
+							  "show_published"     => THINKTWIT_SHOW_PUBLISHED,
+							  "show_follow"        => THINKTWIT_SHOW_FOLLOW,
+							  "links_new_window"   => THINKTWIT_LINKS_NEW_WINDOW,
+							  "no_cache"           => THINKTWIT_NO_CACHE,
+							  "use_curl"           => THINKTWIT_USE_CURL,
+							  "debug"              => THINKTWIT_DEBUG,
+							  "time_this_happened" => THINKTWIT_TIME_THIS_HAPPENED,
+							  "time_less_min"      => THINKTWIT_TIME_LESS_MIN,
+							  "time_min"           => THINKTWIT_TIME_MIN,
+							  "time_more_mins"     => THINKTWIT_TIME_MORE_MINS,
+							  "time_1_hour"        => THINKTWIT_TIME_1_HOUR,
+							  "time_2_hours"       => THINKTWIT_TIME_2_HOURS,
+							  "time_precise_hours" => THINKTWIT_TIME_PRECISE_HOURS,
+							  "time_1_day"         => THINKTWIT_TIME_1_DAY,
+							  "time_2_days"        => THINKTWIT_TIME_2_DAYS,
+							  "time_many_days"     => THINKTWIT_TIME_MANY_DAYS,
+							  "time_no_recent"     => THINKTWIT_TIME_NO_RECENT
 							 );
 							 
 			$instance = wp_parse_args((array) $instance, $defaults);
@@ -226,7 +226,7 @@
 
 					<p><label for="<?php echo $this->get_field_id("usernames"); ?>"><?php _e("Twitter usernames (optional) separated by spaces:"); ?> <textarea rows="4" cols="40" class="widefat" id="<?php echo $this->get_field_id("usernames"); ?>" name="<?php echo $this->get_field_name("usernames"); ?>"><?php echo $instance["usernames"]; ?></textarea></label></p>
 
-					<p><label for="<?php echo $this->get_field_id("hashtags"); ?>"><?php _e("Twitter hashtags/keywords (optional):"); ?> <input class="widefat" id="<?php echo $this->get_field_id("hashtags"); ?>" name="<?php echo $this->get_field_name("hashtags"); ?>"  type="text" value="<?php echo $instance["hashtags"]; ?>" /></label></p>
+					<p><label for="<?php echo $this->get_field_id("hashtags"); ?>"><?php _e("Twitter hashtags/keywords (optional) separated by spaces:"); ?> <input class="widefat" id="<?php echo $this->get_field_id("hashtags"); ?>" name="<?php echo $this->get_field_name("hashtags"); ?>"  type="text" value="<?php echo $instance["hashtags"]; ?>" /></label></p>
 					
 					<p><label for="<?php echo $this->get_field_id("username_suffix"); ?>"><?php _e("Username suffix (e.g. \" said \"):"); ?> <input class="widefat" id="<?php echo $this->get_field_id("username_suffix"); ?>" name="<?php echo $this->get_field_name("username_suffix"); ?>" type="text" value="<?php echo $instance["username_suffix"]; ?>" /></label></p>
 
@@ -334,31 +334,31 @@
 					// When reset_settings loads add the onclick function
 					$("#widget-thinktwit-<?php echo $id[2]; ?>-reset_settings").live("click", function() {					  
 						// Reset all of the values to their default
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-usernames").val("<?php echo USERNAMES; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-hashtags").val("<?php echo HASHTAGS; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-username_suffix").val("<?php echo USERNAME_SUFFIX; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-limit").val("<?php echo LIMIT; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-max_days").val("<?php echo MAX_DAYS; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-update_frequency").val("<?php echo UPDATE_FREQUENCY; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_username").val("<?php echo SHOW_USERNAME; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_avatar").val("<?php echo (SHOW_AVATAR ? "Yes" : "No"); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_published").val("<?php echo (SHOW_PUBLISHED ? "Yes" : "No"); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_follow").val("<?php echo (SHOW_FOLLOW ? "Yes" : "No"); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-links_new_window").val("<?php echo (LINKS_NEW_WINDOW ? "Yes" : "No"); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").val("<?php echo (NO_CACHE ? "Yes" : "No"); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-use_curl").val("<?php echo (USE_CURL ? "Yes" : "No"); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-debug").val("<?php echo (DEBUG ? "Yes" : "No"); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_this_happened").val("<?php echo TIME_THIS_HAPPENED; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_less_min").val("<?php echo TIME_LESS_MIN; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_min").val("<?php echo TIME_MIN; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_more_mins").val("<?php echo TIME_MORE_MINS; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_1_hour").val("<?php echo TIME_1_HOUR; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_2_hours").val("<?php echo TIME_2_HOURS; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_precise_hours").val("<?php echo TIME_PRECISE_HOURS; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_1_day").val("<?php echo TIME_1_DAY; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_2_days").val("<?php echo TIME_2_DAYS; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_many_days").val("<?php echo TIME_MANY_DAYS; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_no_recent").val("<?php echo TIME_NO_RECENT; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-usernames").val("<?php echo THINKTWIT_USERNAMES; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-hashtags").val("<?php echo THINKTWIT_HASHTAGS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-username_suffix").val("<?php echo THINKTWIT_USERNAME_SUFFIX; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-limit").val("<?php echo THINKTWIT_LIMIT; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-max_days").val("<?php echo THINKTWIT_MAX_DAYS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-update_frequency").val("<?php echo THINKTWIT_UPDATE_FREQUENCY; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_username").val("<?php echo THINKTWIT_SHOW_USERNAME; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_avatar").val("<?php echo (THINKTWIT_SHOW_AVATAR ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_published").val("<?php echo (THINKTWIT_SHOW_PUBLISHED ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_follow").val("<?php echo (THINKTWIT_SHOW_FOLLOW ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-links_new_window").val("<?php echo (THINKTWIT_LINKS_NEW_WINDOW ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").val("<?php echo (THINKTWIT_NO_CACHE ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-use_curl").val("<?php echo (THINKTWIT_USE_CURL ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-debug").val("<?php echo (THINKTWIT_DEBUG ? "Yes" : "No"); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_this_happened").val("<?php echo THINKTWIT_TIME_THIS_HAPPENED; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_less_min").val("<?php echo THINKTWIT_TIME_LESS_MIN; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_min").val("<?php echo THINKTWIT_TIME_MIN; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_more_mins").val("<?php echo THINKTWIT_TIME_MORE_MINS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_1_hour").val("<?php echo THINKTWIT_TIME_1_HOUR; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_2_hours").val("<?php echo THINKTWIT_TIME_2_HOURS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_precise_hours").val("<?php echo THINKTWIT_TIME_PRECISE_HOURS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_1_day").val("<?php echo THINKTWIT_TIME_1_DAY; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_2_days").val("<?php echo THINKTWIT_TIME_2_DAYS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_many_days").val("<?php echo THINKTWIT_TIME_MANY_DAYS; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_no_recent").val("<?php echo THINKTWIT_TIME_NO_RECENT; ?>");
 						
 						// Focus on the usernames
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-usernames").focus();
@@ -425,7 +425,7 @@
 		}
 		
 		// General section message for the admin page
-		public static function admin_page_general_section_info(){
+		public static function admin_page_general_section_info() {
 			// Get our widget settings
 			$settings = get_option("widget_thinktwit_settings");
 			
@@ -453,7 +453,7 @@
 		}
 		
 		// Twitter section message for the admin page
-		public static function admin_page_twitter_section_info(){
+		public static function admin_page_twitter_section_info() {
 			echo "<p>Enter your Twitter Application authentication settings below:</p>";
 		}
 		
@@ -727,7 +727,7 @@
 		}
 
 		// Returns an array of Tweets from the cache or from Twitter depending on state of cache
-		private static function get_tweets($update_frequency, $url, $use_curl, $widget_id, $limit, $max_days, $usernames) {
+		private static function get_tweets($update_frequency, $url, $use_curl, $widget_id, $limit, $max_days, $usernames, $hashtags) {
 			$tweets;
 
 			// First check that if the user wants live updates
@@ -740,7 +740,7 @@
 				
 				// If so then just get the tweets live from Twitter
 				$tweets = ThinkTwit::get_tweets_from_twitter($url, $use_curl);
-					
+				
 				// If necessary, shrink the array (limit minus 1 as we start array from zero)
 				if (count($tweets) > $limit) {
 					$tweets = ThinkTwit::trim_array($tweets, $limit);
@@ -785,8 +785,8 @@
 					// Remove any tweets that are duplicates
 					$tweets = ThinkTwit::remove_duplicates($tweets);
 					
-					// Remove any tweets that aren't in usernames
-					$tweets = ThinkTwit::remove_incorrect_usernames($tweets, $usernames);
+					// Remove any tweets that don't contain the selected usernames or hashtags
+					$tweets = ThinkTwit::remove_incorrect_usernames_and_hashtags($tweets, $usernames, $hashtags);
 					
 					// If necessary, shrink the array (limit minus 1 as we start array from zero)
 					if (count($tweets) > $limit) {
@@ -1007,7 +1007,7 @@
 		public static function output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings) {
 			return 
 				"<script type=\"text/javascript\">
-					jQuery(document).ready(function($){
+					jQuery(document).ready(function($) {
 						$.ajax({
 							type : \"GET\",
 							url : \"index.php\",
@@ -1058,79 +1058,79 @@
 			}
 				
 			if (!isset($args["usernames"]))
-				$args["usernames"] = USERNAMES;
+				$args["usernames"] = THINKTWIT_USERNAMES;
 			
 			if (!isset($args["hashtags"]))
-				$args["hashtags"] = HASHTAGS;
+				$args["hashtags"] = THINKTWIT_HASHTAGS;
 				
 			if (!isset($args["username_suffix"]))
-				$args["username_suffix"] = USERNAME_SUFFIX;
+				$args["username_suffix"] = THINKTWIT_USERNAME_SUFFIX;
 				
 			if (!isset($args["limit"]))
-				$args["limit"] = LIMIT;
+				$args["limit"] = THINKTWIT_LIMIT;
 				
 			if (!isset($args["max_days"]))
-				$args["max_days"] = MAX_DAYS;
+				$args["max_days"] = THINKTWIT_MAX_DAYS;
 			
 			if (!isset($args["update_frequency"]))
-				$args["update_frequency"] = UPDATE_FREQUENCY;
+				$args["update_frequency"] = THINKTWIT_UPDATE_FREQUENCY;
 			
 			if (!isset($args["show_username"]))
-				$args["show_username"] = SHOW_USERNAME;
+				$args["show_username"] = THINKTWIT_SHOW_USERNAME;
 			
 			if (!isset($args["show_avatar"]))
-				$args["show_avatar"] = SHOW_AVATAR;
+				$args["show_avatar"] = THINKTWIT_SHOW_AVATAR;
 			
 			if (!isset($args["show_published"]))
-				$args["show_published"] = SHOW_PUBLISHED;
+				$args["show_published"] = THINKTWIT_SHOW_PUBLISHED;
 			
 			if (!isset($args["show_follow"]))
-				$args["show_follow"] = SHOW_FOLLOW;
+				$args["show_follow"] = THINKTWIT_SHOW_FOLLOW;
 			
 			if (!isset($args["links_new_window"]))
-				$args["links_new_window"] = LINKS_NEW_WINDOW;
+				$args["links_new_window"] = THINKTWIT_LINKS_NEW_WINDOW;
 			
 			if (!isset($args["no_cache"]))
-				$args["no_cache"] = NO_CACHE;
+				$args["no_cache"] = THINKTWIT_NO_CACHE;
 			
 			if (!isset($args["use_curl"]))
-				$args["use_curl"] = USE_CURL;
+				$args["use_curl"] = THINKTWIT_USE_CURL;
 			
 			if (!isset($args["debug"]))
-				$args["debug"] = DEBUG;
+				$args["debug"] = THINKTWIT_DEBUG;
 			
 			if (!isset($args["time_this_happened"]))
-				$args["time_this_happened"] = TIME_THIS_HAPPENED;
+				$args["time_this_happened"] = THINKTWIT_TIME_THIS_HAPPENED;
 			
 			if (!isset($args["time_less_min"]))
-				$args["time_less_min"] = TIME_LESS_MIN;
+				$args["time_less_min"] = THINKTWIT_TIME_LESS_MIN;
 			
 			if (!isset($args["time_min"]))
-				$args["time_min"] = TIME_MIN;
+				$args["time_min"] = THINKTWIT_TIME_MIN;
 			
 			if (!isset($args["time_more_mins"]))
-				$args["time_more_mins"] = TIME_MORE_MINS;
+				$args["time_more_mins"] = THINKTWIT_TIME_MORE_MINS;
 			
 			if (!isset($args["time_1_hour"]))
-				$args["time_1_hour"] = TIME_1_HOUR;
+				$args["time_1_hour"] = THINKTWIT_TIME_1_HOUR;
 			
 			if (!isset($args["time_2_hours"]))
-				$args["time_2_hours"] = TIME_2_HOURS;
+				$args["time_2_hours"] = THINKTWIT_TIME_2_HOURS;
 			
 			if (!isset($args["time_precise_hours"]))
-				$args["time_precise_hours"] = TIME_PRECISE_HOURS;
+				$args["time_precise_hours"] = THINKTWIT_TIME_PRECISE_HOURS;
 			
 			if (!isset($args["time_1_day"]))
-				$args["time_1_day"] = TIME_1_DAY;
+				$args["time_1_day"] = THINKTWIT_TIME_1_DAY;
 			
 			if (!isset($args["time_2_days"]))
-				$args["time_2_days"] = TIME_2_DAYS;
+				$args["time_2_days"] = THINKTWIT_TIME_2_DAYS;
 			
 			if (!isset($args["time_many_days"]))
-				$args["time_many_days"] = TIME_MANY_DAYS;
+				$args["time_many_days"] = THINKTWIT_TIME_MANY_DAYS;
 			
 			if (!isset($args["time_no_recent"]))
-				$args["time_no_recent"] = TIME_NO_RECENT;
+				$args["time_no_recent"] = THINKTWIT_TIME_NO_RECENT;
 					  		  										 
 			// Create an array to contain the time settings
 			$time_settings = array(11);
@@ -1160,19 +1160,39 @@
 		private static function parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, 
 		  $show_follow, $links_new_window, $use_curl, $debug, $time_settings) {
 			
+			// Create the Twitter Search API URL, ready for construction
+			$url = "https://api.twitter.com/1.1/search/tweets.json?q=";
+			
+			// Check user supplied usernames
+			if (!empty($usernames)) {
+				// Construct a string of usernames to search for
+				$username_string = str_replace(" ", "+OR+from%3A", $usernames);
+				
+				// Add the usernames to the URL
+				$url .= $username_string;
+			}
+			
+			// Check user supplied hashtags
+			if (!empty($hashtags)) {
+				// Replace hashes in hashtags with code for URL
+				$hashtag_string = str_replace("#", "%23", $hashtags);
+				
+				// Replace spaces in hashtags with plus signs
+				$hashtag_string = str_replace(" ", "+OR+", $hashtags);
+				
+				// If there were usernames then append a separator to the URL
+				if (!empty($usernames)) {
+					$url .= "+OR+";
+				}
+				
+				// Add the hashtags to the URL
+				$url .= $hashtag_string;
+			}
+
+			// Finally add the limit
+			$url .= "&rpp=" . $limit;
+			
 			$output = "";
-
-			// Contstruct a string of usernames to search for
-			$username_string = str_replace(" ", "+OR+from%3A", $usernames);
-			
-			// Replace hashes in hashtags with code for URL
-			$hashtags = str_replace("#", "%23", $hashtags);
-			
-			// Replace spaces in hashtags with plus signs
-			$hashtags = str_replace(" ", "+", $hashtags);
-
-			// Construct the URL to obtain the Twitter Search JSON feed
-			$url = "https://api.twitter.com/1.1/search/tweets.json?q=from%3A" . $username_string . "+" . $hashtags . "&rpp=" . $limit;
 
 			// If user wishes to output debug info then do so
 			if ($debug) {
@@ -1205,7 +1225,7 @@
 			}
 
 			// Get the tweets
-			$tweets = ThinkTwit::get_tweets($update_frequency, $url, $use_curl, $widget_id, $limit, $max_days, $usernames);
+			$tweets = ThinkTwit::get_tweets($update_frequency, $url, $use_curl, $widget_id, $limit, $max_days, $usernames, $hashtags);
 
 			// Create an ordered list
 			$output .= "<ol class=\"thinkTwitTweets\">";
@@ -1320,7 +1340,7 @@
 			$output .= "</ol>";
 			
 			// Check if the user wants to show the "Follow @username" links
-			if ($show_follow) {
+			if ($show_follow && !empty($usernames)) {
 				// If so then output one for each username
 				foreach(split(" ", $usernames) as $username) {
 					$output .= "<p class=\"thinkTwitFollow\"><a href=\"https://twitter.com/" . $username . "\" class=\"twitter-follow-button\" data-show-count=\"false\" data-dnt=\"true\">Follow @" . $username . "</a></p>";
@@ -1382,7 +1402,7 @@
 			// Iterate through item
 			foreach($array as $tweet) {
 				// If the current item does have content
-				if ($tweet->getContent() != NULL && $tweet->getContent() != "") {
+				if (is_object($tweet) && $tweet->getContent() != NULL && $tweet->getContent() != "") {
 					// Add it to the new array
 					$new_array[] = $tweet;
 				}
@@ -1391,8 +1411,8 @@
 			return $new_array;
 		}
 		
-		// Returns an array with only the requested usernames
-		private static function remove_incorrect_usernames($array, $usernames) {
+		// Returns an array of Tweets with only the requested usernames and hashtags
+		private static function remove_incorrect_usernames_and_hashtags($array, $usernames, $hashtags) {
 			$new_array = array();
 			
 			// Iterate through item
@@ -1401,6 +1421,18 @@
 				if (strlen(stristr($usernames, $tweet->getUsername())) > 0) {
 					// Add it to the new array
 					$new_array[] = $tweet;
+				}
+				
+				// Separate hashtags into an array
+				$hashtag_array = explode(" ", $hashtags);
+				
+				// Iterate through each hashtag
+				foreach($hashtag_array as $hashtag => $search_needle) { 
+					// If the current hashtag exists within the content of the current tweet
+					if(stristr($tweet->getContent(), $search_needle) != FALSE) {
+						// Add it to the new array
+						$new_array[] = $tweet;
+					}
 				}
 			}
 			
@@ -1464,31 +1496,31 @@
 		public static function shortcode_handler($atts) {
 			extract(shortcode_atts(array(
 				"unique_id"          => 0,
-				"usernames"          => USERNAMES,
-				"hashtags"           => HASHTAGS,
-				"username_suffix"    => USERNAME_SUFFIX,
-				"limit"              => LIMIT,
-				"max_days"           => MAX_DAYS,
-				"update_frequency"   => UPDATE_FREQUENCY,
-				"show_username"      => SHOW_USERNAME,
-				"show_avatar"        => SHOW_AVATAR,
-				"show_published"     => SHOW_PUBLISHED,
-				"show_follow"        => SHOW_FOLLOW,
-				"links_new_window"   => LINKS_NEW_WINDOW,
-				"no_cache"           => NO_CACHE,
-				"use_curl"           => USE_CURL,
-				"debug"              => DEBUG,
-				"time_this_happened" => TIME_THIS_HAPPENED,
-				"time_less_min"      => TIME_LESS_MIN,
-				"time_min"           => TIME_MIN,
-				"time_more_mins"     => TIME_MORE_MINS,
-				"time_1_hour"        => TIME_1_HOUR,
-				"time_2_hours"       => TIME_2_HOURS,
-				"time_precise_hours" => TIME_PRECISE_HOURS,
-				"time_1_day"         => TIME_1_DAY,
-				"time_2_days"        => TIME_2_DAYS,
-				"time_many_days"     => TIME_MANY_DAYS,
-				"time_no_recent"     => TIME_NO_RECENT
+				"usernames"          => THINKTWIT_USERNAMES,
+				"hashtags"           => THINKTWIT_HASHTAGS,
+				"username_suffix"    => THINKTWIT_USERNAME_SUFFIX,
+				"limit"              => THINKTWIT_LIMIT,
+				"max_days"           => THINKTWIT_MAX_DAYS,
+				"update_frequency"   => THINKTWIT_UPDATE_FREQUENCY,
+				"show_username"      => THINKTWIT_SHOW_USERNAME,
+				"show_avatar"        => THINKTWIT_SHOW_AVATAR,
+				"show_published"     => THINKTWIT_SHOW_PUBLISHED,
+				"show_follow"        => THINKTWIT_SHOW_FOLLOW,
+				"links_new_window"   => THINKTWIT_LINKS_NEW_WINDOW,
+				"no_cache"           => THINKTWIT_NO_CACHE,
+				"use_curl"           => THINKTWIT_USE_CURL,
+				"debug"              => THINKTWIT_DEBUG,
+				"time_this_happened" => THINKTWIT_TIME_THIS_HAPPENED,
+				"time_less_min"      => THINKTWIT_TIME_LESS_MIN,
+				"time_min"           => THINKTWIT_TIME_MIN,
+				"time_more_mins"     => THINKTWIT_TIME_MORE_MINS,
+				"time_1_hour"        => THINKTWIT_TIME_1_HOUR,
+				"time_2_hours"       => THINKTWIT_TIME_2_HOURS,
+				"time_precise_hours" => THINKTWIT_TIME_PRECISE_HOURS,
+				"time_1_day"         => THINKTWIT_TIME_1_DAY,
+				"time_2_days"        => THINKTWIT_TIME_2_DAYS,
+				"time_many_days"     => THINKTWIT_TIME_MANY_DAYS,
+				"time_no_recent"     => THINKTWIT_TIME_NO_RECENT
 			), $atts));
 			
 			// Modify unique id to lock it to shortcodes
@@ -1544,7 +1576,7 @@
 		}
 		
 		// Returns the given array but trimmed to the size of n
-		private static function trim_array($array, $n){
+		private static function trim_array($array, $n) {
 			$new_array = array();
 			
 			// Loop through the array until n

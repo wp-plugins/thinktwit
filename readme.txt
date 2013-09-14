@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.5.1
+Tested up to: 3.5.2
 Stable tag: trunk
 
 Outputs tweets from any Twitter users (hashtag/keyword filterable) through the Widget interface. Can be called via shortcode or PHP function call
@@ -56,7 +56,7 @@ Requirements/Restrictions:
 
 1. Complete the form:
 
- * Name: ThinkTwit
+ * Name: ThinkTwit - [site name]
  * Description: ThinkTwit plugin
  * Website: [url of your website]
  * Callback URL: [url of your website]
@@ -309,6 +309,11 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 
 == Changelog ==
+
+= 1.4.2 =
+- (14 Sep 2013) Renamed constants to prefix with ThinkTwit so that they don't interfere with constants from other plugins, changed help on
+setting up Twitter app as name needs to be unique, added hashtag filtering in cache, added ability to search for hashtags without usernames 
+and changed hashtag searching to be OR rather than AND
 
 = 1.4.1 =
 - (02 Jun 2013) Corrected failure to update ThinkTwit version stored in the database, made a minor addition to the new settings page that 
