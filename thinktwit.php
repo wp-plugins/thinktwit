@@ -5,7 +5,7 @@
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call. If you 
 	use ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a>
 	and of course any blog articles on ThinkTwit or recommendations appreciated.
-    Version: 1.4.2
+    Version: 1.4.3
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -1495,7 +1495,7 @@
 		// Function to handle shortcode
 		public static function shortcode_handler($atts) {
 			extract(shortcode_atts(array(
-				"unique_id"          => 0,
+				"widget_id"          => 0,
 				"usernames"          => THINKTWIT_USERNAMES,
 				"hashtags"           => THINKTWIT_HASHTAGS,
 				"username_suffix"    => THINKTWIT_USERNAME_SUFFIX,
@@ -1524,7 +1524,7 @@
 			), $atts));
 			
 			// Modify unique id to lock it to shortcodes
-			$unique_id = "thinktwit-sc-" . $unique_id;
+			$widget_id = "thinktwit-sc-" . $widget_id;
 						 
 			// Create an array to contain the time settings
 			$time_settings = array(11);
@@ -1543,10 +1543,10 @@
 
 			// If user selected to use no-caching output AJAX code
 			if ($no_cache) {
-				return "<div id=\"" . $unique_id . "\">" . ThinkTwit::output_ajax($unique_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings) . "</div>";
+				return "<div id=\"" . $widget_id . "\">" . ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings) . "</div>";
 			// Otherwise output HTML method
 			} else {
-				return ThinkTwit::parse_feed($unique_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
+				return ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
 			}
 		}
 		

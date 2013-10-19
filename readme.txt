@@ -90,14 +90,14 @@ upgrade, simply replace the files with those from the new version.
 ThinkTwit can be used in any page or post, or anywhere else configured to use shortcodes, using the following syntax:
 
 `[thinktwit 
-  unique_id=x 
+  widget_id=x 
   usernames="xxx yyy" 
   hashtags="xxx" 
   username_suffix="xxx" 
   limit=x (int)
-  max-days=x (int: 1 to 7)
+  max_days=x (int: 1 to 7)
   update_frequency=x (int: -1 live (uncached), 0 live (cached, otherwise enter an integer for the number of hours between updates)
-  show_author=none|name|username 
+  show_username=none|name|username 
   show_avatar=1|0 
   show_published=1|0 
   show_follow=1|0 
@@ -123,14 +123,14 @@ ThinkTwit can be used in any page or post, or anywhere else configured to use sh
 ThinkTwit can be called within templates and other areas where you can use PHP using the following syntax:
 
 `<?php $args = array(
-    'unique_id'          => 0,
+    'widget_id'          => 0,
     'usernames'          => "stephenpickett",
     'hashtags'           => "thinktwit",
     'username_suffix'    => " said: ",
     'limit'              => 5,
     'max_days'           => 7,
     'update_frequency'   => 0,
-    'show_author'        => "name",
+    'show_username'      => "name",
     'show_avatar'        => 1,
     'show_published'     => 1,
     'show_follow'        => 1,
@@ -167,7 +167,7 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
 **update_frequency**: *int* - Minus 1 indicates live (uncached), 0 indicates live (cached), and anything else indicates the number of 
 hours between getting updates from Twitter.
 
-**show_author**: *string* - None indicates no username should be shown, name indicates the user's full name should be shown and
+**show_username**: *string* - None indicates no username should be shown, name indicates the user's full name should be shown and
 username indicates the user's username should be shown.
 
 **show_avatar**: *boolean* - Indicates whether the Twitter user's avatar should be displayed - 1 for true and 0 for false.
@@ -309,6 +309,11 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 
 == Changelog ==
+
+= 1.4.3 =
+- (19 Oct 2013) Updated the readme.txt, and both shortcode and Output Anywhere as there were some inconsistencies in naming but also some of
+the instructions were out of date and hence wrong. Should resolve any issues anyone is having with either of these or with multiple usage
+on one page
 
 = 1.4.2 =
 - (14 Sep 2013) Renamed constants to prefix with ThinkTwit so that they don't interfere with constants from other plugins, changed help on
