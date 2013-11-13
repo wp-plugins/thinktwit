@@ -5,7 +5,7 @@
     Description: Outputs tweets from any Twitter users (hashtag filterable) through the Widget interface. Can be called via shortcode or PHP function call. If you 
 	use ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a>
 	and of course any blog articles on ThinkTwit or recommendations appreciated.
-    Version: 1.4.3
+    Version: 1.4.4
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 
@@ -23,7 +23,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("THINKTWIT_VERSION",				"1.4.2");
+	define("THINKTWIT_VERSION",				"1.4.4");
 	define("THINKTWIT_USERNAMES", 			"stephenpickett");
 	define("THINKTWIT_HASHTAGS", 			"");
 	define("THINKTWIT_USERNAME_SUFFIX", 	" said: ");
@@ -399,6 +399,14 @@
 				"thinktwit"
 			);
 			
+			add_settings_field(
+				"cleanup_period", 
+				"Cleanup period", 
+				"ThinkTwit::create_admin_page_cleanup_field", 
+				"thinktwit",
+				"general_settings"			
+			);
+			
 			add_settings_section(
 				"twitter_api_settings",
 				"Twitter API Settings",
@@ -434,21 +442,37 @@
 				$version = ThinkTwit::get_version();
 				$cache_names = "none";
 				$updated = "never";
+				$last_cleanup = "never";
 			} else {
 				$version = $settings["version"];
 				$cache_names = implode("<br />", $settings["cache_names"]);
+				$last_cleanup = $settings["last_cleanup"];
 				
-				// Separate the Unix timestamp for easier disection
-				list($microSec, $timeStamp) = explode(" ", $settings["updated"]);
+				// If the last cleanup date is not never then format it appropriately
+				if (strcmp($settings["last_cleanup"], "never") != 0) {			
+					// Format the timestamps correctly
+					$last_cleanup = date('D F jS, Y H:i:s', $settings["last_cleanup"]);
+				} else {
+					$last_cleanup = $settings["last_cleanup"];
+				}
 				
-				// Format the timestamps correctly
-				$updated = date('D F jS, Y H:i:', $timeStamp) . (date('s', $timeStamp) + $microSec);
+				// If the last updated date is not never then format it appropriately
+				if (strcmp($settings["updated"], "never") != 0) {
+					// Separate the Unix timestamp for easier disection
+					list($microSec, $timeStamp) = explode(" ", $settings["updated"]);
+				
+					// Format the timestamps correctly
+					$updated = date('D F jS, Y H:i:', $timeStamp) . (date('s', $timeStamp) + $microSec);
+				} else {
+					$updated = $settings["updated"];
+				}
 			}
 			
-			echo "<p>The following values are for information only:</p>";
+			echo "<p>The following static values are for information only:</p>";
 			echo "<table class=\"form-table\"><tbody><tr valign=\"top\"><th scope=\"row\">Version</th><td>$version</td></tr>";
 			echo "<tr valign=\"top\"><th scope=\"row\">Cache names</th><td>$cache_names</td></tr>";
 			echo "<tr valign=\"top\"><th scope=\"row\">Last updated</th><td>$updated</td></tr>";
+			echo "<tr valign=\"top\"><th scope=\"row\">Last cleanup</th><td>$last_cleanup</td></tr>";
 			echo "</tbody></table>";
 		}
 		
@@ -464,17 +488,40 @@
 			$val = "";
 			
 			// If settings isn't an array
-			if (!is_array($settings)) {				
+			if (!is_array($settings)) {
+				// Create an array
+				$settings = array();
+				
+				$settings["version"] = ThinkTwit::get_version();
+				$settings["cache_names"] = array();
+				$settings["updated"] = "never";
+				$settings["last_cleanup"] = "never";
+				
 				// Create the array with the minimum required values including the consumer key
 				if ($input["consumer_key"] != "") {
 					$val = $input["consumer_key"];
-					$settings = array("version" => ThinkTwit::get_version(), "consumer_key" => $input["consumer_key"]);
+					$settings["consumer_key"] = $input["consumer_key"];
+				} else {
+					$val = "";
+					$settings["consumer_key"] = "";
 				}
 				
 				// Create the array with the minimum required values including the consumer secret
 				if ($input["consumer_secret"] != "") {
 					$val = $input["consumer_secret"];
-					$settings = array("version" => ThinkTwit::get_version(), "consumer_secret" => $input["consumer_secret"]);
+					$settings["consumer_secret"] = $input["consumer_secret"];
+				} else {
+					$val = "";
+					$settings["consumer_secret"] = "";
+				}
+				
+				// Create the array with the minimum required values including the cleanup period
+				if ($input["cleanup_period"] != "") {
+					$val = $input["cleanup_period"];
+					$settings["cleanup_period"] = $input["cleanup_period"];
+				} else {
+					$val = "30";
+					$settings["cleanup_period"] = "30";
 				}
 			} else {
 				// Add the consumer key
@@ -487,6 +534,12 @@
 				if ($input["consumer_secret"] != "") {
 					$val = $input["consumer_secret"];
 					$settings["consumer_secret"] = $input["consumer_secret"];
+				}
+				
+				// Add the cleanup period
+				if ($input["cleanup_period"] != "") {
+					$val = $input["cleanup_period"];
+					$settings["cleanup_period"] = $input["cleanup_period"];
 				}
 			}
 				
@@ -524,6 +577,30 @@
 			}
 		?>
 			<input type="text" id="consumer_secret" name="twitter_api_settings[consumer_secret]" value="<?= $consumer_secret; ?>" size="60" />
+<?php
+		}
+		
+		// Creates the cleanup field
+		public static function create_admin_page_cleanup_field() {
+			// Get our options
+			$settings = get_option("widget_thinktwit_settings");
+			$cleanup_period = "";
+			
+			// If settings isn't an array
+			if (is_array($settings) && isset($settings["cleanup_period"])) {
+				$cleanup_period = $settings["cleanup_period"];
+			}
+		?>
+			<select id="cleanup_period" name="twitter_api_settings[cleanup_period]">
+				<option value="1" <?php if (strcmp($cleanup_period, 1) == 0)     echo " selected=\"selected\""; ?>>Daily</option>
+				<option value="7" <?php if (strcmp($cleanup_period, 7) == 0)     echo " selected=\"selected\""; ?>>Weekly</option>
+				<option value="14" <?php if (strcmp($cleanup_period, 14) == 0)   echo " selected=\"selected\""; ?>>Fortnightly</option>
+				<option value="30" <?php if (strcmp($cleanup_period, 30) == 0 || 
+				                             empty($cleanup_period))             echo " selected=\"selected\""; ?>>Monthly</option>
+				<option value="91" <?php if (strcmp($cleanup_period, 91) == 0)   echo " selected=\"selected\""; ?>>Quarterly</option>
+				<option value="182" <?php if (strcmp($cleanup_period, 182) == 0) echo " selected=\"selected\""; ?>>Bi-annually</option>
+				<option value="365" <?php if (strcmp($cleanup_period, 365) == 0) echo " selected=\"selected\""; ?>>Annually</option>
+			</select>
 <?php
 		}
 
@@ -641,6 +718,46 @@
 			return $output;
 		}
 		
+		// Deletes all unused avatars from tweets that are no longer valid (due to age or no longer located within a search)
+		private static function delete_unused_avatars($allowed_usernames) {			
+			// Get the directory where the images are stored
+			$dir = plugin_dir_path( __FILE__ ) . 'images/';
+			
+			// NOTE: This code doesn't work if the owner of the file is different to the user of the running process
+			// Get a listing of the images directory
+			if ($handle = opendir($dir)) {
+				// Iterate through the listing
+				while (false !== ($entry = readdir($handle))) {
+					// Ignore . and .., and make sure that we are dealing with a png, jpg or gif
+					if ($entry != "." && $entry != ".." && (strpos($entry, ".png") || strpos($entry, ".jpg") || strpos($entry, ".gif"))) {
+						// Look for the last fullstop in the filename so that we can get the username
+						$fullstop = strrpos($entry, ".");
+
+						// If there is no fullstop then we don't want to process any further (this shouldn't ever happen)
+						if ($fullstop !== FALSE) {
+							// Get filename but ignore the extension
+							$username = substr($entry, 0, $fullstop);
+
+							// If the filename is not in $allowed_usernames
+							if (!in_array($username, $allowed_usernames)) {
+								// If the file exists
+								if (file_exists($dir . $entry)) {
+									// First of all make it fully writeable to ensure we can delete it
+									@chmod($dir . $entry, 0777);
+									
+									// Then delete it
+									@unlink($dir . $entry);
+								}
+							}
+						}
+					}
+				}
+				
+				// Close the directory stream
+				closedir($handle);
+			}
+		}
+		
 		// Downloads the avatar for the given username, using CURL if specified
 		private static function download_avatar($use_curl, $username, $image_url) {	
 			// Get image MIME type
@@ -648,23 +765,23 @@
 			
 			// Store the filename
 			$filename = $username . $mime;
-			$dir = plugin_dir_path( __FILE__ ) . 'images/';
+			$dir = plugin_dir_path(__FILE__) . 'images/';
 			
 			// First of all check if the folder exists
 			if (!file_exists($dir)) {
 				// If it doesn't then create it with write permissions
-				wp_mkdir_p($dir);
+				mkdir($dir, 0777);
 			} else {
 				// And if it exists then check it is writeable
 				if (!is_writable($dir)) {
 					// If it isn't writeable then make it writeable
-					chmod($dir, 0777);
+					@chmod($dir, 0777);
 				}
 			}
 			
 			while ($image_url) {
 				// If file doesn't exist or file is older than 24 hours
-				if (!file_exists($dir . $filename) || time() - filemtime(realpath($dir . $filename)) >= (60 * 60 * 24)) {					
+				if (!file_exists($dir . $filename) || time() - filemtime(realpath($dir . $filename)) >= (60 * 60 * 24)) {
 					// Download and save the image using CURL or file_put_contents
 					if ($use_curl) {
 						// Initiate a CURL object and open the image URL
@@ -691,6 +808,9 @@
 						// Download the file without CURL
 						file_put_contents($dir . $filename, file_get_contents(htmlspecialchars($image_url)));
 					}
+					
+					// Change the ownership of the file so it can be later deleted
+					@chmod($dir . $filename, 0777);
 				}
 				
 				// Check the contents for a redirect (this should return false and break the loop once it has a working file)
@@ -698,6 +818,46 @@
 			}
 			
 			return $filename;
+		}
+		
+		// Searches all of the caches for allowed usersnames and returns them
+		private static function get_allowed_usernames() {
+			$allowed_usernames = array();
+			
+			// Get our widget settings
+			$settings = get_option("widget_thinktwit_settings");
+			
+			// Get the caches
+			$cache_names = $settings["cache_names"];
+			
+			// Iterate each cache
+			foreach($cache_names as $cache_name) {
+				// Explode the cache name to get the id
+				$cache_name_parts = explode("_", $cache_name);
+				
+				// Get the tweets from the current cache (the second part of the cache name is the widget id)
+				$returned_tweets = ThinkTwit::get_tweets_from_cache($cache_name_parts[1]);
+				
+				// Ensure the database contained tweets
+				if ($returned_tweets != FALSE) {
+					// Get the tweets from the last update
+					$tweets = $returned_tweets[0];
+					
+					// Iterate each tweet
+					foreach($tweets as $tweet) {
+						// Check that the tweet has a username
+						if ($tweet->getUsername()) {
+							// Add the tweet's username to the usernames array
+							$allowed_usernames[] = $tweet->getUsername();
+						}
+					}
+				}
+			}
+			
+			// Remove duplicates
+			$allowed_usernames = array_unique($allowed_usernames);
+					
+			return $allowed_usernames;
 		}
 		
 		// Returns the MIME type (jpeg, png or gif - only allowed by Twitter) of the image at the given URL
@@ -872,31 +1032,33 @@
 			
 			// Decode the JSON feed
 			$json = json_decode($feed, true);
-
-			// Get the tweets from the JSON feed
-			$json_tweets = $json["statuses"];
 			
 			// Create an array to store the tweets
 			$tweets = array();
-			
-			// Check that values were returned
-			if (is_array($json_tweets)) {
-				// Loop through the tweets
-				foreach($json_tweets as $tweet) {
-					// Get the content of the tweet
-					$content = $tweet["text"];
-					
-					// Get the user details
-					$user = $tweet["user"];
-					
-					// Make the content links clickable
-					$content = ThinkTwit::convert_twitter_content_to_links($content);
-					
-					// Download the avatar and get the local filename
-					$filename = ThinkTwit::download_avatar($use_curl, $user["screen_name"], $user["profile_image_url"]);
-					
-					// Create a tweet and add it to the array
-					$tweets[] = new Tweet("http://twitter.com/" . $user["screen_name"], $filename, $user["profile_image_url"], $user["name"], $user["screen_name"], $content, strtotime($tweet["created_at"]));
+
+			// Get the tweets from the JSON feed (if any exist)
+			if (isset($json["statuses"])) {
+				$json_tweets = $json["statuses"];
+				
+				// Check that values were returned
+				if (is_array($json_tweets)) {
+					// Loop through the tweets
+					foreach($json_tweets as $tweet) {
+						// Get the content of the tweet
+						$content = $tweet["text"];
+						
+						// Get the user details
+						$user = $tweet["user"];
+						
+						// Make the content links clickable
+						$content = ThinkTwit::convert_twitter_content_to_links($content);
+						
+						// Download the avatar and get the local filename
+						$filename = ThinkTwit::download_avatar($use_curl, $user["screen_name"], $user["profile_image_url"]);
+						
+						// Create a tweet and add it to the array
+						$tweets[] = new Tweet("http://twitter.com/" . $user["screen_name"], $filename, $user["profile_image_url"], $user["name"], $user["screen_name"], $content, strtotime($tweet["created_at"]));
+					}
 				}
 			}
 			
@@ -965,7 +1127,7 @@
 																				   "Authorization: Basic " . $base64_encoded_bearer_token . "\r\n" .
 																				   "Content-Type: application/x-www-form-urlencoded;charset=UTF-8\r\n" .
 																				   "Content-Length: 29\r\n",
-																	    "content" => "grant_type=client_credentials")));
+																	   "content" => "grant_type=client_credentials")));
 			
 				// Execute the API call using the created headers
 				$response = @file_get_contents($url, false, $context);
@@ -1168,8 +1330,8 @@
 				// Construct a string of usernames to search for
 				$username_string = str_replace(" ", "+OR+from%3A", $usernames);
 				
-				// Add the usernames to the URL
-				$url .= $username_string;
+				// Add the usernames to the URL, prefixed with "from:" for the first username
+				$url .= "from%3A" . $username_string;
 			}
 			
 			// Check user supplied hashtags
@@ -1342,7 +1504,7 @@
 			// Check if the user wants to show the "Follow @username" links
 			if ($show_follow && !empty($usernames)) {
 				// If so then output one for each username
-				foreach(split(" ", $usernames) as $username) {
+				foreach(explode(" ", $usernames) as $username) {
 					$output .= "<p class=\"thinkTwitFollow\"><a href=\"https://twitter.com/" . $username . "\" class=\"twitter-follow-button\" data-show-count=\"false\" data-dnt=\"true\">Follow @" . $username . "</a></p>";
 				}
 				
@@ -1350,7 +1512,59 @@
 				$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");twttr.widgets.load();</script>";
 			}
 			
+			// Finally, perform any required cleanup operations
+			ThinkTwit::perform_cleanup();
+			
 			return apply_filters("think_twit", $output);
+		}
+		
+		// Performs cleanup operations
+		private static function perform_cleanup() {
+			$settings = get_option("widget_thinktwit_settings");
+			
+			// Check that settings is an array
+			if (!is_array($settings)) {
+				// The settings don't exist so create some
+				$settings = array();
+				
+				// Set to 1 month and current datetime
+				$settings["cleanup_period"] = 30;
+				$settings["last_cleanup"] = time();
+			} else {
+				// If the cleanup period isn't set
+				if (!isset($settings['cleanup_period'])) {
+					// Set to 1 month
+					$settings["cleanup_period"] = 30;
+				}
+				
+				// If last cleanup isn't set
+				if (!isset($settings['last_cleanup'])) {
+					// Set to now
+					$settings["last_cleanup"] = time();
+				}
+			}
+			
+			// Get the cleanup period
+			$cleanup_period = $settings['cleanup_period'];
+			
+			// Get the datetime of the last cleanup
+			$last_cleanup = $settings['last_cleanup'];
+			
+			// If the last cleanup was beyond the required period (86400 seconds is 1 day, so multiply by the period to get the total
+			// maximum number of seconds)
+			if ((time() - $last_cleanup) > ($cleanup_period * 86400)) {
+				// Get allowed usernames
+				$allowed_usernames = ThinkTwit::get_allowed_usernames();
+				
+				// Delete old avatars
+				ThinkTwit::delete_unused_avatars($allowed_usernames);
+				
+				// Set the last cleanup period to now
+				$settings["last_cleanup"] = time();
+				
+				// Store the updated cleanup time in our settings
+				update_option("widget_thinktwit_settings", $settings);
+			}
 		}
 
 		// Given a PHP time this returns how long ago that time was, in easy to understand English
@@ -1418,7 +1632,7 @@
 			// Iterate through item
 			foreach($array as $tweet) {
 				// If the current item has a valid username
-				if (strlen(stristr($usernames, $tweet->getUsername())) > 0) {
+				if (($tweet->getUsername()) && (stristr($usernames, $tweet->getUsername()))) {
 					// Add it to the new array
 					$new_array[] = $tweet;
 				}
@@ -1429,46 +1643,12 @@
 				// Iterate through each hashtag
 				foreach($hashtag_array as $hashtag => $search_needle) { 
 					// If the current hashtag exists within the content of the current tweet
-					if(stristr($tweet->getContent(), $search_needle) != FALSE) {
+					if(($search_needle) && (stristr($tweet->getContent(), $search_needle) != FALSE)) {
 						// Add it to the new array
 						$new_array[] = $tweet;
 					}
 				}
 			}
-			
-			// NOTE: This code doesn't work if the owner of the file is different to the user of the running process
-			// Get a listing of the images directory
-			/*if ($handle = opendir(plugin_dir_path( __FILE__ ) . 'images/')) {
-				// Iterate through the listing
-				while (false !== ($entry = readdir($handle))) {
-					// Ignore . and .., and make sure that we are dealing with a png, jpg or gif
-					if ($entry != "." && $entry != ".." && (strpos($entry, ".png") || strpos($entry, ".jpg") || strpos($entry, ".gif"))) {
-						// Look for the last fullstop in the filename so that we can get the username
-						$fullstop = strrpos($entry, ".");
-						
-						// If there is no fullstop then we don't want to process any further (this shouldn't ever happen)
-						if ($fullstop !== FALSE) {
-							// Get filename but ignore the extension
-							$username = substr($entry, 0, $fullstop);
-							
-							// If the filename is not in $usernames
-							if (strlen(stristr($usernames,$username)) == 0) {
-								// If the file exists
-								if (file_exists($entry)) {
-									// First of all make it fully writeable to ensure we can delete it
-									@chmod($entry, 0777);
-									
-									// Then delete it
-									@unlink($entry);
-								}
-							}
-						}
-					}
-				}
-				
-				// Close the directory stream
-				closedir($handle);
-			}*/
 			
 			return $new_array;
 		}

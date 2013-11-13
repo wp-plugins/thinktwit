@@ -2,9 +2,9 @@
 Contributors: stephen.pickett
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E
 Author URI: http://www.thepicketts.org
-Tags: twitter, tweet, thinktwit, think, multiple, caching, ajax, shortcode, css
+Tags: twitter, tweet, thinktwit, hashtag, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.5.2
+Tested up to: 3.7.1
 Stable tag: trunk
 
 Outputs tweets from any Twitter users (hashtag/keyword filterable) through the Widget interface. Can be called via shortcode or PHP function call
@@ -37,10 +37,11 @@ Features:
  * Can display the avatar of the Twitter user
  * Output can be filtered (using apply_filters)
  * Can optionally output "Follow @username" links
+ * Automated cleanup process that runs periodically according to user setting
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.5.1, not tested with other versions
+ * Works with Wordpress 2.8.6 to 3.7.1, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
  * Uses Twitter REST API v1.1 Application-only authentication and therefore requires an application key (see installation)
@@ -152,7 +153,7 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
 
 	echo ThinkTwit::output_anywhere($args); ?>`
 
-**unique_id**: *integer* - You should give this a unique id for caching or styling.
+**widget_id**: *integer* - You should give this a unique id for caching or styling.
 
 **usernames**: *string* - The list of Twitter usernames to output tweets for.
 
@@ -309,6 +310,12 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 
 == Changelog ==
+
+= 1.4.4 =
+- (13 Nov 2013) Replaced use of split() with explode() as the former has been deprecated, allowed entering of empty usernames and hashtags, 
+fixed the API call so that it doesn't search for mentions of the first username but actually searches for tweets by the first username 
+and re-instated an updated version of the old avatar deletion code which runs periodically and takes account of tweets added from chosen 
+hashtags
 
 = 1.4.3 =
 - (19 Oct 2013) Updated the readme.txt, and both shortcode and Output Anywhere as there were some inconsistencies in naming but also some of
