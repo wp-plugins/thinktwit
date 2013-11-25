@@ -7,15 +7,12 @@ Requires at least: 2.8.6
 Tested up to: 3.7.1
 Stable tag: trunk
 
-Outputs tweets from any Twitter users (hashtag/keyword filterable) through the Widget interface. Can be called via shortcode or PHP function call
+Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call and supports i18n for multiple languages
 
 
 == Description ==
 
-ThinkTwit is a highly customisable plugin that can output tweets from multiple users (something that very few other plugins can do successfully), 
-filterable by #hashtag or keyword. It uses the Twitter Search JSON API v1.1 to access tweets which can be cached. It is very simple, yet flexible 
-and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode 
-or Output Anywhere (PHP function call). Updated regularly!
+ThinkTwit is a highly customisable plugin that can output tweets from multiple users (something that very few other plugins can do successfully), #hashtag or keyword. It uses the Twitter Search JSON API v1.1 to access tweets which can be cached. It is very simple, yet flexible and easily customised. It can be placed on your Wordpress page simply through drag and drop on the Widgets interface or through the use of Shortcode or Output Anywhere (PHP function call). Updated regularly and now supports i18n!
 
 **Support:** http://www.thepicketts.org/thinktwit/ or on Twitter **@stephenpickett**
 
@@ -38,6 +35,7 @@ Features:
  * Output can be filtered (using apply_filters)
  * Can optionally output "Follow @username" links
  * Automated cleanup process that runs periodically according to user setting
+ * Internationalised using i18n meaning that if it isn't in your language it's easy to translate! See Other Notes for more details.
  
 Requirements/Restrictions:
 -------------------------
@@ -293,11 +291,29 @@ to turn on or off caching, and to decide how often to update the cache
 = Why aren't my avatar images showing? =
 
 The `images` folder may not exist or it may not be writeable (this folder is required for caching avatars). You must create the directory if it
-doesn't already exist or you must chmod it to 755 or higher so that the web server can write to the folder.
+doesn't already exist or you must chmod it to 755 or higher so that the web server can write to the folder (depends on your web server 
+permissions).
 
 = How often do avatars get updated? =
 
 Once every 24 hours (assuming a request is made in this period). This value is not currently configurable.
+
+
+== Internationalization (i18n) ==
+
+Currently the following languages are supported:
+
+* es_ES - Spanish in Spain (many thanks to [Maria Ramos](http://www.webhostinghub.com/) for contributing)
+* en_GB - English in Great Britain (default)
+
+If your language is not listed and you would like to translate in to your language please do the following:
+
+1. Navigate to thinktwit/languages and take a copy of thinktwit.pot.
+1. Open in the language editor of your choice e.g. [POedit](http://www.poedit.net/).
+1. Translate each line until you've done them all.
+1. Save as thinktwit-lang_COUNTRY.po e.g. thinktwit-en_GB.po - see [List of all Locales](http://www.roseindia.net/tutorials/I18N/locales-list.shtml) for more.
+1. Go to [Contact](http://www.thepicketts.org/contact/) and fill in the form appropriately.
+1. I will get in touch and ask that you respond with the translated file and a link to your site (if desired).
 
 
 == Screenshots ==
@@ -310,6 +326,10 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 
 == Changelog ==
+
+= 1.5.0 =
+- (25 Nov 2013) Fixed an issue preventing hashtags from working properly and added i18n internationalisation support, with Spanish the first 
+language to be supported - many thanks to Maria Ramos at [webhostinghub.com](http://www.webhostinghub.com/)!
 
 = 1.4.4 =
 - (13 Nov 2013) Replaced use of split() with explode() as the former has been deprecated, allowed entering of empty usernames and hashtags, 
