@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
