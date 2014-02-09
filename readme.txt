@@ -327,6 +327,11 @@ If your language is not listed and you would like to translate in to your langua
 
 == Changelog ==
 
+= 1.5.1 =
+- (09 Feb 2014) A user of another plugin (AI Twitter Feeds) that had borrowed the follow button code reported an issue that was a result of
+an update to the follow button script from Twitter. This basic update simply updates the script so you should no longer get the following
+error: "Uncaught ReferenceError: twttr is not defined".
+
 = 1.5.0 =
 - (25 Nov 2013) Fixed an issue preventing hashtags from working properly and added i18n internationalisation support, with Spanish the first 
 language to be supported - many thanks to Maria Ramos at [webhostinghub.com](http://www.webhostinghub.com/)!

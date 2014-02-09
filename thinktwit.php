@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call. If you like ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a> and of course any blog articles on ThinkTwit or recommendations greatly appreciated!
-    Version: 1.5.0
+    Version: 1.5.1
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 	Text Domain: thinktwit
@@ -22,7 +22,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("THINKTWIT_VERSION",				"1.5.0");
+	define("THINKTWIT_VERSION",				"1.5.1");
 	define("THINKTWIT_USERNAMES", 			"stephenpickett");
 	define("THINKTWIT_HASHTAGS", 			"");
 	define("THINKTWIT_USERNAME_SUFFIX", 	" said: ");
@@ -1511,7 +1511,7 @@
 				}
 				
 				// Output the script that adds the link functionality
-				$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=\"//platform.twitter.com/widgets.js\";fjs.parentNode.insertBefore(js,fjs);}}(document,\"script\",\"twitter-wjs\");twttr.widgets.load();</script>";
+				$output .= "<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>";
 			}
 			
 			// Finally, perform any required cleanup operations
