@@ -1,0 +1,304 @@
+# Copyright (C) 2013 ThinkTwit
+# This file is distributed under the same license as the ThinkTwit package.
+msgid ""
+msgstr ""
+"Project-Id-Version: ThinkTwit 1.5.0\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/thinktwit\n"
+"POT-Creation-Date: 2013-11-18 15:50:56+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2013-11-18 16:20-0000\n"
+"Last-Translator: Stephen Pickett <meethoss@gmail.com>\n"
+"Language-Team: \n"
+
+#: thinktwit.php:67
+msgid ""
+"Outputs tweets from one or more Twitter users through the Widget interface, "
+"filtered on a particular #hashtag(s)"
+msgstr ""
+
+#: thinktwit.php:225 thinktwit.php:399
+msgid "General Settings"
+msgstr ""
+
+#: thinktwit.php:227
+msgid "Title:"
+msgstr ""
+
+#: thinktwit.php:229
+msgid "Twitter usernames (optional) separated by spaces:"
+msgstr ""
+
+#: thinktwit.php:231
+msgid "Twitter hashtags/keywords (optional) separated by spaces:"
+msgstr ""
+
+#: thinktwit.php:233
+msgid "Username suffix (e.g. \" said \"):"
+msgstr ""
+
+#: thinktwit.php:235
+msgid "Max tweets to display:"
+msgstr ""
+
+#: thinktwit.php:237
+msgid "Max days to display:"
+msgstr ""
+
+#: thinktwit.php:239
+msgid "Update frequency:"
+msgstr ""
+
+#: thinktwit.php:240
+msgid "Live (uncached)"
+msgstr ""
+
+#: thinktwit.php:241
+msgid "Live (cached)"
+msgstr ""
+
+#: thinktwit.php:242
+msgid "Hourly"
+msgstr ""
+
+#: thinktwit.php:243
+msgid "Every 2 hours"
+msgstr ""
+
+#: thinktwit.php:244
+msgid "Every 4 hours"
+msgstr ""
+
+#: thinktwit.php:245
+msgid "Every 12 hours"
+msgstr ""
+
+#: thinktwit.php:246
+msgid "Every day"
+msgstr ""
+
+#: thinktwit.php:247
+msgid "Every 2 days"
+msgstr ""
+
+#: thinktwit.php:250
+msgid "Show username:"
+msgstr ""
+
+#: thinktwit.php:251
+msgid "None"
+msgstr ""
+
+#: thinktwit.php:252
+msgid "Name"
+msgstr ""
+
+#: thinktwit.php:253
+msgid "Username"
+msgstr ""
+
+#: thinktwit.php:256
+msgid "Show username's avatar:"
+msgstr ""
+
+#: thinktwit.php:257 thinktwit.php:262 thinktwit.php:267 thinktwit.php:272
+#: thinktwit.php:277 thinktwit.php:282 thinktwit.php:287
+msgid "Yes"
+msgstr ""
+
+#: thinktwit.php:258 thinktwit.php:263 thinktwit.php:268 thinktwit.php:273
+#: thinktwit.php:278 thinktwit.php:283 thinktwit.php:288
+msgid "No"
+msgstr ""
+
+#: thinktwit.php:261
+msgid "Show when published:"
+msgstr ""
+
+#: thinktwit.php:266
+msgid "Show \"Follow @username\" links:"
+msgstr ""
+
+#: thinktwit.php:271
+msgid "Open links in new window:"
+msgstr ""
+
+#: thinktwit.php:276
+msgid "Prevent caching e.g. by WP Super Cache:"
+msgstr ""
+
+#: thinktwit.php:281
+msgid ""
+"Use CURL for accessing Twitter API (set yes if getting `URL file-access` "
+"errors):"
+msgstr ""
+
+#: thinktwit.php:286
+msgid "Output debug messages:"
+msgstr ""
+
+#: thinktwit.php:294
+msgid "Time Messages"
+msgstr ""
+
+#: thinktwit.php:296
+msgid "NOTE: The editing of these messages is optional."
+msgstr ""
+
+#: thinktwit.php:298
+msgid "Time prefix:"
+msgstr ""
+
+#: thinktwit.php:300
+msgid "Less than 59 seconds ago:"
+msgstr ""
+
+#: thinktwit.php:302
+msgid "Less than 1 minute 59 seconds ago:"
+msgstr ""
+
+#: thinktwit.php:304
+msgid "Less than 50 minutes ago:"
+msgstr ""
+
+#: thinktwit.php:306
+msgid "Less than 89 minutes ago:"
+msgstr ""
+
+#: thinktwit.php:308
+msgid "Less than 150 minutes ago:"
+msgstr ""
+
+#: thinktwit.php:310
+msgid "Less than 23 hours ago:"
+msgstr ""
+
+#: thinktwit.php:312
+msgid "Less than 36 hours:"
+msgstr ""
+
+#: thinktwit.php:314
+msgid "Less than 48 hours ago:"
+msgstr ""
+
+#: thinktwit.php:316
+msgid "More than 48 hours ago:"
+msgstr ""
+
+#: thinktwit.php:318
+msgid "No recent tweets:"
+msgstr ""
+
+#: thinktwit.php:322
+msgid "Support Development"
+msgstr ""
+
+#: thinktwit.php:324
+msgid ""
+"If you would like to support development of ThinkTwit donations are "
+"gratefully accepted:"
+msgstr ""
+
+#: thinktwit.php:325
+msgid "PayPal - The safer, easier way to pay online."
+msgstr ""
+
+#: thinktwit.php:326
+msgid "Reset Settings"
+msgstr ""
+
+#: thinktwit.php:381
+msgid "ThinkTwit Settings"
+msgstr ""
+
+#: thinktwit.php:406
+msgid "Cleanup period"
+msgstr ""
+
+#: thinktwit.php:414
+msgid "Twitter API Settings"
+msgstr ""
+
+#: thinktwit.php:422
+msgid "Consumer key"
+msgstr ""
+
+#: thinktwit.php:430
+msgid "Consumer secret"
+msgstr ""
+
+#: thinktwit.php:445
+msgid "none"
+msgstr ""
+
+#: thinktwit.php:446 thinktwit.php:447 thinktwit.php:454 thinktwit.php:462
+#: thinktwit.php:499 thinktwit.php:500
+msgid "never"
+msgstr ""
+
+#: thinktwit.php:473
+msgid "The following static values are for information only:"
+msgstr ""
+
+#: thinktwit.php:474
+msgid "Version"
+msgstr ""
+
+#: thinktwit.php:475
+msgid "Cache names"
+msgstr ""
+
+#: thinktwit.php:476
+msgid "Last updated"
+msgstr ""
+
+#: thinktwit.php:477
+msgid "Last cleanup"
+msgstr ""
+
+#: thinktwit.php:483
+msgid "Enter your Twitter Application authentication settings below:"
+msgstr ""
+
+#: thinktwit.php:597
+msgid "Daily"
+msgstr ""
+
+#: thinktwit.php:598
+msgid "Weekly"
+msgstr ""
+
+#: thinktwit.php:599
+msgid "Fortnightly"
+msgstr ""
+
+#: thinktwit.php:601
+msgid "Monthly"
+msgstr ""
+
+#: thinktwit.php:602
+msgid "Quarterly"
+msgstr ""
+
+#: thinktwit.php:603
+msgid "Bi-annually"
+msgstr ""
+
+#: thinktwit.php:604
+msgid "Annually"
+msgstr ""
+
+#: thinktwit.php:654
+msgid "Error: Unable to display tweets."
+msgstr ""
+
+#: thinktwit.php:1207
+msgid ""
+"// The server has finished executing PHP and has returned something, so "
+"display it!"
+msgstr ""
+
+#: thinktwit.php:1510
+msgid "Follow"
+msgstr ""
