@@ -78,7 +78,7 @@
 				$use_default_style = 1;
 			} else {
 				// Otherwise get the admin's selected option
-				$use_default_style = $settings["use_default_style"];
+				$use_default_style = isset($settings["use_default_style"]) ? $settings["use_default_style"] : 1;
 			}
 			
 			// Load stylesheet
