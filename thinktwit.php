@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call. If you like ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a> and of course any blog articles on ThinkTwit or recommendations greatly appreciated!
-    Version: 1.5.1
+    Version: 1.5.2
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 	Text Domain: thinktwit
@@ -22,7 +22,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("THINKTWIT_VERSION",				"1.5.1");
+	define("THINKTWIT_VERSION",				"1.5.2");
 	define("THINKTWIT_USERNAMES", 			"stephenpickett");
 	define("THINKTWIT_HASHTAGS", 			"");
 	define("THINKTWIT_USERNAME_SUFFIX", 	" said: ");
@@ -69,11 +69,25 @@
 			// Load jQuery
 			wp_enqueue_script("jquery");
 			
+			// Get our widget settings
+			$settings = get_option("widget_thinktwit_settings");
+			
+			// If settings isn't an array
+			if (!is_array($settings)) {
+				// Use the default style
+				$use_default_style = 1;
+			} else {
+				// Otherwise get the admin's selected option
+				$use_default_style = $settings["use_default_style"];
+			}
+			
 			// Load stylesheet
 			$thinktwit_style_url = plugins_url("thinktwit.css", __FILE__); // Respects SSL, stylesheet is relative to the current file
 			$thinktwit_style_file = WP_PLUGIN_DIR . "/thinktwit/thinktwit.css";
-			
-			if (file_exists($thinktwit_style_file)) {
+
+			// Check that the user wants to use the default style and then if the file exists
+			if ($use_default_style && file_exists($thinktwit_style_file)) {
+				// If so register the style and enqueue it
 				wp_register_style("thinktwit", $thinktwit_style_url);
 				wp_enqueue_style("thinktwit");
 			}
@@ -142,10 +156,10 @@
 
 			// If the user selected to not cache the widget then output AJAX method
 			if ($no_cache) { 
-				echo ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
+				echo ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $no_cache, $use_curl, $debug, $time_settings);
 			// Otherwise output HTML method
 			} else {
-				echo ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
+				echo ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $no_cache, $use_curl, $debug, $time_settings);
 			}
 			
 			// Output code that should appear after the widget
@@ -409,6 +423,14 @@
 				"general_settings"			
 			);
 			
+			add_settings_field(
+				"use_default_style", 
+				__("Use default stylesheet", 'thinktwit'), 
+				"ThinkTwit::create_admin_page_use_default_style_field", 
+				"thinktwit",
+				"general_settings"			
+			);
+			
 			add_settings_section(
 				"twitter_api_settings",
 				__("Twitter API Settings", 'thinktwit'),
@@ -525,6 +547,15 @@
 					$val = "30";
 					$settings["cleanup_period"] = "30";
 				}
+				
+				// Create the array with the minimum required values including whether to use the default stylesheet
+				if ($input["use_default_style"] != "") {
+					$val = $input["use_default_style"];
+					$settings["use_default_style"] = $input["use_default_style"];
+				} else {
+					$val = "1";
+					$settings["use_default_style"] = "1";
+				}
 			} else {
 				// Add the consumer key
 				if ($input["consumer_key"] != "") {
@@ -542,6 +573,12 @@
 				if ($input["cleanup_period"] != "") {
 					$val = $input["cleanup_period"];
 					$settings["cleanup_period"] = $input["cleanup_period"];
+				}
+				
+				// Add the selected default style option
+				if ($input["use_default_style"] != "") {
+					$val = $input["use_default_style"];
+					$settings["use_default_style"] = $input["use_default_style"];
 				}
 			}
 				
@@ -605,6 +642,24 @@
 			</select>
 <?php
 		}
+		
+		// Creates the use default style field
+		public static function create_admin_page_use_default_style_field() {
+			// Get our options
+			$settings = get_option("widget_thinktwit_settings");
+			$use_default_style = "";
+			
+			// If settings isn't an array
+			if (is_array($settings) && isset($settings["use_default_style"])) {
+				$use_default_style = $settings["use_default_style"];
+			}
+		?>
+			<select id="use_default_style" name="twitter_api_settings[use_default_style]">
+				<option value="1" <?php if (strcmp($use_default_style, 1) == 0) echo " selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+				<option value="0" <?php if (strcmp($use_default_style, 0) == 0) echo " selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+			</select>
+<?php
+		}
 
 		// Function that will add a menu option for admin users
 		public static function admin_menu() {
@@ -619,11 +674,11 @@
 			  isset($_GET["thinktwit_usernames"]) && isset($_GET["thinktwit_hashtags"]) && isset($_GET["thinktwit_username_suffix"]) && 
 			  isset($_GET["thinktwit_limit"]) && isset($_GET["thinktwit_max_days"]) && isset($_GET["thinktwit_update_frequency"]) && 
 			  isset($_GET["thinktwit_show_username"]) && isset($_GET["thinktwit_show_published"]) && isset($_GET["thinktwit_show_follow"]) && 
-			  isset($_GET["thinktwit_links_new_window"]) && isset($_GET["thinktwit_use_curl"]) && isset($_GET["thinktwit_debug"]) && 
-			  isset($_GET["thinktwit_time_this_happened"]) && isset($_GET["thinktwit_time_less_min"]) && isset($_GET["thinktwit_time_min"]) && 
-			  isset($_GET["thinktwit_time_more_mins"]) && isset($_GET["thinktwit_time_1_hour"]) && isset($_GET["thinktwit_time_2_hours"]) && 
-			  isset($_GET["thinktwit_time_precise_hours"]) && isset($_GET["thinktwit_time_1_day"]) && isset($_GET["thinktwit_time_2_days"]) && 
-			  isset($_GET["thinktwit_time_many_days"]) && isset($_GET["thinktwit_time_no_recent"])) {
+			  isset($_GET["thinktwit_links_new_window"]) && isset($_GET["thinktwit_no_cache"]) && isset($_GET["thinktwit_use_curl"]) && 
+			  isset($_GET["thinktwit_debug"]) && isset($_GET["thinktwit_time_this_happened"]) && isset($_GET["thinktwit_time_less_min"]) && 
+			  isset($_GET["thinktwit_time_min"]) && isset($_GET["thinktwit_time_more_mins"]) && isset($_GET["thinktwit_time_1_hour"]) && 
+			  isset($_GET["thinktwit_time_2_hours"]) && isset($_GET["thinktwit_time_precise_hours"]) && isset($_GET["thinktwit_time_1_day"]) && 
+			  isset($_GET["thinktwit_time_2_days"]) && isset($_GET["thinktwit_time_many_days"]) && isset($_GET["thinktwit_time_no_recent"])) {
 			  
 				// Create an array to contain the time settings
 				$time_settings = array(11);
@@ -646,7 +701,7 @@
 				  strip_tags($_GET["thinktwit_username_suffix"]), strip_tags($_GET["thinktwit_limit"]), strip_tags($_GET["thinktwit_max_days"]), 
 				  strip_tags($_GET["thinktwit_update_frequency"]), strip_tags($_GET["thinktwit_show_username"]), strip_tags($_GET["thinktwit_show_avatar"]), 
 				  strip_tags($_GET["thinktwit_show_published"]), strip_tags($_GET["thinktwit_show_follow"]), strip_tags($_GET["thinktwit_links_new_window"]), 
-				  strip_tags($_GET["thinktwit_use_curl"]), strip_tags($_GET["thinktwit_debug"]), $time_settings);
+				  strip_tags($_GET["thinktwit_no_cache"]), strip_tags($_GET["thinktwit_use_curl"]), strip_tags($_GET["thinktwit_debug"]), $time_settings);
 
 				exit();
 			} elseif (isset($_GET["thinktwit_request"]) && ($_GET["thinktwit_request"] == "parse_feed")) {
@@ -745,7 +800,7 @@
 								// If the file exists
 								if (file_exists($dir . $entry)) {
 									// First of all make it fully writeable to ensure we can delete it
-									@chmod($dir . $entry, 0777);
+									@chmod($dir . $entry, 0755);
 									
 									// Then delete it
 									@unlink($dir . $entry);
@@ -772,12 +827,12 @@
 			// First of all check if the folder exists
 			if (!file_exists($dir)) {
 				// If it doesn't then create it with write permissions
-				mkdir($dir, 0777);
+				mkdir($dir, 0755);
 			} else {
 				// And if it exists then check it is writeable
 				if (!is_writable($dir)) {
 					// If it isn't writeable then make it writeable
-					@chmod($dir, 0777);
+					@chmod($dir, 0755);
 				}
 			}
 			
@@ -812,7 +867,7 @@
 					}
 					
 					// Change the ownership of the file so it can be later deleted
-					@chmod($dir . $filename, 0777);
+					@chmod($dir . $filename, 0755);
 				}
 				
 				// Check the contents for a redirect (this should return false and break the loop once it has a working file)
@@ -1168,7 +1223,7 @@
 		}
 		
 		// Outputs the AJAX code to handle no-caching
-		public static function output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings) {
+		public static function output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $no_cache, $use_curl, $debug, $time_settings) {
 			return 
 				"<script type=\"text/javascript\">
 					jQuery(document).ready(function($) {
@@ -1189,6 +1244,7 @@
 								thinktwit_show_published      : \"" . $show_published . "\",
 								thinktwit_show_follow         : \"" . $show_follow . "\",
 								thinktwit_links_new_window    : \"" . $links_new_window . "\",
+								thinktwit_no_cache            : \"" . $no_cache . "\",
 								thinktwit_use_curl            : \"" . $use_curl . "\",
 								thinktwit_debug               : \"" . $debug . "\",
 								thinktwit_time_this_happened  : \"" . $time_settings[0] . "\",
@@ -1313,16 +1369,16 @@
 			
 			// If the user selected to use no-caching output AJAX code
 			if ($args["no_cache"]) { 
-				return "<div id=\"" . $args["widget_id"] . "\">" . ThinkTwit::output_ajax($args["widget_id"], $args["usernames"], $args["hashtags"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["show_follow"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings) . "</div>";
+				return "<div id=\"" . $args["widget_id"] . "\">" . ThinkTwit::output_ajax($args["widget_id"], $args["usernames"], $args["hashtags"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["show_follow"], $args["links_new_window"], $args["no_cache"], $args["use_curl"], $args["debug"], $time_settings) . "</div>";
 			// Otherwise output HTML method
 			} else {
-				return ThinkTwit::parse_feed($args["widget_id"], $args["usernames"], $args["hashtags"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["show_follow"], $args["links_new_window"], $args["use_curl"], $args["debug"], $time_settings);
+				return ThinkTwit::parse_feed($args["widget_id"], $args["usernames"], $args["hashtags"], $args["username_suffix"], $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["show_follow"], $args["links_new_window"], $args["no_cache"], $args["use_curl"], $args["debug"], $time_settings);
 			}
 		}
 		
 		// Returns the tweets, subject to the given parameters
 		private static function parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, 
-		  $show_follow, $links_new_window, $use_curl, $debug, $time_settings) {
+		  $show_follow, $links_new_window, $no_cache, $use_curl, $debug, $time_settings) {
 			
 			// Create the Twitter Search API URL, ready for construction
 			$url = "https://api.twitter.com/1.1/search/tweets.json?q=";
@@ -1359,33 +1415,78 @@
 			$output = "";
 
 			// If user wishes to output debug info then do so
-			if ($debug) {
-				$output .= "<p>now: " . date('H:i:s', time()) . "</p>";
-				$output .= "<p>widget_id: " . $widget_id . "</p>";
-				$output .= "<p>use_curl: " . $use_curl . "</p>";
-				$output .= "<p>usernames: " . $usernames . "</p>";
-				$output .= "<p>hashtags: " . $hashtags . "</p>";
-				$output .= "<p>username_suffix: " . $username_suffix . "</p>";
-				$output .= "<p>limit: " . $limit . "</p>";
-				$output .= "<p>max_days: " . $max_days . "</p>";
-				$output .= "<p>show_username: " . $show_username . "</p>";
-				$output .= "<p>show_avatar: " . $show_avatar . "</p>";
-				$output .= "<p>show_published: " . $show_published . "</p>";
-				$output .= "<p>show_follow: " . $show_follow . "</p>";
-				$output .= "<p>links_new_window: " . $links_new_window . "</p>";
-				$output .= "<p>url: " . $url . "</p>";
-				$output .= "<p>debug: " . $debug . "</p>";
-				$output .= "<p>time_this_happened: " . $time_settings[0] . "</p>";
-				$output .= "<p>time_less_min: " . $time_settings[1] . "</p>";
-				$output .= "<p>time_min: " . $time_settings[2] . "</p>";
-				$output .= "<p>time_more_mins: " . $time_settings[3] . "</p>";
-				$output .= "<p>time_1_hour: " . $time_settings[4] . "</p>";
-				$output .= "<p>time_2_hours: " . $time_settings[5] . "</p>";
-				$output .= "<p>time_precise_hours: " . $time_settings[6] . "</p>";
-				$output .= "<p>time_1_day: " . $time_settings[7] . "</p>";
-				$output .= "<p>time_2_days: " . $time_settings[8] . "</p>";
-				$output .= "<p>time_many_days: " . $time_settings[9] . "</p>";
-				$output .= "<p>time_no_recent: " . $time_settings[10] . "</p>";
+			if ($debug) {		
+				$output .= "<p><b>" . __("Current date/time" . ":", 'thinktwit') . "</b> " . date('Y/m/d H:i:s e (P)', time()) . "</p>";
+				$output .= "<p><b>" . __("Widget ID" . ":", 'thinktwit') . "</b> " . $widget_id . "</p>";
+				$output .= "<p><b>" . __("Twitter usernames (optional) separated by spaces" . ":", 'thinktwit') . "</b> " . $usernames . "</p>";
+				$output .= "<p><b>" . __("Twitter hashtags/keywords (optional) separated by spaces:", 'thinktwit') . "</b> " . $hashtags . "</p>";
+				$output .= "<p><b>" . __("Username suffix (e.g. \" said \"):", 'thinktwit') . "</b> " . $username_suffix . "</p>";
+				$output .= "<p><b>" . __("Max tweets to display:", 'thinktwit') . "</b> " . $limit . "</p>";
+				$output .= "<p><b>" . __("Max days to display:", 'thinktwit') . "</b> " . $max_days . "</p>";
+				$output .= "<p><b>" . __("Show username:", 'thinktwit') . "</b> ";
+
+				switch ($update_frequency) {
+					case -1:
+						$output .= "Live (uncached)";
+						break;
+					case 0:
+						$output .= "Live (cached)";
+						break;
+					case 1:
+						$output .= "Hourly";
+						break;
+					case 2:
+						$output .= "Every 2 hours";
+						break;
+					case 4:
+						$output .= "Every 4 hours";
+						break;
+					case 12:
+						$output .= "Every 12 hours";
+						break;
+					case 24:
+						$output .= "Every day";
+						break;
+					case 48:
+						$output .= "Every 2 days";
+						break;
+				}
+				
+				$output .= "</p>";
+				$output .= "<p><b>" . __("Show username:", 'thinktwit') . "</b> ";
+
+				switch ($show_username) {
+					case "none":
+						$output .= "None";
+						break;
+					case "name":
+						$output .= "Name";
+						break;
+					case "username":
+						$output .= "Username";
+						break;
+				}
+				
+				$output .= "</p>";
+				$output .= "<p><b>" . __("Show username's avatar:", 'thinktwit') . "</b> " . ($show_avatar ? "Yes" : "No") . "</p>";
+				$output .= "<p><b>" . __("Show when published:", 'thinktwit') . "</b> " . ($show_published ? "Yes" : "No") . "</p>";
+				$output .= "<p><b>" . __("Show 'Follow @username' links:", 'thinktwit') . "</b> " . ($show_follow ? "Yes" : "No") . "</p>";
+				$output .= "<p><b>" . __("Open links in new window:", 'thinktwit') . "</b> " . ($links_new_window ? "Yes" : "No") . "</p>";
+				$output .= "<p><b>" . __("Prevent caching e.g. by WP Super Cache:", 'thinktwit') . "</b> " . ($no_cache ? "Yes" : "No") . "</p>";
+				$output .= "<p><b>" . __("Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):", 'thinktwit') . "</b> " . ($use_curl ? "Yes" : "No") . "</p>";
+				$output .= "<p><b>" . __("Output debug messages:", 'thinktwit') . "</b> " . ($debug ? "Yes" : "No") . "</p>";		
+				$output .= "<p><b>" . __("URL:", 'thinktwit') . "</b> " . $url . "</p>";			
+				$output .= "<p><b>" . __("Time prefix:", 'thinktwit') . "</b> " . $time_settings[0] . "</p>";
+				$output .= "<p><b>" . __("Less than 59 seconds ago:", 'thinktwit') . "</b> " . $time_settings[1] . "</p>";
+				$output .= "<p><b>" . __("Less than 1 minute 59 seconds ago:", 'thinktwit') . "</b> " . $time_settings[2] . "</p>";
+				$output .= "<p><b>" . __("Less than 50 minutes ago:", 'thinktwit') . "</b> " . $time_settings[3] . "</p>";
+				$output .= "<p><b>" . __("Less than 89 minutes ago:", 'thinktwit') . "</b> " . $time_settings[4] . "</p>";
+				$output .= "<p><b>" . __("Less than 150 minutes ago:", 'thinktwit') . "</b> " . $time_settings[5] . "</p>";
+				$output .= "<p><b>" . __("Less than 23 hours ago:", 'thinktwit') . "</b> " . $time_settings[6] . "</p>";
+				$output .= "<p><b>" . __("Less than 36 hours:", 'thinktwit') . "</b> " . $time_settings[7] . "</p>";
+				$output .= "<p><b>" . __("Less than 48 hours ago:", 'thinktwit') . "</b> " . $time_settings[8] . "</p>";
+				$output .= "<p><b>" . __("More than 48 hours ago:", 'thinktwit') . "</b> " . $time_settings[9] . "</p>";
+				$output .= "<p><b>" . __("No recent tweets:", 'thinktwit') . "</b> " . $time_settings[10] . "</p>";
 			}
 
 			// Get the tweets
@@ -1725,10 +1826,10 @@
 
 			// If user selected to use no-caching output AJAX code
 			if ($no_cache) {
-				return "<div id=\"" . $widget_id . "\">" . ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings) . "</div>";
+				return "<div id=\"" . $widget_id . "\">" . ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $no_cache, $use_curl, $debug, $time_settings) . "</div>";
 			// Otherwise output HTML method
 			} else {
-				return ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $use_curl, $debug, $time_settings);
+				return ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, $links_new_window, $no_cache, $use_curl, $debug, $time_settings);
 			}
 		}
 		

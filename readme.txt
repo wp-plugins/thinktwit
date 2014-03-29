@@ -217,7 +217,7 @@ To uninstall simply deactivate and then delete through the Plugins admin interfa
 
 = How many tweets will be shown? =
 
-This is determined by your settings within the widget. The default is set to 5.
+This is determined by your settings within the widget or your custom call. The default is set to 5.
 
 = How long back will tweets be shown for? =
 
@@ -233,8 +233,8 @@ settings.
 
 = How can I style ThinkTwit? =
 
-ThinkTwit uses the widget API so should be styled correctly by your theme. It has some default CSS but you may, however, wish to make minor 
-CSS changes which will override this. If so you should find the following information handy:
+ThinkTwit uses the widget API so should be styled correctly by your theme. It has some default CSS but you may, however, wish to turn this
+off (in the ThinkTwit Settings) and add your own. If so you should find the following information handy:
 
 * ThinkTwit essentially outputs tweets as a list
 * The list container can be accessed using `ol.thinkTwitTweets`
@@ -298,6 +298,10 @@ permissions).
 
 Once every 24 hours (assuming a request is made in this period). This value is not currently configurable.
 
+= Why do I constantly see the message "There have been no recent tweets"? =
+
+It is likely that you have not entered your Twitter API credentials. Please see the Installation tab for more details.
+
 
 == Internationalization (i18n) ==
 
@@ -327,10 +331,16 @@ If your language is not listed and you would like to translate in to your langua
 
 == Changelog ==
 
+= 1.5.2 =
+- (29 Mar 2014) Big improvements to debugging: amended debug output to add the frequency of updates and use of no caching, put the messages in 
+order of how they appear in the widget menu, now output actual menu options names and values rather than system values, and added formatting to 
+aid identifying option names. Additionally, removed a potential security vulnerability that could allow an unauthorised user to write to the 
+images folder and added a setting to allow the default style sheet to be turned off
+
 = 1.5.1 =
 - (09 Feb 2014) A user of another plugin (AI Twitter Feeds) that had borrowed the follow button code reported an issue that was a result of
 an update to the follow button script from Twitter. This basic update simply updates the script so you should no longer get the following
-error: "Uncaught ReferenceError: twttr is not defined".
+error: "Uncaught ReferenceError: twttr is not defined"
 
 = 1.5.0 =
 - (25 Nov 2013) Fixed an issue preventing hashtags from working properly and added i18n internationalisation support, with Spanish the first 
