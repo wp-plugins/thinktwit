@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, hashtag, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.7.1
+Tested up to: 3.9
 Stable tag: trunk
 
 Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call and supports i18n for multiple languages
@@ -39,7 +39,7 @@ Features:
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.7.1, not tested with other versions
+ * Works with Wordpress 2.8.6 to 3.9, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
  * Uses Twitter REST API v1.1 Application-only authentication and therefore requires an application key (see installation)
@@ -330,6 +330,10 @@ If your language is not listed and you would like to translate in to your langua
 
 
 == Changelog ==
+
+= 1.5.3 =
+- (16 Apr 2014) Very minor update to Settings page where expected values not appearing throws a warning, and also updated compatibility version
+in readme
 
 = 1.5.2 =
 - (29 Mar 2014) Big improvements to debugging: amended debug output to add the frequency of updates and use of no caching, put the messages in 

@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call. If you like ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a> and of course any blog articles on ThinkTwit or recommendations greatly appreciated!
-    Version: 1.5.2
+    Version: 1.5.3
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 	Text Domain: thinktwit
@@ -22,7 +22,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("THINKTWIT_VERSION",				"1.5.2");
+	define("THINKTWIT_VERSION",				"1.5.3");
 	define("THINKTWIT_USERNAMES", 			"stephenpickett");
 	define("THINKTWIT_HASHTAGS", 			"");
 	define("THINKTWIT_USERNAME_SUFFIX", 	" said: ");
@@ -467,28 +467,42 @@
 				$cache_names = __("none", 'thinktwit');
 				$updated = __("never", 'thinktwit');
 				$last_cleanup = __("never", 'thinktwit');
-			} else {
-				$version = $settings["version"];
-				$cache_names = implode("<br />", $settings["cache_names"]);
-				$last_cleanup = $settings["last_cleanup"];
+			} else { // Otherwise get the stored values after checking they are set
+				// If the version is set then get it
+				if (isset($settings["version"])) {
+					$version = $settings["version"];
+				} else {
+					// Otherwise get the default value
+					$version = ThinkTwit::get_version();
+				}
+				
+				// If the cached names are available then get them
+				if (isset($settings["cache_names"])) {
+					$cache_names = implode("<br />", $settings["cache_names"]);
+				} else {
+					// Otherwise set to none
+					$cache_names = __("none", 'thinktwit');
+				}
 				
 				// If the last cleanup date is not never then format it appropriately
-				if (strcmp($settings["last_cleanup"], __("never", 'thinktwit')) != 0) {			
+				if (isset($settings["last_cleanup"]) && (strcmp($settings["last_cleanup"], __("never", 'thinktwit')) != 0)) {
 					// Format the timestamps correctly
 					$last_cleanup = date('D F jS, Y H:i:s', $settings["last_cleanup"]);
 				} else {
-					$last_cleanup = $settings["last_cleanup"];
+					// Otherwise set to never
+					$last_cleanup = __("never", 'thinktwit');
 				}
 				
 				// If the last updated date is not never then format it appropriately
-				if (strcmp($settings["updated"], __("never", 'thinktwit')) != 0) {
+				if (isset($settings["updated"]) && (strcmp($settings["updated"], __("never", 'thinktwit')) != 0)) {
 					// Separate the Unix timestamp for easier disection
 					list($microSec, $timeStamp) = explode(" ", $settings["updated"]);
 				
 					// Format the timestamps correctly
 					$updated = date('D F jS, Y H:i:', $timeStamp) . (date('s', $timeStamp) + $microSec);
 				} else {
-					$updated = $settings["updated"];
+					// Otherwise set to never
+					$updated = __("never", 'thinktwit');
 				}
 			}
 			
