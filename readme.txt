@@ -47,7 +47,8 @@ Requirements/Restrictions:
  * Can also be used via shortcode or Output Anywhere (PHP function call)
  * Uses Twitter REST API v1.1 Application-only authentication and therefore requires an application key (see installation)
  
-I am looking for more people to translate ThinkTwit in to other languages, if you are interested please see "Frequently Asked Questions".
+I am looking for more people to translate ThinkTwit in to other languages, if you are interested please see "Internationalisation (i18n)" 
+under "Other Notes".
 
 
 == Installation ==
@@ -316,7 +317,7 @@ It is likely that you have not entered your Twitter API credentials. Please see 
 error log for any errors (such as incorrect authentication or rate limiting with Twitter).
 
 
-== Internationalization (i18n) ==
+== Internationalisation (i18n) ==
 
 Currently the following languages are supported:
 
