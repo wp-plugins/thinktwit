@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ThinkTwit 1.5.2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/thinktwit\n"
-"POT-Creation-Date: 2014-03-23 15:51-0000\n"
-"PO-Revision-Date: 2014-03-25 09:30+0100\n"
+"POT-Creation-Date: 2014-10-12 21:17-0000\n"
+"PO-Revision-Date: 2014-10-20 10:18+0100\n"
 "Last-Translator: jelena kovacevic <jecajeca260@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -17,361 +17,479 @@ msgstr ""
 "X-Poedit-SearchPath-0: C:\\Users\\Steve\\Documents\\Work\\ThinkTwit"
 "\\thinktwit\n"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:67
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:28
+msgid " said: "
+msgstr "dijo:"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:41
+msgid "This happened "
+msgstr "Esto sucedió"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:42
+msgid "less than a minute ago"
+msgstr "hace menos de un minuto"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:43
+msgid "about a minute ago"
+msgstr "hace un minuto aproximadamente"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:44
+msgid " minutes ago"
+msgstr "hace minutos"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:45
+msgid "about an hour ago"
+msgstr "hace una hora"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:46
+msgid "a couple of hours ago"
+msgstr "hace un par de horas"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:47
+msgid "about =x= hours ago"
+msgstr "aproximadamente hace = x = horas"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:48
+msgid "yesterday"
+msgstr "ayer"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:49
+msgid "almost 2 days ago"
+msgstr "hace casi 2 días"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:50
+msgid " days ago"
+msgstr "hace días"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:51
+msgid "There have been no recent tweets"
+msgstr "No han habido tweets recientes"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:68
 msgid ""
 "Outputs tweets from one or more Twitter users through the Widget interface, "
 "filtered on a particular #hashtag(s)"
 msgstr ""
-"Saca los Tweets de uno o varios usuarios de Twitter a través de la interfaz "
-"de Widget, filtrado en un #hashtag en particular(s)"
+"Emite tweets de uno o varios usuarios Twitter a través de la interfaz de "
+"Widget, filtrados en un #hashtag en particular"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:239
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:413
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:185
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:262
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1639
+msgid "AND"
+msgstr "Y"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:191
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:192
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:193
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:194
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:195
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:196
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:197
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:296
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:302
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:308
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:314
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:320
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:326
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:332
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:403
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:404
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:405
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:406
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:407
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:408
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:409
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:778
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1688
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1689
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1690
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1691
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1692
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1693
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1694
+msgid "Yes"
+msgstr "Sí"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:216
+msgid "My Tweets"
+msgstr "Mis Tweets"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:249
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:456
 msgid "General Settings"
-msgstr "Ajustes Generales"
+msgstr "Configuración General"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:241
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:252
 msgid "Title:"
 msgstr "Título:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:243
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1421
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:255
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1637
 msgid "Twitter usernames (optional) separated by spaces:"
-msgstr "Nombres de usuario de Twitter (opcional) separados por espacios:"
+msgstr "nombres de usuario de Twitter (opcional) separados por espacios:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:245
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1422
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:258
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1638
 msgid "Twitter hashtags/keywords (optional) separated by spaces:"
-msgstr "Hashtags/palabras clave de Twitter (opcional) separadas por espacios:"
+msgstr "Twitter hashtags / palabras clave (opcional) separadas por espacios:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:247
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1423
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:261
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1639
+msgid "Filter by username and/or hashtag:"
+msgstr "Filtrar por nombre de usuario y / o hashtag "
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:263
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1639
+msgid "OR"
+msgstr "Ó"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:267
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1640
 msgid "Username suffix (e.g. \" said \"):"
-msgstr "Sufijo de Nombre de Usuario (e.j. \" dicho \"):"
+msgstr "Sufijo de Nombre de usuario (por ejemplo, \"dijo\"):"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:249
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1424
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:270
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1641
 msgid "Max tweets to display:"
 msgstr "Número máximo de tweets a mostrar:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:251
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1425
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:273
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1642
 msgid "Max days to display:"
 msgstr "Número máximo de días a mostrar:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:253
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:276
 msgid "Update frequency:"
 msgstr "Frecuencia de actualización:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:254
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:277
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1647
 msgid "Live (uncached)"
-msgstr "En vivo (no en caché)"
+msgstr "En Vivo (no en caché)"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:255
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:278
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1650
 msgid "Live (cached)"
-msgstr "En vivo (en caché)"
+msgstr "En Vivo (cacheado)"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:256
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:279
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1653
 msgid "Hourly"
-msgstr "Cada Hora"
+msgstr "Cada hora"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:257
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:280
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1656
 msgid "Every 2 hours"
 msgstr "Cada 2 horas"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:258
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:281
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1659
 msgid "Every 4 hours"
 msgstr "Cada 4 horas"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:259
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:282
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1662
 msgid "Every 12 hours"
 msgstr "Cada 12 horas"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:260
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:283
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1665
 msgid "Every day"
-msgstr "Cada día"
+msgstr "Todos los días"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:261
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:284
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1668
 msgid "Every 2 days"
 msgstr "Cada 2 días"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:264
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1426
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1456
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:288
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1643
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1673
 msgid "Show username:"
 msgstr "Mostrar nombre de usuario:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:265
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:289
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1677
 msgid "None"
 msgstr "Ninguno"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:266
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:290
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1680
 msgid "Name"
 msgstr "Nombre"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:267
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:291
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1683
 msgid "Username"
 msgstr "Nombre de usuario"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:270
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1471
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:295
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1688
 msgid "Show username's avatar:"
-msgstr "Mostrar el avatar del usuario:"
+msgstr "Mostrar avatar de usuario:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:271
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:276
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:281
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:286
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:291
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:296
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:301
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:658
-msgid "Yes"
-msgstr "Si"
-
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:272
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:277
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:282
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:287
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:292
 #: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:297
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:302
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:659
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:303
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:309
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:315
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:321
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:327
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:333
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:403
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:404
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:405
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:406
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:407
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:408
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:409
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:779
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1688
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1689
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1690
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1691
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1692
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1693
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1694
 msgid "No"
 msgstr "No"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:275
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1472
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:301
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1689
 msgid "Show when published:"
-msgstr "Mostrar cuando se publique:"
+msgstr "Mostrar cuando se publicó:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:280
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1473
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:307
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1690
 msgid "Show 'Follow @username' links:"
-msgstr "Mostrar enlaces 'Follow @nombre de usuario':"
+msgstr "Mostrar 'Seguir enlaces @nombre de usuario:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:285
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1474
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:313
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1691
 msgid "Open links in new window:"
-msgstr "Abrir los enlaces en una nueva ventana:"
+msgstr "Abrir enlaces en una nueva ventana:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:290
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1475
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:319
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1692
 msgid "Prevent caching e.g. by WP Super Cache:"
-msgstr "Impedir el almacenamiento en caché, por ejemplo, por WP Super Cache:"
+msgstr "Evitar el almacenamiento en caché por ejemplo, por WP Super Cache:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:295
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1476
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:325
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1693
 msgid ""
 "Use CURL for accessing Twitter API (set yes if getting `URL file-access` "
 "errors):"
 msgstr ""
-"Utilice CURL para acceder a la API de Twitter (establecer sí si se obtienen "
-"errores `de acceso de archivo-URL`):"
+"Usar CURL para acceder a la API de Twitter (establecer si, si recibe errores "
+"` acceso a archivos URL `):"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:300
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1477
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:331
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1694
 msgid "Output debug messages:"
-msgstr "Mensajes de debug de salida:"
+msgstr "Depurar mensajes de salida:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:308
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:339
 msgid "Time Messages"
-msgstr "Mensajes de Tiempo"
+msgstr "Contar tiempo de Mensajes"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:310
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:341
 msgid "NOTE: The editing of these messages is optional."
 msgstr "NOTA: La edición de estos mensajes es opcional."
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:312
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1479
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:344
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1697
 msgid "Time prefix:"
 msgstr "Prefijo de Tiempo:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:314
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1480
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:347
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1698
 msgid "Less than 59 seconds ago:"
-msgstr "Menos de 59 segundos:"
+msgstr "Hace menos de 59 segundos:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:316
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1481
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:350
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1699
 msgid "Less than 1 minute 59 seconds ago:"
-msgstr "Menos de 1 minuto y 59 segundos:"
+msgstr "Menos de 1 minuto Hace 59 segundos:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:318
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1482
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:353
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1700
 msgid "Less than 50 minutes ago:"
-msgstr "Menos de 50 minutos:"
+msgstr "hace menos de 50 minutos:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:320
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1483
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:356
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1701
 msgid "Less than 89 minutes ago:"
-msgstr "Menos de 89 minutos:"
+msgstr "Hace menos de 89 minutos :"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:322
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1484
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:359
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1702
 msgid "Less than 150 minutes ago:"
-msgstr "Menos de 150 minutos:"
+msgstr "Hace menos de 150 minutos:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:324
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1485
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:362
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1703
 msgid "Less than 23 hours ago:"
-msgstr "Menos de 23 horas:"
+msgstr "Hace menos de 23 horas:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:326
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1486
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:365
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1704
 msgid "Less than 36 hours:"
-msgstr "Menos de 36 horas:"
+msgstr "Hace menos de 36 horas:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:328
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1487
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:368
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1705
 msgid "Less than 48 hours ago:"
-msgstr "Menos de 48 horas:"
+msgstr "Hace menos de 48 horas:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:330
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1488
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:371
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1706
 msgid "More than 48 hours ago:"
-msgstr "Más de 48 horas:"
+msgstr "Hace más de 48 horas:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:332
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1489
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:374
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1707
 msgid "No recent tweets:"
 msgstr "No hay tweets recientes:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:336
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:378
 msgid "Support Development"
-msgstr "Apoye el Desarrollo"
+msgstr "Apoye al Desarrollo"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:338
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:380
 msgid ""
 "If you would like to support development of ThinkTwit donations are "
 "gratefully accepted:"
 msgstr ""
-"Si usted desea apoyar el desarrollo de ThinkTwit  las donaciones son "
-"aceptadas con agradecimiento:"
+"Si desea apoyar el desarrollo de ThinkTwit donaciones son aceptadas con "
+"agradecimiento:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:339
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:381
 msgid "PayPal - The safer, easier way to pay online."
-msgstr "PayPal - La forma rápida y segura de pagar en Internet."
+msgstr "PayPal - La manera más rápida y segura de pagar en línea."
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:340
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:382
 msgid "Reset Settings"
 msgstr "Restablecer Configuración"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:395
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:438
 msgid "ThinkTwit Settings"
-msgstr "Configuración de ThinkTwit "
+msgstr "Configuración ThinkTwit"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:420
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:463
 msgid "Cleanup period"
-msgstr "Período de Limpieza"
+msgstr "Período de limpieza"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:428
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:471
 msgid "Use default stylesheet"
-msgstr "Utilizar hoja de estilo por defecto"
+msgstr "Usar hoja de estilo por defecto"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:436
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:479
 msgid "Twitter API Settings"
-msgstr "Configuración de la API de Twitter"
+msgstr "Ajustes API Twitter"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:444
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:487
 msgid "Consumer key"
-msgstr "Clave del consumidor"
+msgstr "Clave del Consumidor"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:452
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:495
 msgid "Consumer secret"
-msgstr "Secreto del consumidor"
+msgstr "Secreto del Consumidor"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:467
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:510
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:527
 msgid "none"
-msgstr "ninguno"
+msgstr "Ninguno"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:468
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:469
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:476
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:484
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:521
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:522
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:511
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:512
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:531
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:536
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:540
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:548
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:603
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:604
 msgid "never"
 msgstr "nunca"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:495
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:568
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:578
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:697
+msgid "empty"
+msgstr "vaciar"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:576
 msgid "The following static values are for information only:"
 msgstr "Los siguientes valores estáticos son solamente para información:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:496
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:577
 msgid "Version"
 msgstr "Versión"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:497
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:578
 msgid "Cache names"
-msgstr "Nombres de caché"
+msgstr "Nombres Cache"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:498
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:579
+msgid "Clear Cache"
+msgstr "Vaciar Cache"
+
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:580
 msgid "Last updated"
 msgstr "Última actualización"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:499
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:581
 msgid "Last cleanup"
 msgstr "Última limpieza"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:505
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:587
 msgid "Enter your Twitter Application authentication settings below:"
 msgstr ""
-"Introduzca la configuración de autenticación de la aplicación de Twitter "
-"debajo:"
+"Ingrese  configuración de autenticación de Aplicación Twitter siguientes:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:634
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:754
 msgid "Daily"
 msgstr "Diario"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:635
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:755
 msgid "Weekly"
-msgstr "Semanalmente"
+msgstr "Semanal"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:636
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:756
 msgid "Fortnightly"
 msgstr "Quincenal"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:638
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:758
 msgid "Monthly"
 msgstr "Mensual"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:639
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:759
 msgid "Quarterly"
 msgstr "Trimestral"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:640
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:760
 msgid "Bi-annually"
 msgstr "Semestral"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:641
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:761
 msgid "Annually"
-msgstr "Anualmente"
+msgstr "Anual"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:709
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1476
 msgid "Error: Unable to display tweets."
-msgstr "Error: No se puede mostrar tweets."
+msgstr "Error: No se pueden mostrar los tweets"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1263
-msgid ""
-"// The server has finished executing PHP and has returned something, so "
-"display it!"
-msgstr ""
-"// El servidor ha finalizado la ejecución de PHP y ha devuelto algo, "
-"¡mostrarlo!"
-
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1419
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1635
 msgid "Current date/time:"
-msgstr "Fecha/hora actual:"
+msgstr "fecha / hora actual:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1420
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1636
 msgid "Widget ID:"
-msgstr "Widget ID:"
+msgstr "ID de Widget:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1478
-msgid "URL:"
-msgstr "URL:"
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1695
+msgid "Username URL:"
+msgstr "URL de Nombre de usuario:"
 
-#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1611
-msgid "Follow"
-msgstr "Seguir"
+#: C:\Users\Steve\Documents\Work\ThinkTwit\thinktwit/thinktwit.php:1696
+msgid "Hashtag URL:"
+msgstr "URL Hashtag:"

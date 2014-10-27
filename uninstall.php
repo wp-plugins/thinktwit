@@ -4,16 +4,8 @@
 		exit();
 	}
 	
-	// Get our widget settings
-	$settings = get_option("widget_thinktwit_settings");
-	
-	// Get the cache names
-	$cache_names = $settings["cache_names"];
-	
-	// Iterate through the cache names and delete the options
-	foreach ($cache_names as $option) {
-		delete_option($option);
-	}
+	// Clear the cache
+	ThinkTwit::clear_cache();
 	
 	// Finally delete the settings and widget
 	delete_option("widget_thinktwit_settings");

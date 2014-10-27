@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, hashtag, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 3.9
+Tested up to: 4.0
 Stable tag: trunk
 
 Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call and supports i18n for multiple languages
@@ -20,29 +20,34 @@ Features:
 --------
  * Can be configured from Widgets settings (if displayed in sidebar)
  * Can be implemented using shortcode or Output Anywhere (PHP function call)
- * Contains default slimline CSS for integrated look and feel
+ * Contains default slimline CSS for integrated look and feel (can be turned off)
  * Easy to configure and customise (through settings and CSS)
  * Multiple instances can be deployed (like other widgets/plugins)
  * JavaScript is not required (unless no-caching is activated)
  * Can specify multiple usernames
  * Tweets can be filtered by #hashtag or keyword
- * Can specify maximum number of tweets
+ * You can select to filter between an AND or OR filter to either show tweets only containing specified usernames and hashtags or any of them
+ * Can specify maximum number of tweets to display
  * Can specify maximum number of days back to display
  * Supports no-caching, to prevent caching of tweets by caching engines such as WP Super Cache
  * Supports CURL as an alternative to access the Twitter API if URL file-access is disabled
  * Supports optional caching of tweets and avatars
+ * Cache can be manually cleared and will automatically update if the cache is empty
  * Can display the avatar of the Twitter user
  * Output can be filtered (using apply_filters)
  * Can optionally output "Follow @username" links
  * Automated cleanup process that runs periodically according to user setting
- * Internationalised using i18n meaning that if it isn't in your language it's easy to translate! See Other Notes for more details.
+ * Internationalised using i18n meaning that if it isn't in your language it's easy to translate! See Other Notes for more details
+ * Adds Twitter errors to PHP error log
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 3.9, not tested with other versions
+ * Works with Wordpress 2.8.6 to 4.0, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
  * Uses Twitter REST API v1.1 Application-only authentication and therefore requires an application key (see installation)
+ 
+I am looking for more people to translate ThinkTwit in to other languages, if you are interested please see "Frequently Asked Questions".
 
 
 == Installation ==
@@ -92,6 +97,7 @@ ThinkTwit can be used in any page or post, or anywhere else configured to use sh
   widget_id=x 
   usernames="xxx yyy" 
   hashtags="xxx" 
+  hashtag_filter=1|0 
   username_suffix="xxx" 
   limit=x (int)
   max_days=x (int: 1 to 7)
@@ -125,6 +131,7 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
     'widget_id'          => 0,
     'usernames'          => "stephenpickett",
     'hashtags'           => "thinktwit",
+    'hashtag_filter'     => 0,
     'username_suffix'    => " said: ",
     'limit'              => 5,
     'max_days'           => 7,
@@ -150,12 +157,16 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
     'time_no_recent'     => "There have been no recent tweets");
 
 	echo ThinkTwit::output_anywhere($args); ?>`
+	
+= Shortcode/Output Anywhere Parameters =
 
 **widget_id**: *integer* - You should give this a unique id for caching or styling.
 
 **usernames**: *string* - The list of Twitter usernames to output tweets for.
 
 **hashtags**: *string* - The list of hashtags to output tweets for.
+
+**hashtag_filter**: *string* - 1 indicates that usernames AND hashtags must both exist in a tweet, 0 indicates that either can exist.
 
 **username_suffix**: *string* - The text that should appear after a username e.g. " said: ".
 
@@ -274,7 +285,8 @@ if you are unable to do this (it may be a shared server) you can enable CURL in 
 
 = I'm getting strange errors or no output =
 
-You may need to clear and rebuild your cache. See [uninstall instructions](http://wordpress.org/extend/plugins/thinktwit/uninstallation/ "Uninstall ThinkTwit").
+You may need to clear and rebuild your cache - please use the Clear Cache button within Settings -> ThinkTwit in the Admin area, and then reload 
+the page containing ThinkTwit. Otherwise please re-install - see [uninstall instructions](http://wordpress.org/extend/plugins/thinktwit/uninstallation/ "Uninstall ThinkTwit").
 
 = How do I prevent use of nofollow tags in my URLs? =
 
@@ -300,7 +312,8 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 
 = Why do I constantly see the message "There have been no recent tweets"? =
 
-It is likely that you have not entered your Twitter API credentials. Please see the Installation tab for more details.
+It is likely that you have not entered your Twitter API credentials. Please see the Installation tab for more details and check your PHP
+error log for any errors (such as incorrect authentication or rate limiting with Twitter).
 
 
 == Internationalization (i18n) ==
@@ -322,14 +335,24 @@ If your language is not listed and you would like to translate in to your langua
 
 == Screenshots ==
 
-1. screenshot-1.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage
-1. screenshot-1.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage but filtered by a hashtag
-1. screenshot-3.png shows ThinkTwit working via shortcode within a blog post on the the ThinkTwit development homepage
-1. screenshot-4.png shows ThinkTwit working via a Output Anywhere (PHP function call) in the header of the ThinkTwit development homepage
-1. screenshot-5.png shows the settings that can be configured within the widget
+1. screenshot-1.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage showing just usernames
+1. screenshot-2.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage showing just hashtags
+1. screenshot-3.png shows ThinkTwit working as a widget on the the ThinkTwit development homepage filtered by usernames and hashtags
+1. screenshot-4.png shows ThinkTwit working via shortcode within a blog post on the the ThinkTwit development homepage
+1. screenshot-5.png shows ThinkTwit working via a Output Anywhere (PHP function call) in the header of the ThinkTwit development homepage
+1. screenshot-6.png shows the settings that can be configured within the widget
 
 
 == Changelog ==
+
+= 1.6.0 =
+- (26 Oct 2014) Fixed an issue with tweets not always being picked up from Twitter due to too many requests for the authentication token, fixed 
+cleanup process not running, added translation to some missed areas, fixed a warning when filtering out old usernames, fixed the conversion of 
+relevant Tweet content that wasn't being correctly turned in to links, updated the AJAX handler to use the recommended method (using 
+admin-ajax.php), updated the Twitter Follow Button to use the new code but also used the IFRAME method to ensure it works with "Prevent Caching", 
+added a Clear Cache button in the Settings, added the ability to filter usernames and hashtags using AND or OR searches, added code to load 
+tweets when caching is turned on but the cache is empty, updated the Tweet object (which holds all tweets) to add some functionality and more 
+clearly define the content and functions, and added logging functionality to log error messages to PHP error log
 
 = 1.5.3 =
 - (16 Apr 2014) Very minor update to Settings page where expected values not appearing throws a warning, and also updated compatibility version
@@ -523,8 +546,11 @@ updated readme with new FAQ and uninstall instructions
 
 == Upgrade Notice ==
 
+= 1.6.0 =
+- Multiple bug fixes! Your cache will automatically be cleared on upgrade due to a database change.
+
 = 1.4.0 =
-- URGENT: Everyone MUST download this new version or ThinkTwit will cease to work COMPLETELY and FOREVER. Twitter have depcrecated the v1.0 of 
+- URGENT: Everyone MUST download this new version or ThinkTwit will cease to work COMPLETELY and FOREVER. Twitter have deprecated the v1.0 of 
 their API and this upgrade fixes it. You MUST also follow the Installation instructions to get the update to work! - please read these before 
 upgrading!
 
