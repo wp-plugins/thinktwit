@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, hashtag, multiple, caching, ajax, shortcode, css
 Requires at least: 2.8.6
-Tested up to: 4.0
+Tested up to: 4.1
 Stable tag: trunk
 
 Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call and supports i18n for multiple languages
@@ -38,11 +38,11 @@ Features:
  * Can optionally output "Follow @username" links
  * Automated cleanup process that runs periodically according to user setting
  * Internationalised using i18n meaning that if it isn't in your language it's easy to translate! See Other Notes for more details
- * Adds Twitter errors to PHP error log
+ * Gracefully deals with Twitter errors and adds them to the PHP error log
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 4.0, not tested with other versions
+ * Works with Wordpress 2.8.6 to 4.1, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
  * Uses Twitter REST API v1.1 Application-only authentication and therefore requires an application key (see installation)
@@ -175,8 +175,8 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
 
 **max_days**: *int* - The maximum age in days of the tweets to be displayed.
 
-**update_frequency**: *int* - Minus 1 indicates live (uncached), 0 indicates live (cached), and anything else indicates the number of 
-hours between getting updates from Twitter.
+**update_frequency**: *int* - Minus 1 indicates live (uncached), minus 2 indicates paused, 0 indicates live (cached), and anything else 
+indicates the number of hours between getting updates from Twitter.
 
 **show_username**: *string* - None indicates no username should be shown, name indicates the user's full name should be shown and
 username indicates the user's username should be shown.
@@ -221,7 +221,7 @@ NOTE: You can leave out any parameter to use the default, but be aware to change
 
 
 == Uninstall ==
-  ------------------------------------
+
 To uninstall simply deactivate and then delete through the Plugins admin interface. All options and files will be automatically removed.
 
 
@@ -235,7 +235,8 @@ This is determined by your settings within the widget or your custom call. The d
 
 If using the update frequency "Live (uncached)" ThinkTwit will show tweets that have occurred as far back as "max days" (up to the last 7 
 days, due to restrictions in the Twitter API). However, any other option will utilise ThinkTwit's own cache and will therefore display anything 
-within the cache (up to "max days").
+within the cache (up to "max days"). The exception to this is when the "Paused" option is selected - this will retain tweets (and display those 
+tweets) indefinitely (until the update frequency is changed from "Paused").
 
 = What will happen if I haven't tweeted in the last 7 days? =
 
@@ -316,6 +317,14 @@ Once every 24 hours (assuming a request is made in this period). This value is n
 It is likely that you have not entered your Twitter API credentials. Please see the Installation tab for more details and check your PHP
 error log for any errors (such as incorrect authentication or rate limiting with Twitter).
 
+= Where can I see ThinkTwit errors? =
+You can look in the normal error log for your PHP setup. By default this is the error_log file within the root server of your Wordpress
+installation but this may differ for each installation so if you are unsure please ask your server administrator.
+
+= Why do I keep seeing the following error "ThinkTwit error: Twitter responded with an unexpected error - [message=Rate limit exceeded, code=88]"? =
+This means that you are making too many requests to Twitter. If you are not using caching you should turn this on, and if you are already using it then
+you should decrease the frequency that requests are made e.g. change update frequency from "Live (cached)" to "Hourly".
+
 
 == Internationalisation (i18n) ==
 
@@ -345,6 +354,13 @@ If your language is not listed and you would like to translate in to your langua
 
 
 == Changelog ==
+
+= 1.6.1 =
+- (28 Jan 2015) Change use of "<?=" to "<?php echo" for older versions of PHP that may not have "short_open_tag" turned on, fixed the uninstall
+process, fixed an error when storing cache names but none have previously been stored and made a small change to the widget form to simplify
+saving of widget settings, added shortcut links to the plugin page (Settings, Support and Donate), added a redirect to Settings page after
+installation (or activation when consumer key or secret is missing) and added a "Paused" option to "Update frequency" to prevent the cache
+from updating
 
 = 1.6.0 =
 - (26 Oct 2014) Fixed an issue with tweets not always being picked up from Twitter due to too many requests for the authentication token, fixed 

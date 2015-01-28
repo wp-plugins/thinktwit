@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call. If you like ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a> and of course any blog articles on ThinkTwit or recommendations greatly appreciated!
-    Version: 1.6.0
+    Version: 1.6.1
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 	Text Domain: thinktwit
@@ -22,7 +22,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("THINKTWIT_VERSION",				"1.6.0");
+	define("THINKTWIT_VERSION",				"1.6.1");
 	define("THINKTWIT_USERNAMES", 			"stephenpickett");
 	define("THINKTWIT_HASHTAGS", 			"");
 	define("THINKTWIT_USERNAME_SUFFIX", 	__(" said: ", 'thinktwit'));
@@ -50,7 +50,7 @@
 	define("THINKTWIT_TIME_MANY_DAYS",     	__(" days ago", 'thinktwit'));
 	define("THINKTWIT_TIME_NO_RECENT",     	__("There have been no recent tweets", 'thinktwit'));
 	
-	// Run upgrade_tasks when the plugin is activate (usually after installation or upgrade)
+	// Run upgrade_tasks when the plugin is activated (usually after installation or upgrade)
 	register_activation_hook(__FILE__, 'ThinkTwit::upgrade_tasks');
 
 	// Register the widget to be initiated
@@ -111,6 +111,10 @@
 				// Add the menu option
 				add_action('admin_menu', 'ThinkTwit::admin_menu');
 				add_action('admin_init', 'ThinkTwit::admin_page_init');
+				
+				// And add a link to settings from the plugin page
+				add_filter('plugin_action_links', 'ThinkTwit::plugin_action_links', 10, 2);
+				add_filter('plugin_row_meta', 'ThinkTwit::plugin_description_links', 10, 2);
 			}
 			
 			// Override the default constructor, passing the name and description
@@ -185,19 +189,19 @@
 			$instance["title"]              = strip_tags($new_instance["title"]);
 			$instance["usernames"]          = strip_tags($new_instance["usernames"]);
 			$instance["hashtags"]           = strip_tags($new_instance["hashtags"]);
-			$instance["hashtag_filter"]     = (strip_tags($new_instance["hashtag_filter"]) == __("AND", 'thinktwit') ? 1 : 0);
+			$instance["hashtag_filter"]     = strip_tags($new_instance["hashtag_filter"]);
 			$instance["username_suffix"]    = strip_tags($new_instance["username_suffix"]);
 			$instance["limit"]              = strip_tags($new_instance["limit"]);
 			$instance["max_days"]           = strip_tags($new_instance["max_days"]);
 			$instance["update_frequency"]   = strip_tags($new_instance["update_frequency"]);
 			$instance["show_username"]      = strip_tags($new_instance["show_username"]);
-			$instance["show_avatar"]        = (strip_tags($new_instance["show_avatar"]) == __("Yes", 'thinktwit') ? 1 : 0);
-			$instance["show_published"]     = (strip_tags($new_instance["show_published"]) == __("Yes", 'thinktwit') ? 1 : 0);
-			$instance["show_follow"]        = (strip_tags($new_instance["show_follow"]) == __("Yes", 'thinktwit') ? 1 : 0);
-			$instance["links_new_window"]   = (strip_tags($new_instance["links_new_window"]) == __("Yes", 'thinktwit') ? 1 : 0);
-			$instance["no_cache"]           = (strip_tags($new_instance["no_cache"]) == __("Yes", 'thinktwit') ? 1 : 0);
-			$instance["use_curl"]           = (strip_tags($new_instance["use_curl"]) == __("Yes", 'thinktwit') ? 1 : 0);
-			$instance["debug"]              = (strip_tags($new_instance["debug"]) == __("Yes", 'thinktwit') ? 1 : 0);
+			$instance["show_avatar"]        = strip_tags($new_instance["show_avatar"]);
+			$instance["show_published"]     = strip_tags($new_instance["show_published"]);
+			$instance["show_follow"]        = strip_tags($new_instance["show_follow"]);
+			$instance["links_new_window"]   = strip_tags($new_instance["links_new_window"]);
+			$instance["no_cache"]           = strip_tags($new_instance["no_cache"]);
+			$instance["use_curl"]           = strip_tags($new_instance["use_curl"]);
+			$instance["debug"]              = strip_tags($new_instance["debug"]);
 			$instance["time_this_happened"] = strip_tags($new_instance["time_this_happened"]);
 			$instance["time_less_min"]      = strip_tags($new_instance["time_less_min"]);
 			$instance["time_min"]           = strip_tags($new_instance["time_min"]);
@@ -262,8 +266,8 @@
 					
 					<!-- HASHTAG FILTER -->
 					<p><label for="<?php echo $this->get_field_id("hashtag_filter"); ?>"><?php _e("Filter by username and/or hashtag:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("hashtag_filter"); ?>" name="<?php echo $this->get_field_name("hashtag_filter"); ?>" class="widefat">
-						<option <?php if ($instance["hashtag_filter"] == 1) echo "selected=\"selected\""; ?>><?php _e("AND", 'thinktwit'); ?></option>
-						<option <?php if ($instance["hashtag_filter"] == 0) echo "selected=\"selected\""; ?>><?php _e("OR", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["hashtag_filter"] == 1) echo "selected=\"selected\""; ?>><?php _e("AND", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["hashtag_filter"] == 0) echo "selected=\"selected\""; ?>><?php _e("OR", 'thinktwit'); ?></option>
 					</select></label></p>
 					
 					<!-- USERNAME SUFFIX -->
@@ -278,6 +282,7 @@
 					<!-- UPDATE FREQUENCY -->
 					<p><label for="<?php echo $this->get_field_id("update_frequency"); ?>"><?php _e("Update frequency:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("update_frequency"); ?>" name="<?php echo $this->get_field_name("update_frequency"); ?>" class="widefat">
 						<option value="-1" <?php if (strcmp($instance["update_frequency"], -1) == 0) echo " selected=\"selected\""; ?>><?php _e("Live (uncached)", 'thinktwit'); ?></option>
+						<option value="-2" <?php if (strcmp($instance["update_frequency"], -2) == 0) echo " selected=\"selected\""; ?>><?php _e("Paused", 'thinktwit'); ?></option>
 						<option value="0" <?php if (strcmp($instance["update_frequency"], 0) == 0) echo " selected=\"selected\""; ?>><?php _e("Live (cached)", 'thinktwit'); ?></option>
 						<option value="1" <?php if (strcmp($instance["update_frequency"], 1) == 0) echo " selected=\"selected\""; ?>><?php _e("Hourly", 'thinktwit'); ?></option>
 						<option value="2" <?php if (strcmp($instance["update_frequency"], 2) == 0) echo " selected=\"selected\""; ?>><?php _e("Every 2 hours", 'thinktwit'); ?></option>
@@ -296,44 +301,44 @@
 
 					<!-- SHOW AVATAR -->
 					<p><label for="<?php echo $this->get_field_id("show_avatar"); ?>"><?php _e("Show username's avatar:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("show_avatar"); ?>" name="<?php echo $this->get_field_name("show_avatar"); ?>" class="widefat">
-						<option <?php if ($instance["show_avatar"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
-						<option <?php if ($instance["show_avatar"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["show_avatar"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["show_avatar"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 
 					<!-- SHOW WHEN PUBLISHED -->
 					<p><label for="<?php echo $this->get_field_id("show_published"); ?>"><?php _e("Show when published:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("show_published"); ?>" name="<?php echo $this->get_field_name("show_published"); ?>" class="widefat">
-						<option <?php if ($instance["show_published"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
-						<option <?php if ($instance["show_published"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["show_published"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["show_published"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 
 					<!-- SHOW FOLLOW LINKS -->
 					<p><label for="<?php echo $this->get_field_id("show_follow"); ?>"><?php _e("Show 'Follow @username' links:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("show_follow"); ?>" name="<?php echo $this->get_field_name("show_follow"); ?>" class="widefat">
-						<option <?php if ($instance["show_follow"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
-						<option <?php if ($instance["show_follow"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["show_follow"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["show_follow"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 
 					<!-- OPEN LINKS IN NEW WINDOW -->
 					<p><label for="<?php echo $this->get_field_id("links_new_window"); ?>"><?php _e("Open links in new window:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("links_new_window"); ?>" name="<?php echo $this->get_field_name("links_new_window"); ?>" class="widefat">
-						<option <?php if ($instance["links_new_window"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
-						<option <?php if ($instance["links_new_window"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["links_new_window"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["links_new_window"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 
 					<!-- PREVENT CACHING -->
 					<p><label for="<?php echo $this->get_field_id("no_cache"); ?>"><?php _e("Prevent caching e.g. by WP Super Cache:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("no_cache"); ?>" name="<?php echo $this->get_field_name("no_cache"); ?>" class="widefat">
-						<option <?php if ($instance["no_cache"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
-						<option <?php if ($instance["no_cache"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["no_cache"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["no_cache"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 
 					<!-- USE CURL -->
 					<p><label for="<?php echo $this->get_field_id("use_curl"); ?>"><?php _e("Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("use_curl"); ?>" name="<?php echo $this->get_field_name("use_curl"); ?>" class="widefat">
-						<option <?php if ($instance["use_curl"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
-						<option <?php if ($instance["use_curl"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["use_curl"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["use_curl"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 
 					<!-- OUTPUT DEBUG MESSAGES -->
 					<p><label for="<?php echo $this->get_field_id("debug"); ?>"><?php _e("Output debug messages:", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("debug"); ?>" name="<?php echo $this->get_field_name("debug"); ?>" class="widefat">
-						<option <?php if ($instance["debug"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
-						<option <?php if ($instance["debug"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
+						<option value="1" <?php if ($instance["debug"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
+						<option value="0" <?php if ($instance["debug"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 				</div>
 			</div>
@@ -433,6 +438,47 @@
 		<?php
 		}
 		
+		// Creates a link to settings from the plugins page (under name)
+		public static function plugin_action_links($links, $file) {
+			static $this_plugin;
+			
+			// Get the current page
+			if (!$this_plugin) {
+				$this_plugin = plugin_basename(__FILE__);
+			}
+
+			// Check the current page is the right one
+			if ($file == $this_plugin) {
+				// Create and add the link to the settings page
+				$settings_link = "<a href=\"" . get_bloginfo('wpurl') . "/wp-admin/options-general.php?page=thinktwit\">" . __("Settings", 'thinktwit') . "</a>";
+				
+				// Add it to the front of the links array
+				array_unshift($links, $settings_link);
+			}
+
+			return $links;
+		}
+		
+		// Creates a link to settings from the plugin plugins page (under description)
+		public static function plugin_description_links($links, $file) {
+			static $this_plugin;
+			
+			// Get the current page
+			if (!$this_plugin) {
+				$this_plugin = plugin_basename(__FILE__);
+			}
+
+			// Check the current page is the right one
+			if ($file == $this_plugin) {
+				// Create and add the links
+				$links[] = "<a href=\"" . get_bloginfo('wpurl') . "/wp-admin/options-general.php?page=thinktwit\">" . __("Settings", 'thinktwit') . "</a>";
+				$links[] = "<a href=\"https://wordpress.org/support/plugin/thinktwit\">" . __("Support", 'thinktwit') . "</a>";
+				$links[] = "<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E\">" . __("Donate", 'thinktwit') . "</a>";
+			}
+
+			return $links;
+		}
+		
 		// Displays the main admin options
 		public static function admin_page() {
 ?>
@@ -500,6 +546,23 @@
 				"thinktwit",
 				"twitter_api_settings"			
 			);
+			
+			// If there is a redirect option
+			if (get_option('thinktwit_do_activation_redirect', false)) {
+				// Delete it so that we don't create a loop
+				delete_option('thinktwit_do_activation_redirect');
+				
+				// Get our widget settings
+				$settings = get_option("widget_thinktwit_settings");
+				
+				// Check if the Twitter consumer secret or consumer key is empty
+				if (empty($settings) || empty($settings["consumer_key"]) || empty($settings["consumer_secret"])) {
+					// If so then redirect to the settings page so the user can set them (but only if this is not a bulk activation)
+					if(!isset($_GET['activate-multi'])) {
+						ThinkTwit::redirect_to_settings();
+					}
+				}
+			}
 		}
 		
 		// General section message for the admin page
@@ -724,7 +787,7 @@
 				$consumer_key = $settings["consumer_key"];
 			}
 ?>
-			<input type="text" id="consumer_key" name="twitter_api_settings[consumer_key]" value="<?= $consumer_key; ?>" size="30" />
+			<input type="text" id="consumer_key" name="twitter_api_settings[consumer_key]" value="<?php echo $consumer_key; ?>" size="30" />
 <?php
 		}
 		
@@ -739,7 +802,7 @@
 				$consumer_secret = $settings["consumer_secret"];
 			}
 		?>
-			<input type="text" id="consumer_secret" name="twitter_api_settings[consumer_secret]" value="<?= $consumer_secret; ?>" size="60" />
+			<input type="text" id="consumer_secret" name="twitter_api_settings[consumer_secret]" value="<?php echo $consumer_secret; ?>" size="60" />
 <?php
 		}
 		
@@ -1076,6 +1139,13 @@
 				if (!empty($hashtag_tweets)) {
 					$tweets = array_merge($tweets, $hashtag_tweets);
 				}
+			// Or if updates are cached but paused
+			} elseif ($update_frequency == -2) {
+				// Get values from cache
+				$last_update = ThinkTwit::get_tweets_from_cache($widget_id);
+				
+				// Get the tweets from the last update
+				$tweets = $last_update[0];
 			} else {
 				// Otherwise, get values from cache
 				$last_update = ThinkTwit::get_tweets_from_cache($widget_id);
@@ -1132,13 +1202,16 @@
 				$tweets = ThinkTwit::trim_array($tweets, $limit);
 			}
 			
-			// Store updated array in cache (if we are using caching)
-			if ($update_frequency >= 0) {
-				ThinkTwit::update_cache($tweets, $widget_id);
+			// We don't want to update cache or remove old tweets when paused
+			if ($update_frequency != -2) {
+				// Store updated array in cache (if we are using caching)
+				if ($update_frequency >= 0) {
+					ThinkTwit::update_cache($tweets, $widget_id);
+				}
+				
+				// Remove any tweets that are older than max days
+				$tweets = ThinkTwit::remove_old_tweets($tweets, $max_days);
 			}
-			
-			// Remove any tweets that are older than max days
-			$tweets = ThinkTwit::remove_old_tweets($tweets, $max_days);
 			
 			return $tweets;
 		}
@@ -2025,6 +2098,12 @@
 				update_option("widget_thinktwit_settings", $settings);
 			}
 		}
+		
+		// Redirects the user to the settings page
+		public static function redirect_to_settings() {
+			// If so then redirect to the settings page
+			wp_redirect(get_bloginfo('wpurl') . "/wp-admin/options-general.php?page=thinktwit");
+		}
 
 		// Given a PHP time this returns how long ago that time was, in easy to understand English
 		private static function relative_created_at($time_to_compare, $time_settings) {
@@ -2290,11 +2369,20 @@
 					// Create the array with the minimum required values
 					$settings = array("version" => ThinkTwit::get_version(), "cache_names" => array("widget_" . $widget_id . "_cache"), "updated" => $current_updated);
 				} else {
-					// Otherwise, add the widget cache name to the array
-					array_push($settings["cache_names"], "widget_" . $widget_id . "_cache");
+					// Get a copy of the cache names array
+					$cache_names = $settings["cache_names"];
+					
+					// Check it's not empty
+					if (!is_array($cache_names)) {
+						// Create an array
+						$cache_names = array();
+					}		
+					
+					// Add the widget cache name to the array
+					$cache_names[] = "widget_" . $widget_id . "_cache";
 					
 					// Return a unique copy of the array to ensure we don't have duplicates
-					$settings["cache_names"] = array_unique($settings["cache_names"]);
+					$settings["cache_names"] = array_unique($cache_names);
 					
 					// Store the current updated timestamp
 					$current_updated = $settings["updated"];
@@ -2330,7 +2418,7 @@
 			$settings = get_option("widget_thinktwit_settings");
 			
 			// Check if the version in the database matches the current code version
-			if ($settings["version"] != ThinkTwit::get_version()) {
+			if (!empty($settings) && $settings["version"] != ThinkTwit::get_version()) {
 				// If the version is being upgraded to 1.6.0
 				if (ThinkTwit::get_version() == "1.6.0" && version_compare($settings["version"], ThinkTwit::get_version())) {
 					// Clear the cache due to the restructure of the Tweet object
@@ -2343,6 +2431,9 @@
 				// Store our options
 				update_option("widget_thinktwit_settings", $settings);
 			}
+			
+			// As ThinkTwit has recently been upgraded or activates store an option to trigger a redirect (if necessary)
+			add_option('thinktwit_do_activation_redirect', true);
 		}
 	}
 	
