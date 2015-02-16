@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call. If you like ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a> and of course any blog articles on ThinkTwit or recommendations greatly appreciated!
-    Version: 1.6.1
+    Version: 1.6.2
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 	Text Domain: thinktwit
@@ -22,7 +22,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("THINKTWIT_VERSION",				"1.6.1");
+	define("THINKTWIT_VERSION",				"1.6.2");
 	define("THINKTWIT_USERNAMES", 			"stephenpickett");
 	define("THINKTWIT_HASHTAGS", 			"");
 	define("THINKTWIT_USERNAME_SUFFIX", 	__(" said: ", 'thinktwit'));
@@ -1230,7 +1230,7 @@
 			$url = null;
 		
 			// Get the Twitter access token
-			$access_token = ThinkTwit::get_twitter_access_token();
+			$access_token = ThinkTwit::get_twitter_access_token($use_curl);
 			
 			// Construct the URL
 			$url = "https://api.twitter.com/1.1/statuses/show.json?id=" . $tweet_id;
@@ -1304,7 +1304,7 @@
 				switch($error->getCode()) {
 					case "89": // Invalid/expired token
 						// Get a new Twitter access token
-						$access_token = ThinkTwit::get_twitter_access_token(true);
+						$access_token = ThinkTwit::get_twitter_access_token($use_curl, true);
 						break;
 					default: // Any other error
 						// Log the error
@@ -1326,7 +1326,7 @@
 				return array();
 			} else {
 				// Get the Twitter access token
-				$access_token = ThinkTwit::get_twitter_access_token();
+				$access_token = ThinkTwit::get_twitter_access_token($use_curl);
 				
 				// If user wishes to use CURL
 				if ($use_curl) {			
@@ -1409,7 +1409,7 @@
 					switch($error->getCode()) {
 						case "89": // Invalid/expired token
 							// Get a new Twitter access token
-							$access_token = ThinkTwit::get_twitter_access_token(true);
+							$access_token = ThinkTwit::get_twitter_access_token($use_curl, true);
 							break;
 						default: // Any other error
 							// Log the error
@@ -1424,7 +1424,7 @@
 		}
 		
 		// Checks if the Twitter access token is cached and returns it, otherwise gets it from Twitter
-		private static function get_twitter_access_token($get_fresh = false) {
+		private static function get_twitter_access_token($use_curl, $get_fresh = false) {
 			// Get our options
 			$settings = get_option("widget_thinktwit_settings");
 			

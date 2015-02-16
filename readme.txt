@@ -355,6 +355,9 @@ If your language is not listed and you would like to translate in to your langua
 
 == Changelog ==
 
+= 1.6.2 =
+- (16 Feb 2015) Very minor update for cURL users - fixes an issue where getting the token fails as it is not using cURL
+
 = 1.6.1 =
 - (28 Jan 2015) Change use of "<?=" to "<?php echo" for older versions of PHP that may not have "short_open_tag" turned on, fixed the uninstall
 process, fixed an error when storing cache names but none have previously been stored and made a small change to the widget form to simplify
