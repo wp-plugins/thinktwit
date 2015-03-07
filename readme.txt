@@ -332,6 +332,7 @@ Currently the following languages are supported:
 
 * es_ES - Spanish in Spain (many thanks to [Maria Ramos](http://www.webhostinghub.com/) for contributing)
 * en_GB - English in Great Britain (default)
+* sr-RS - Serbian in Serbia (many thanks to [Ogi Djuraskovic] (http://firstsiteguide.com/) for contributing)
 
 If your language is not listed and you would like to translate in to your language please do the following:
 
@@ -354,6 +355,9 @@ If your language is not listed and you would like to translate in to your langua
 
 
 == Changelog ==
+
+= 1.6.3 =
+- (07 Mar 2015) Added support for the Serbian language - many thanks to Ogi Djuraskovic of http://firstsiteguide.com for this!
 
 = 1.6.2 =
 - (16 Feb 2015) Very minor update for cURL users - fixes an issue where getting the token fails as it is not using cURL
