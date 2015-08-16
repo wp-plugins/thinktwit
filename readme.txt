@@ -3,8 +3,8 @@ Contributors: stephen.pickett
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B693F67QHAT8E
 Author URI: http://www.thepicketts.org
 Tags: twitter, tweet, thinktwit, hashtag, multiple, caching, ajax, shortcode, css
-Requires at least: 2.8.6
-Tested up to: 4.1
+Requires at least: 3.2
+Tested up to: 4.3
 Stable tag: trunk
 
 Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call and supports i18n for multiple languages
@@ -39,10 +39,11 @@ Features:
  * Automated cleanup process that runs periodically according to user setting
  * Internationalised using i18n meaning that if it isn't in your language it's easy to translate! See Other Notes for more details
  * Gracefully deals with Twitter errors and adds them to the PHP error log
+ * Supports live updates of tweets when using no-caching (AJAX)
  
 Requirements/Restrictions:
 -------------------------
- * Works with Wordpress 2.8.6 to 4.1, not tested with other versions
+ * Works with Wordpress 3.2 to 4.3, not tested with other versions
  * Can be installed using the widgets sidebar
  * Can also be used via shortcode or Output Anywhere (PHP function call)
  * Uses Twitter REST API v1.1 Application-only authentication and therefore requires an application key (see installation)
@@ -94,34 +95,35 @@ upgrade, simply replace the files with those from the new version.
 
 ThinkTwit can be used in any page or post, or anywhere else configured to use shortcodes, using the following syntax:
 
-`[thinktwit 
-  widget_id=x 
-  usernames="xxx yyy" 
-  hashtags="xxx" 
-  hashtag_filter=1|0 
-  username_suffix="xxx" 
-  limit=x (int)
-  max_days=x (int: 1 to 7)
-  update_frequency=x (int: -1 live (uncached), 0 live (cached, otherwise enter an integer for the number of hours between updates)
-  show_username=none|name|username 
-  show_avatar=1|0 
-  show_published=1|0 
-  show_follow=1|0 
-  links_new_window=1|0 
-  no_cache=1|0 
-  use_curl=1|0 
-  debug=1|0 
-  time_this_happened="xxx" 
-  time_less_min="xxx" 
-  time_min="xxx" 
-  time_more_mins="xxx" 
-  time_1_hour="xxx" 
-  time_2_hours="xxx" 
-  time_precise_hours="xxx" 
-  time_1_day="xxx" 
-  time_2_days="xxx" 
-  time_many_days="xxx" 
-  time_no_recent="xxx"
+`[thinktwit
+  widget_id=0
+  usernames="stephenpickett"
+  hashtags="thinktwit"
+  hashtag_filter=0
+  username_suffix=" said: "
+  limit=5
+  max_days=7
+  update_frequency=-1
+  show_username="username"
+  show_avatar=1
+  show_published=1
+  show_follow=1
+  links_new_window=1
+  no_cache=0
+  live_update_freq=0
+  use_curl=0
+  debug=0
+  time_this_happened="This happened "
+  time_less_min="less than a minute ago"
+  time_min="about a minute ago"
+  time_more_mins=" minutes ago"
+  time_1_hour="about an hour ago"
+  time_2_hours="a couple of hours ago"
+  time_precise_hours="about =x= hours ago"
+  time_1_day="a day ago"
+  time_2_days="almost 2 days ago"
+  time_many_days=" days ago"
+  time_no_recent="There have been no recent tweets"
  ]`
 
 = Configuring Output Anywhere =
@@ -143,6 +145,7 @@ ThinkTwit can be called within templates and other areas where you can use PHP u
     'show_follow'        => 1,
     'links_new_window'   => 1,
     'no_cache'           => 0,
+    'live_update_freq'   => 0,
     'use_curl'           => 0,
     'debug'              => 0,
     'time_this_happened' => "This happened ",
@@ -190,6 +193,8 @@ username indicates the user's username should be shown.
 **links_new_window**: *boolean* - Indicates whether links should be opened in a new window - 1 for true and 0 for false.
 
 **no_cache**: *boolean* - Indicates whether or not to use no-caching - 1 for true and 0 for false.
+
+**live_update_freq**: *int* - The frequency of live updates (zero for off).
 
 **use_curl**: *boolean* - Indicates whether or not to use CURL - 1 for true and 0 for false.
 
@@ -325,6 +330,15 @@ installation but this may differ for each installation so if you are unsure plea
 This means that you are making too many requests to Twitter. If you are not using caching you should turn this on, and if you are already using it then
 you should decrease the frequency that requests are made e.g. change update frequency from "Live (cached)" to "Hourly".
 
+= What is live updates and how does it work? =
+Live updates allow periodic updates to the user's screen every set number of seconds i.e. if this was set to 10 seconds then every 10 seconds a call would
+be made to ThinkTwit to request any new Tweets. To use this feature you must have no-caching turned on.
+
+NOTE: Even though you may be have a high frequency set this does not mean you will definitely get new tweets within that frequency. This is dependent upon
+the frequency of updates that you have set in the update frequency for that widget, shortcode or your Output Anywhere call. If you are using caching then
+the call will be made to the ThinkTwit cache and not Twitter itself - it is recommended that you use caching and not live calls if using live updates or
+else you may find yourself blocked from Twitter.
+
 
 == Internationalisation (i18n) ==
 
@@ -332,7 +346,7 @@ Currently the following languages are supported:
 
 * es_ES - Spanish in Spain (many thanks to [Maria Ramos](http://www.webhostinghub.com/) for contributing)
 * en_GB - English in Great Britain (default)
-* sr-RS - Serbian in Serbia (many thanks to [Ogi Djuraskovic] (http://firstsiteguide.com/) for contributing)
+* sr_RS - Serbian in Serbia (many thanks to [Ogi Djuraskovic] (http://firstsiteguide.com/) for contributing)
 
 If your language is not listed and you would like to translate in to your language please do the following:
 
@@ -355,6 +369,10 @@ If your language is not listed and you would like to translate in to your langua
 
 
 == Changelog ==
+
+= 1.6.4 =
+- (16 Aug 2015) Removed support for PHP 4 style class constructors, fixed "Reset Settings" function in the widget, added automatic live update 
+functionality when using no-caching (AJAX) and fixed an issue within no-caching where the admin-ajax page was not found
 
 = 1.6.3 =
 - (07 Mar 2015) Added support for the Serbian language - many thanks to Ogi Djuraskovic of http://firstsiteguide.com for this!

@@ -3,7 +3,7 @@
     Plugin Name: ThinkTwit
     Plugin URI: http://www.thepicketts.org/thinktwit/
     Description: Outputs tweets from any Twitter users, hashtag or keyword through the Widget interface. Can be called via shortcode or PHP function call. If you like ThinkTwit please rate it at <a href="http://wordpress.org/extend/plugins/thinktwit/" title="ThinkTwit on Wordpress.org">http://wordpress.org/extend/plugins/thinktwit/</a> and of course any blog articles on ThinkTwit or recommendations greatly appreciated!
-    Version: 1.6.3
+    Version: 1.6.4
     Author: Stephen Pickett
     Author URI: http://www.thepicketts.org/
 	Text Domain: thinktwit
@@ -22,7 +22,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-	define("THINKTWIT_VERSION",				"1.6.3");
+	define("THINKTWIT_VERSION",				"1.6.5");
 	define("THINKTWIT_USERNAMES", 			"stephenpickett");
 	define("THINKTWIT_HASHTAGS", 			"");
 	define("THINKTWIT_USERNAME_SUFFIX", 	__(" said: ", 'thinktwit'));
@@ -36,6 +36,7 @@
 	define("THINKTWIT_SHOW_FOLLOW",    		1);
 	define("THINKTWIT_LINKS_NEW_WINDOW", 	1);
 	define("THINKTWIT_NO_CACHE", 			0);
+	define("THINKTWIT_LIVE_UPDATE_FREQ",	0);
 	define("THINKTWIT_USE_CURL", 			0);
 	define("THINKTWIT_DEBUG", 				0);
 	define("THINKTWIT_TIME_THIS_HAPPENED",	__("This happened ", 'thinktwit'));
@@ -118,7 +119,7 @@
 			}
 			
 			// Override the default constructor, passing the name and description
-			parent::WP_Widget("thinkTwit", $name = "ThinkTwit", $widget_ops);
+			parent::__construct("thinkTwit", $name = "ThinkTwit", $widget_ops);
 		}
 		
 		// Display the widget
@@ -143,6 +144,7 @@
 			$show_follow      = !isset($instance["show_follow"])		? THINKTWIT_SHOW_FOLLOW        : $instance["show_follow"];
 			$links_new_window = !isset($instance["links_new_window"])	? THINKTWIT_LINKS_NEW_WINDOW   : $instance["links_new_window"];
 			$no_cache         = !isset($instance["no_cache"])			? THINKTWIT_NO_CACHE           : $instance["no_cache"];
+			$live_update_freq = !isset($instance["live_update_freq"])	? THINKTWIT_LIVE_UPDATE_FREQ   : $instance["live_update_freq"];
 			$use_curl         = !isset($instance["use_curl"])			? THINKTWIT_USE_CURL           : $instance["use_curl"];
 			$debug            = !isset($instance["debug"])				? THINKTWIT_DEBUG              : $instance["debug"];
 			
@@ -170,7 +172,7 @@
 			// If the user selected to not cache the widget then output AJAX method
 			if ($no_cache) { 
 				echo ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $hashtag_filter, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, 
-				  $links_new_window, $no_cache, $use_curl, $debug, $time_settings);
+				  $links_new_window, $no_cache, $live_update_freq, $use_curl, $debug, $time_settings);
 			// Otherwise output HTML method
 			} else {
 				echo ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $hashtag_filter, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, 
@@ -200,6 +202,7 @@
 			$instance["show_follow"]        = strip_tags($new_instance["show_follow"]);
 			$instance["links_new_window"]   = strip_tags($new_instance["links_new_window"]);
 			$instance["no_cache"]           = strip_tags($new_instance["no_cache"]);
+			$instance["live_update_freq"]   = strip_tags($new_instance["live_update_freq"]);
 			$instance["use_curl"]           = strip_tags($new_instance["use_curl"]);
 			$instance["debug"]              = strip_tags($new_instance["debug"]);
 			$instance["time_this_happened"] = strip_tags($new_instance["time_this_happened"]);
@@ -234,6 +237,7 @@
 							  "show_follow"        => THINKTWIT_SHOW_FOLLOW,
 							  "links_new_window"   => THINKTWIT_LINKS_NEW_WINDOW,
 							  "no_cache"           => THINKTWIT_NO_CACHE,
+							  "live_update_freq"   => THINKTWIT_LIVE_UPDATE_FREQ,
 							  "use_curl"           => THINKTWIT_USE_CURL,
 							  "debug"              => THINKTWIT_DEBUG,
 							  "time_this_happened" => THINKTWIT_TIME_THIS_HAPPENED,
@@ -329,6 +333,9 @@
 						<option value="0" <?php if ($instance["no_cache"] == 0) echo "selected=\"selected\""; ?>><?php _e("No", 'thinktwit'); ?></option>
 					</select></label></p>
 
+					<!-- LIVE UPDATE FREQUENCY -->
+					<p><label for="<?php echo $this->get_field_id("live_update_freq"); ?>"><?php _e("Live update frequency (in seconds, set to zero to turn off):", 'thinktwit'); ?> <input class="widefat" id="<?php echo $this->get_field_id("live_update_freq"); ?>" name="<?php echo $this->get_field_name("live_update_freq"); ?>" type="text" value="<?php echo $instance['live_update_freq']; ?>" /></label></p>
+
 					<!-- USE CURL -->
 					<p><label for="<?php echo $this->get_field_id("use_curl"); ?>"><?php _e("Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):", 'thinktwit'); ?> <select id="<?php echo $this->get_field_id("use_curl"); ?>" name="<?php echo $this->get_field_name("use_curl"); ?>" class="widefat">
 						<option value="1" <?php if ($instance["use_curl"] == 1) echo "selected=\"selected\""; ?>><?php _e("Yes", 'thinktwit'); ?></option>
@@ -390,15 +397,24 @@
 			<p><a id="widget-thinktwit-<?php $id = explode("-", $this->get_field_id("widget_id")); echo $id[2]; ?>-reset_settings" href="#"><?php _e("Reset Settings", 'thinktwit'); ?></a></p>
 				
 			<script type="text/javascript">
-				jQuery(document).ready(function($) {
+				jQuery(document).ready(function($) {					
 					// Add accordion functionality
-					$('div[id$="thinktwit-<?php echo $id[2]; ?>"] .accordion .head').click(function() {
+					$("div[id$='thinktwit-<?php echo $id[2]; ?>'] .accordion .head").click(function() {
 						$(this).next().toggle('slow');
 						return false;
 					}).next().hide();
 					
-					// When reset_settings loads add the onclick function
-					$("#widget-thinktwit-<?php echo $id[2]; ?>-reset_settings").live("click", function() {					  
+					// When no_cache changes
+					$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").change(function() {
+						// Set live_update_cache readonly based upon current value of no_cache
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-live_update_freq").prop("readonly",!($("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").val() == 1));
+					});
+					
+					// Set live_update_cache readonly based upon current value of no_cache
+					$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").trigger('change');
+					
+					// Add the onclick function to reset_settings
+					$("#widget-thinktwit-<?php echo $id[2]; ?>-reset_settings").live("click", function() {		  
 						// Reset all of the values to their default
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-usernames").val("<?php echo THINKTWIT_USERNAMES; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-hashtags").val("<?php echo THINKTWIT_HASHTAGS; ?>");
@@ -408,13 +424,14 @@
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-max_days").val("<?php echo THINKTWIT_MAX_DAYS; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-update_frequency").val("<?php echo THINKTWIT_UPDATE_FREQUENCY; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_username").val("<?php echo THINKTWIT_SHOW_USERNAME; ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_avatar").val("<?php echo (THINKTWIT_SHOW_AVATAR ? __("Yes", 'thinktwit') : __("No", 'thinktwit')); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_published").val("<?php echo (THINKTWIT_SHOW_PUBLISHED ? __("Yes", 'thinktwit') : __("No", 'thinktwit')); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_follow").val("<?php echo (THINKTWIT_SHOW_FOLLOW ? __("Yes", 'thinktwit') : __("No", 'thinktwit')); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-links_new_window").val("<?php echo (THINKTWIT_LINKS_NEW_WINDOW ? __("Yes", 'thinktwit') : __("No", 'thinktwit')); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").val("<?php echo (THINKTWIT_NO_CACHE ? __("Yes", 'thinktwit') : __("No", 'thinktwit')); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-use_curl").val("<?php echo (THINKTWIT_USE_CURL ? __("Yes", 'thinktwit') : __("No", 'thinktwit')); ?>");
-						$("#widget-thinktwit-<?php echo $id[2]; ?>-debug").val("<?php echo (THINKTWIT_DEBUG ? __("Yes", 'thinktwit') : __("No", 'thinktwit')); ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_avatar").val("<?php echo THINKTWIT_SHOW_AVATAR; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_published").val("<?php echo THINKTWIT_SHOW_PUBLISHED; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-show_follow").val("<?php echo THINKTWIT_SHOW_FOLLOW; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-links_new_window").val("<?php echo THINKTWIT_LINKS_NEW_WINDOW; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").val("<?php echo THINKTWIT_NO_CACHE; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-live_update_freq").val("<?php echo THINKTWIT_LIVE_UPDATE_FREQ; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-use_curl").val("<?php echo THINKTWIT_USE_CURL; ?>");
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-debug").val("<?php echo THINKTWIT_DEBUG; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_this_happened").val("<?php echo THINKTWIT_TIME_THIS_HAPPENED; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_less_min").val("<?php echo THINKTWIT_TIME_LESS_MIN; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_min").val("<?php echo THINKTWIT_TIME_MIN; ?>");
@@ -426,6 +443,9 @@
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_2_days").val("<?php echo THINKTWIT_TIME_2_DAYS; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_many_days").val("<?php echo THINKTWIT_TIME_MANY_DAYS; ?>");
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-time_no_recent").val("<?php echo THINKTWIT_TIME_NO_RECENT; ?>");
+						
+						// Set live_update_cache readonly based upon current value of no_cache
+						$("#widget-thinktwit-<?php echo $id[2]; ?>-no_cache").trigger('change');
 						
 						// Focus on the usernames
 						$("#widget-thinktwit-<?php echo $id[2]; ?>-usernames").focus();
@@ -623,7 +643,7 @@
 								};
 
 								// Make the request
-								$.post(ajaxurl, data, function(response) {
+								$.post(\"" . admin_url("admin-ajax.php") . "\", data, function(response) {
 									// Empty cache names
 									$('#cache_names').empty();
 									
@@ -1589,11 +1609,11 @@
 		
 		// Outputs the AJAX code to handle no-caching
 		public static function output_ajax($widget_id, $usernames, $hashtags, $hashtag_filter, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, 
-		  $links_new_window, $no_cache, $use_curl, $debug, $time_settings) {
+		  $links_new_window, $no_cache, $live_update_freq, $use_curl, $debug, $time_settings) {
 			return 
 				"<script type=\"text/javascript\">
-					jQuery(document).ready(function($) {
-						var ajaxurl = 'wp-admin/admin-ajax.php';
+					// Create a function to load the required tweets
+					function load_tweets($) {
 						var data = {
 							action						  : \"parse_feed\",
 							thinktwit_widget_id           : \"" . $widget_id         . "\",
@@ -1610,6 +1630,7 @@
 							thinktwit_show_follow         : \"" . $show_follow       . "\",
 							thinktwit_links_new_window    : \"" . $links_new_window  . "\",
 							thinktwit_no_cache            : \"" . $no_cache          . "\",
+							thinktwit_live_update_freq    : \"" . $live_update_freq  . "\",
 							thinktwit_use_curl            : \"" . $use_curl          . "\",
 							thinktwit_debug               : \"" . $debug             . "\",
 							thinktwit_time_this_happened  : \"" . $time_settings[0]  . "\",
@@ -1626,17 +1647,30 @@
 						};
 
 						// Make the request
-						$.post(ajaxurl, data, function(response) {
+						jQuery.post(\"" . admin_url("admin-ajax.php") . "\", data, function(response) {
 							// The server has finished executing PHP and has returned something, so display it!
 							if (response != \"error\") {
+								// Remove any existing elements to ensure the automatic refresh overwrites existing elements
+								jQuery(\"#" . $widget_id . " .thinkTwitTweets\").remove();
+								jQuery(\"#" . $widget_id . " .thinkTwitFollow\").remove();
+								jQuery(\"#" . $widget_id . " .thinkTwitError\").remove();
+								
 								// Output the response
-								$(\"#" . $widget_id . "\").append(response);
+								jQuery(\"#" . $widget_id . "\").append(response);
 							} else {
 								// Output an error
-								$(\"#" . $widget_id . "\").append('<p class=\"thinkTwitError\">" . __("Error: Unable to display tweets.", 'thinktwit') . "</p>');
+								jQuery(\"#" . $widget_id . "\").append('<p class=\"thinkTwitError\">" . __("Error: Unable to display tweets.", 'thinktwit') . "</p>');
 							}
 						});
-					});
+					}
+					
+					// On page load call the load_tweets function
+					jQuery(document).ready(load_tweets);
+					
+					// Then call the function every 10 seconds
+					if ($live_update_freq > 0) {
+						setInterval(jQuery.proxy(load_tweets, null), ($live_update_freq * 1000));
+					}
 				</script>";
 		}
 		
@@ -1684,6 +1718,9 @@
 			
 			if (!isset($args["no_cache"]))
 				$args["no_cache"] = THINKTWIT_NO_CACHE;
+			
+			if (!isset($args["live_update_freq"]))
+				$args["live_update_freq"] = THINKTWIT_LIVE_UPDATE_FREQ;
 			
 			if (!isset($args["use_curl"]))
 				$args["use_curl"] = THINKTWIT_USE_CURL;
@@ -1743,7 +1780,7 @@
 			if ($args["no_cache"]) { 
 				return "<div id=\"" . $args["widget_id"] . "\">" . ThinkTwit::output_ajax($args["widget_id"], $args["usernames"], $args["hashtags"], $args["hashtag_filter"], $args["username_suffix"], 
 				  $args["limit"], $args["max_days"], $args["update_frequency"], $args["show_username"], $args["show_avatar"], $args["show_published"], $args["show_follow"], $args["links_new_window"], 
-				  $args["no_cache"], $args["use_curl"], $args["debug"], $time_settings) . "</div>";
+				  $args["no_cache"], $args["live_update_freq"], $args["use_curl"], $args["debug"], $time_settings) . "</div>";
 			// Otherwise output HTML method
 			} else {
 				return ThinkTwit::parse_feed($args["widget_id"], $args["usernames"], $args["hashtags"], $args["hashtag_filter"], $args["username_suffix"], $args["limit"], $args["max_days"], 
@@ -1858,6 +1895,7 @@
 				$output .= "<p><b>" . __("Show 'Follow @username' links:", 'thinktwit') . "</b> " . ($show_follow ? __("Yes", 'thinktwit') : __("No", 'thinktwit')) . "</p>";
 				$output .= "<p><b>" . __("Open links in new window:", 'thinktwit') . "</b> " . ($links_new_window ? __("Yes", 'thinktwit') : __("No", 'thinktwit')) . "</p>";
 				$output .= "<p><b>" . __("Prevent caching e.g. by WP Super Cache:", 'thinktwit') . "</b> " . ($no_cache ? __("Yes", 'thinktwit') : __("No", 'thinktwit')) . "</p>";
+				$output .= "<p><b>" . __("Live update frequency (in seconds, set to zero to turn off):", 'thinktwit') . "</b> " . $live_update_freq . "</p>";
 				$output .= "<p><b>" . __("Use CURL for accessing Twitter API (set yes if getting `URL file-access` errors):", 'thinktwit') . "</b> " . ($use_curl ? __("Yes", 'thinktwit') : __("No", 'thinktwit')) . "</p>";
 				$output .= "<p><b>" . __("Output debug messages:", 'thinktwit') . "</b> " . ($debug ? __("Yes", 'thinktwit') : __("No", 'thinktwit')) . "</p>";		
 				$output .= "<p><b>" . __("Username URL:", 'thinktwit') . "</b> " . $username_url . "</p>";
@@ -2268,6 +2306,7 @@
 				"show_follow"        => THINKTWIT_SHOW_FOLLOW,
 				"links_new_window"   => THINKTWIT_LINKS_NEW_WINDOW,
 				"no_cache"           => THINKTWIT_NO_CACHE,
+				"live_update_freq"   => THINKTWIT_LIVE_UPDATE_FREQ,
 				"use_curl"           => THINKTWIT_USE_CURL,
 				"debug"              => THINKTWIT_DEBUG,
 				"time_this_happened" => THINKTWIT_TIME_THIS_HAPPENED,
@@ -2304,7 +2343,7 @@
 			// If user selected to use no-caching output AJAX code
 			if ($no_cache) {
 				return "<div id=\"" . $widget_id . "\">" . ThinkTwit::output_ajax($widget_id, $usernames, $hashtags, $hashtag_filter, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, 
-				  $show_published, $show_follow, $links_new_window, $no_cache, $use_curl, $debug, $time_settings) . "</div>";
+				  $show_published, $show_follow, $links_new_window, $no_cache, $live_update_freq, $use_curl, $debug, $time_settings) . "</div>";
 			// Otherwise output HTML method
 			} else {
 				return ThinkTwit::parse_feed($widget_id, $usernames, $hashtags, $hashtag_filter, $username_suffix, $limit, $max_days, $update_frequency, $show_username, $show_avatar, $show_published, $show_follow, 
